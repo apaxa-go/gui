@@ -5,22 +5,22 @@ type Window interface {
 	//Run()
 	Destroy()
 
-	Geometry() RectangleI
-	Pos() PointI
-	Size() PointI
+	Geometry() RectangleF64
+	Pos() PointF64
+	Size() PointF64
 
-	SetGeometry(RectangleI)
-	SetPos(PointI)
-	SetSize(PointI)
+	SetGeometry(RectangleF64)
+	SetPos(PointF64)
+	SetSize(PointF64)
 
 	Title() string
 	SetTitle(string)
 
 	OfflineCanvas() OfflineCanvas
-	InvalidateRegion(region RectangleI)
+	InvalidateRegion(region RectangleF64)
 	Invalidate()
 
-	RegisterDrawCallback(func(Canvas, RectangleI))
+	RegisterDrawCallback(func(Canvas, RectangleF64))
 	RegisterEventCallback(func(Event) bool)
 	RegisterResizeCallback(func())
 	RegisterOfflineCanvasCallback(func())

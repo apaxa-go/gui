@@ -13,7 +13,7 @@ import (
 
 type Window struct {
 	pointer               unsafe.Pointer
-	drawCallback          func(CanvasI, RectangleI) // TODO Rectangle is too simple
+	drawCallback          func(CanvasI, RectangleF64) // TODO Rectangle is too simple
 	eventCallback         func(EventI) bool
 	resizeCallback        func()
 	offlineCanvasCallback func()
@@ -51,34 +51,32 @@ func (w *Window) Destroy() {
 	// TODO
 }
 
-func (w *Window) Geometry() RectangleI {
+func (w *Window) Geometry() RectangleF64 {
 	r := C.GetWindowGeometry(w.pointer)
-	return (*(*RectangleF64S)(unsafe.Pointer(&r))).ToI()
+	return (*(*RectangleF64S)(unsafe.Pointer(&r))).ToF64()
 }
 
-func (w *Window) Pos() PointI {
+func (w *Window) Pos() PointF64 {
 	return w.Geometry().LT()
 }
 
-func (w *Window) Size() PointI {
+func (w *Window) Size() PointF64 {
 	return w.Geometry().GetSize()
 }
 
-func (w *Window) SetGeometry(geometry RectangleI) {
+func (w *Window) SetGeometry(geometry RectangleF64) {
 	w.SetPos(geometry.LT())
 	w.SetSize(geometry.GetSize())
 }
 
-func (w *Window) SetPos(pos PointI) {
-	posF := pos.ToF64()
-	C.SetWindowPos(w.pointer, *(*C.CGPoint)(unsafe.Pointer(&posF)))
+func (w *Window) SetPos(pos PointF64) {
+	C.SetWindowPos(w.pointer, *(*C.CGPoint)(unsafe.Pointer(&pos)))
 }
-func (w *Window) SetSize(size PointI) {
-	sizeF := size.ToF64()
-	C.SetWindowSize(w.pointer, *(*C.CGSize)(unsafe.Pointer(&sizeF)))
+func (w *Window) SetSize(size PointF64) {
+	C.SetWindowSize(w.pointer, *(*C.CGSize)(unsafe.Pointer(&size)))
 }
 
-func (w *Window) InvalidateRegion(region RectangleI) {
+func (w *Window) InvalidateRegion(region RectangleF64) {
 	regionS := region.ToF64S()
 	C.InvalidateRegion(w.pointer, *(*C.NSRect)(unsafe.Pointer(&regionS)))
 }
@@ -88,10 +86,14 @@ func (w *Window) Invalidate() {
 }
 
 func (w *Window) OfflineCanvas() OfflineCanvasI {
-	return newContext(unsafe.Pointer(C.GetWindowContext(w.pointer)), float64(C.GetWindowScaleFactor(w.pointer)))
+	return newContext(unsafe.Pointer(C.GetWindowContext(w.pointer)))
 }
 
-func (w *Window) RegisterDrawCallback(f func(CanvasI, RectangleI)) { w.drawCallback = f }
-func (w *Window) RegisterEventCallback(f func(EventI) bool)        { w.eventCallback = f }
-func (w *Window) RegisterResizeCallback(f func())                  { w.resizeCallback = f }
-func (w *Window) RegisterOfflineCanvasCallback(f func())           { w.offlineCanvasCallback = f }
+func (w *Window) ScaleFactor() float64 {
+	return float64(C.GetWindowScaleFactor(w.pointer))
+}
+
+func (w *Window) RegisterDrawCallback(f func(CanvasI, RectangleF64)) { w.drawCallback = f }
+func (w *Window) RegisterEventCallback(f func(EventI) bool)          { w.eventCallback = f }
+func (w *Window) RegisterResizeCallback(f func())                    { w.resizeCallback = f }
+func (w *Window) RegisterOfflineCanvasCallback(f func())             { w.offlineCanvasCallback = f }

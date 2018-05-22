@@ -14,26 +14,26 @@ type Label struct {
 // Empty implementations
 //
 
-func (*Label) Children() []gui.Control                        { return nil }
-func (*Label) ComputeChildHorGeometry() (lefts, rights []int) { return nil, nil }
-func (*Label) ComputeChildVerGeometry() (tops, bottoms []int) { return nil, nil }
+func (*Label) Children() []gui.Control                            { return nil }
+func (*Label) ComputeChildHorGeometry() (lefts, rights []float64) { return nil, nil }
+func (*Label) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
 //
 //
 //
 
-func (c *Label) ComputePossibleHorGeometry() (minWidth, maxWidth int) {
-	width := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font, c.fontHeight).ToI().X // TODO ToI() may cut size
+func (c *Label) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
+	width := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font, c.fontHeight).X
 	return width, width
 }
 
-func (c *Label) ComputePossibleVerGeometry() (minHeight, maxHeight int) {
-	height := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font, c.fontHeight).ToI().Y
+func (c *Label) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+	height := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font, c.fontHeight).Y
 	return height, height
 }
 
-func (c Label) Draw(canvas gui.Canvas, region gui.RectangleI) {
-	canvas.DrawTextLine(c.text, c.font, c.fontHeight, c.Geometry().LT().ToF64(), c.color)
+func (c Label) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+	canvas.DrawTextLine(c.text, c.font, c.fontHeight, c.Geometry().LT(), c.color)
 }
 
 func (c Label) ProcessEvent(gui.Event) bool { return false }

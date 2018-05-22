@@ -10,16 +10,13 @@ import "unsafe"
 // TODO C.Free each C.CString()
 
 type Context struct {
-	pointer     C.CGContextRef // TODO fix changes in files
-	scaleFactor float64
-	transforms  []TransformF64 // Stack of transforms
+	pointer    C.CGContextRef // TODO fix changes in files
+	transforms []TransformF64 // Stack of transforms
 }
 
-func newContext(rawContext unsafe.Pointer, scaleFactor float64) *Context {
-	return &Context{C.CGContextRef(rawContext), scaleFactor, nil}
+func newContext(rawContext unsafe.Pointer) *Context {
+	return &Context{C.CGContextRef(rawContext), nil}
 }
-
-func (c *Context) ScaleFactor() float64 { return c.scaleFactor }
 
 func (c *Context) ResetTransform() {
 	C.resetTransform(c.pointer)

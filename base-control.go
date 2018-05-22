@@ -1,7 +1,5 @@
 package gui
 
-import "github.com/apaxa-go/helper/mathh"
-
 // HypervisorData is a bit flags for GeometryHypervisor.
 // Example 1: it contains flag UPHG - "current control requests Update of self Possible Horizontal Geometry (minWidth & maxWidth)".
 // Example 2: it contains flag CUPHG - "at least one Child of current control requests Update of self Possible Horizontal Geometry (minWidth & maxWidth)".
@@ -26,9 +24,9 @@ const HypervisorDataNil HypervisorData = 0
 type BaseControl struct {
 	window         *Window
 	parent         Control
-	minSize        PointI
-	maxSize        PointI
-	geometry       RectangleI
+	minSize        PointF64
+	maxSize        PointF64
+	geometry       RectangleF64
 	hypervisorData HypervisorData
 }
 
@@ -54,42 +52,42 @@ func (c *BaseControl) SetParent(parent Control) {
 	}
 }
 
-func (c BaseControl) MinWidth() int  { return c.minSize.X }
-func (c BaseControl) MaxWidth() int  { return c.maxSize.X }
-func (c BaseControl) MinHeight() int { return c.minSize.Y }
-func (c BaseControl) MaxHeight() int { return c.maxSize.Y }
+func (c BaseControl) MinWidth() float64  { return c.minSize.X }
+func (c BaseControl) MaxWidth() float64  { return c.maxSize.X }
+func (c BaseControl) MinHeight() float64 { return c.minSize.Y }
+func (c BaseControl) MaxHeight() float64 { return c.maxSize.Y }
 
-func (c *BaseControl) setPossibleHorGeometry(minWidth, maxWidth int) (changed bool) {
-	maxWidth = mathh.Max2Int(minWidth, maxWidth)
+func (c *BaseControl) setPossibleHorGeometry(minWidth, maxWidth float64) (changed bool) {
+	maxWidth = Max2Float64(minWidth, maxWidth)
 	changed = c.minSize.X != minWidth || c.maxSize.X != maxWidth
 	c.minSize.X = minWidth
 	c.maxSize.X = maxWidth
 	return
 }
 
-func (c *BaseControl) setPossibleVerGeometry(minHeight, maxHeight int) (changed bool) {
-	maxHeight = mathh.Max2Int(minHeight, maxHeight)
+func (c *BaseControl) setPossibleVerGeometry(minHeight, maxHeight float64) (changed bool) {
+	maxHeight = Max2Float64(minHeight, maxHeight)
 	changed = c.minSize.Y != minHeight || c.maxSize.Y != maxHeight
 	c.minSize.Y = minHeight
 	c.maxSize.Y = maxHeight
 	return
 }
 
-func (c *BaseControl) setHorGeometry(left, right int) (changed bool) {
+func (c *BaseControl) setHorGeometry(left, right float64) (changed bool) {
 	changed = c.geometry.Left != left || c.geometry.Right != right
 	c.geometry.Left = left
 	c.geometry.Right = right
 	return
 }
 
-func (c *BaseControl) setVerGeometry(top, bottom int) (changed bool) {
+func (c *BaseControl) setVerGeometry(top, bottom float64) (changed bool) {
 	changed = c.geometry.Top != top || c.geometry.Bottom != bottom
 	c.geometry.Top = top
 	c.geometry.Bottom = bottom
 	return
 }
 
-func (c *BaseControl) Geometry() RectangleI {
+func (c *BaseControl) Geometry() RectangleF64 {
 	return c.geometry
 }
 

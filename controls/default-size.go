@@ -1,7 +1,14 @@
 package controls
 
-import "github.com/apaxa-go/gui"
+const (
+	BorderWidth  = 1
+	FontHeight   = 12
+	VerPadding   = 3
+	HorPadding   = 3
+	BorderRadius = 3
+)
 
+/*
 const (
 	LineWidthShift      = -0.25
 	MinLineWidth        = 1
@@ -57,6 +64,6 @@ func HorPaddingI(scale float64) int {
 func BorderRadius(scale float64) float64 {
 	return scale * DefaultBorderRadius
 }
-
+*/
 // primaryHeight float64 // 20
 // smallHeight   float64 // 14 (but should we still paint them in primaryHeight (in the middle, or + 1 additional offset from top)? )

@@ -2,7 +2,6 @@ package controls
 
 import (
 	"github.com/apaxa-go/gui"
-	"github.com/apaxa-go/helper/mathh"
 )
 
 type Button struct {
@@ -12,40 +11,33 @@ type Button struct {
 
 func (c *Button) Children() []gui.Control { return []gui.Control{c.label} }
 
-func (c *Button) ComputePossibleHorGeometry() (minWidth, maxWidth int) {
-	scale := c.Window().OfflineCanvas().ScaleFactor()
-	minWidth = c.label.MinWidth() + 2*(LineWidthI(scale)+HorPaddingI(scale))
-	maxWidth = mathh.MaxInt
+func (c *Button) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
+	minWidth = c.label.MinWidth() + 2*(BorderWidth+HorPadding)
+	maxWidth = gui.PosInfF64()
 	return
 }
 
-func (c *Button) ComputePossibleVerGeometry() (minHeight, maxHeight int) {
-	scale := c.Window().OfflineCanvas().ScaleFactor()
-	height := c.label.MinHeight() + 2*(LineWidthI(scale)+VerPaddingI(scale))
+func (c *Button) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+	height := c.label.MinHeight() + 2*(BorderWidth+VerPadding)
 	return height, height
 }
 
-func (c *Button) ComputeChildHorGeometry() (lefts, rights []int) {
-	scale := c.Window().OfflineCanvas().ScaleFactor()
-	left := c.Geometry().Left + LineWidthI(scale) + HorPaddingI(scale)
-	right := c.Geometry().Right - LineWidthI(scale) - HorPaddingI(scale)
-	return []int{left}, []int{right}
+func (c *Button) ComputeChildHorGeometry() (lefts, rights []float64) {
+	left := c.Geometry().Left + BorderWidth + HorPadding
+	right := c.Geometry().Right - (BorderWidth + HorPadding)
+	return []float64{left}, []float64{right}
 }
 
-func (c *Button) ComputeChildVerGeometry() (tops, bottoms []int) {
-	scale := c.Window().OfflineCanvas().ScaleFactor()
-	top := c.Geometry().Top + LineWidthI(scale) + VerPaddingI(scale)
-	bottom := c.Geometry().Bottom - LineWidthI(scale) - VerPaddingI(scale)
-	return []int{top}, []int{bottom}
+func (c *Button) ComputeChildVerGeometry() (tops, bottoms []float64) {
+	top := c.Geometry().Top + BorderWidth + VerPadding
+	bottom := c.Geometry().Bottom - (BorderWidth + VerPadding)
+	return []float64{top}, []float64{bottom}
 }
 
-func (c Button) Draw(canvas gui.Canvas, region gui.RectangleI) {
-	scale := canvas.ScaleFactor()
-	lw := LineWidth(scale)
-	br := BorderRadius(scale)
-	rect := c.Geometry().ToF64().Inner(lw).ToRounded(br)
+func (c Button) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+	rect := c.Geometry().Inner(BorderWidth).ToRounded(BorderRadius)
 	canvas.FillRoundedRectangle(rect, backgroundColor)
-	canvas.DrawRoundedRectangle(rect, borderColor, lw)
+	canvas.DrawRoundedRectangle(rect, borderColor, BorderWidth)
 	c.label.Draw(canvas, region)
 }
 
@@ -55,9 +47,9 @@ func (c *Button) SetText(text string) {
 	c.label.SetText(text)
 }
 
-func NewButton(text string) *Button {
+/*func NewButton(text string) *Button {
 	label := NewLabel(text, font, DefaultFontHeight, labelColor)
 	return &Button{
 		label: label,
 	}
-}
+}*/

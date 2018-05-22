@@ -10,18 +10,18 @@ type BaseControlI interface {
 	Parent() Control
 	SetParent(Control)
 
-	MinWidth() int
-	MinHeight() int
-	MaxWidth() int
-	MaxHeight() int
+	MinWidth() float64
+	MinHeight() float64
+	MaxWidth() float64
+	MaxHeight() float64
 
-	Geometry() RectangleI
+	Geometry() RectangleF64
 
-	setPossibleHorGeometry(minWidth, maxWidth int) (changed bool)
-	setPossibleVerGeometry(minHeight, maxHeight int) (changed bool)
+	setPossibleHorGeometry(minWidth, maxWidth float64) (changed bool)
+	setPossibleVerGeometry(minHeight, maxHeight float64) (changed bool)
 
-	setHorGeometry(left, right int) (changed bool)
-	setVerGeometry(top, bottom int) (changed bool)
+	setHorGeometry(left, right float64) (changed bool)
+	setVerGeometry(top, bottom float64) (changed bool)
 
 	//
 	// GeometryHypervisor data
@@ -84,12 +84,12 @@ type Control interface {
 
 	Children() []Control
 
-	ComputePossibleHorGeometry() (minWidth, maxWidth int)
-	ComputePossibleVerGeometry() (minHeight, maxHeight int)
+	ComputePossibleHorGeometry() (minWidth, maxWidth float64)
+	ComputePossibleVerGeometry() (minHeight, maxHeight float64)
 
-	ComputeChildHorGeometry() (lefts, rights []int) // index according Children()
-	ComputeChildVerGeometry() (tops, bottoms []int) // index according Children()
+	ComputeChildHorGeometry() (lefts, rights []float64) // index according Children()
+	ComputeChildVerGeometry() (tops, bottoms []float64) // index according Children()
 
-	Draw(canvas Canvas, region RectangleI)
+	Draw(canvas Canvas, region RectangleF64)
 	ProcessEvent(Event) bool
 }

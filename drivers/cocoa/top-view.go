@@ -20,7 +20,7 @@ func CreateTopView(window *Window) (view TopViewP, ok bool) {
 }
 
 //export drawCallback
-func drawCallback(window, contextP unsafe.Pointer, rect C.CGRect, scale C.CGFloat) {
+func drawCallback(window, contextP unsafe.Pointer, rect C.CGRect) {
 	if window == nil {
 		panic("NIL window") // TODO
 		//return
@@ -30,7 +30,7 @@ func drawCallback(window, contextP unsafe.Pointer, rect C.CGRect, scale C.CGFloa
 	}
 	w := (*Window)(window)
 	if w.drawCallback != nil {
-		c := newContext(contextP, float64(scale))
-		w.drawCallback(c, (*RectangleF64S)(unsafe.Pointer(&rect)).ToI()) // TODO perform translation ".ToI()" in top-view.m according scale factor.
+		c := newContext(contextP)
+		w.drawCallback(c, (*RectangleF64S)(unsafe.Pointer(&rect)).ToF64())
 	}
 }

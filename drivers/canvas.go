@@ -2,7 +2,6 @@ package drivers
 
 type OfflineCanvas interface {
 	TextLineGeometry(text string, font Font, fontSize float64) PointF64
-	ScaleFactor() float64
 }
 
 type Canvas interface {

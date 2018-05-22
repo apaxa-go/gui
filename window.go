@@ -34,7 +34,7 @@ func (w *Window) adjustSize() {
 	}
 }
 
-func (w *Window) invalidateRegion(region RectangleI) {
+func (w *Window) invalidateRegion(region RectangleF64) {
 	w.driverWindow.InvalidateRegion(region)
 }
 
@@ -56,7 +56,7 @@ func (w *Window) OfflineCanvas() OfflineCanvas { return w.driverWindow.OfflineCa
 // BaseControlI overrides
 //
 
-func (w *Window) setPossibleHorGeometry(minWidth, maxWidth int) (changed bool) {
+func (w *Window) setPossibleHorGeometry(minWidth, maxWidth float64) (changed bool) {
 	changed = w.BaseControl.setPossibleHorGeometry(minWidth, maxWidth)
 	if !changed {
 		return
@@ -71,7 +71,7 @@ func (w *Window) setPossibleHorGeometry(minWidth, maxWidth int) (changed bool) {
 	return
 }
 
-func (w *Window) setPossibleVerGeometry(minHeight, maxHeight int) (changed bool) {
+func (w *Window) setPossibleVerGeometry(minHeight, maxHeight float64) (changed bool) {
 	changed = w.BaseControl.setPossibleVerGeometry(minHeight, maxHeight)
 	if !changed {
 		return
@@ -101,35 +101,35 @@ func (w *Window) Children() []Control {
 	return []Control{w.child}
 }
 
-func (w *Window) ComputePossibleHorGeometry() (minWidth, maxWidth int) {
+func (w *Window) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 	if w.child == nil {
 		return 100, 100
 	}
 	return w.child.MinWidth(), w.child.MaxWidth()
 }
 
-func (w *Window) ComputePossibleVerGeometry() (minHeight, maxHeight int) {
+func (w *Window) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 	if w.child == nil {
 		return 100, 100
 	}
 	return w.child.MinHeight(), w.child.MaxHeight()
 }
 
-func (w *Window) ComputeChildHorGeometry() (lefts, rights []int) {
+func (w *Window) ComputeChildHorGeometry() (lefts, rights []float64) {
 	if w.child == nil {
 		return nil, nil
 	}
-	return []int{0}, []int{w.Geometry().Width()}
+	return []float64{0}, []float64{w.Geometry().Width()}
 }
-func (w *Window) ComputeChildVerGeometry() (tops, bottoms []int) {
+func (w *Window) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	if w.child == nil {
 		return nil, nil
 	}
-	return []int{0}, []int{w.Geometry().Height()}
+	return []float64{0}, []float64{w.Geometry().Height()}
 }
 
 // TODO may remove this method?
-func (w *Window) Draw(canvas Canvas, region RectangleI) {
+func (w *Window) Draw(canvas Canvas, region RectangleF64) {
 	if w.child != nil {
 		w.child.Draw(canvas, region)
 	}

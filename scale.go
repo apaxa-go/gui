@@ -82,7 +82,7 @@ func roundF64ToI(x float64) int {
 
 func RoundF64ToI(x float64) int {
 	switch x {
-	case 0, NegativeZeroF64(), math.NaN(), math.Inf(0), math.Inf(-1):
+	case 0, NegativeZeroF64(), math.NaN(), PosInfF64(), NegInfF64():
 		return 0
 	}
 	return roundF64ToI(x)
@@ -92,8 +92,11 @@ func RoundExtF64ToI(x float64) (r int, ok bool) {
 	switch x {
 	case 0, NegativeZeroF64():
 		return 0, true
-	case math.NaN(), math.Inf(0), math.Inf(-1):
+	case math.NaN(), PosInfF64(), NegInfF64():
 		return 0, false
 	}
 	return roundF64ToI(x), true
 }
+
+func PosInfF64() float64 { return math.Inf(0) }
+func NegInfF64() float64 { return math.Inf(-1) }

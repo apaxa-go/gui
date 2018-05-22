@@ -10,7 +10,7 @@ type HTable struct {
 	children []gui.Control
 }
 
-func (c *HTable) ComputePossibleHorGeometry() (minWidth, maxWidth int) {
+func (c *HTable) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 	for _, child := range c.children {
 		minWidth += child.MinWidth()
 		maxWidth += child.MaxWidth()
@@ -18,19 +18,19 @@ func (c *HTable) ComputePossibleHorGeometry() (minWidth, maxWidth int) {
 	return
 }
 
-func (c *HTable) ComputePossibleVerGeometry() (minHeight, maxHeight int) {
+func (c *HTable) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 	if len(c.children) > 0 {
 		maxHeight = mathh.MaxInt
 		for _, child := range c.children {
-			minHeight = mathh.Max2Int(minHeight, child.MinWidth())
-			maxHeight = mathh.Min2Int(maxHeight, child.MaxWidth())
+			minHeight = gui.Max2Float64(minHeight, child.MinWidth())
+			maxHeight = gui.Max2Float64(maxHeight, child.MaxWidth())
 		}
-		maxHeight = mathh.Max2Int(minHeight, maxHeight)
+		maxHeight = gui.Max2Float64(minHeight, maxHeight)
 	}
 	return
 }
 
-func (c *HTable) Draw(canvas gui.Canvas, region gui.RectangleI) {
+func (c *HTable) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	for _, child := range c.children {
 		// TODO draw only required children
 		child.Draw(canvas, region)
@@ -42,10 +42,10 @@ func (c *HTable) ProcessEvent(gui.Event) bool {
 	return false
 }
 
-func (c *HTable) ComputeChildHorGeometry() (lefts, rights []int) {
+func (c *HTable) ComputeChildHorGeometry() (lefts, rights []float64) {
 	l := len(c.children)
-	lefts = make([]int, l)
-	rights = make([]int, l)
+	lefts = make([]float64, l)
+	rights = make([]float64, l)
 
 	left := c.Geometry().Left
 	width := c.Geometry().Width()
@@ -64,10 +64,10 @@ func (c *HTable) ComputeChildHorGeometry() (lefts, rights []int) {
 	return
 }
 
-func (c *HTable) ComputeChildVerGeometry() (tops, bottoms []int) {
+func (c *HTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	l := len(c.children)
-	tops = make([]int, l)
-	bottoms = make([]int, l)
+	tops = make([]float64, l)
+	bottoms = make([]float64, l)
 	top := c.Geometry().Top
 	bottom := c.Geometry().Bottom
 	for i := 0; i < l; i++ {
