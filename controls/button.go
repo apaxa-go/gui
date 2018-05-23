@@ -47,9 +47,9 @@ func (c *Button) SetText(text string) {
 	c.label.SetText(text)
 }
 
-/*func NewButton(text string) *Button {
-	label := NewLabel(text, font, DefaultFontHeight, labelColor)
+func NewButton(text string) *Button {
+	label := NewLabel(text, nil, labelColor)
 	return &Button{
 		label: label,
 	}
-}*/
+}

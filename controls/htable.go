@@ -85,7 +85,7 @@ func (c *HTable) Insert(control gui.Control, at int) {
 	} else if at > len(c.children) {
 		at = len(c.children)
 	}
-	control.SetParent(c)
+	gui.SetParent(control, c)
 	c.children = append(append(c.children[:at], control), c.children[at:]...)
 	c.SetUPG(false)
 	{
@@ -113,7 +113,7 @@ func (c *HTable) Remove(i int) gui.Control {
 		i = len(c.children) - 1
 	}
 	control := c.children[i]
-	control.SetParent(nil)
+	gui.SetParent(control, nil)
 	c.children = append(c.children[:i], c.children[i+1:]...)
 	c.SetUPG(false)
 	return control

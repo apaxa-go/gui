@@ -30,7 +30,32 @@ type BaseControl struct {
 	hypervisorData HypervisorData
 }
 
+func SetParent(control, parent Control) {
+	var parentWindow *Window
+	if parent != nil {
+		parentWindow = parent.Window()
+	}
+
+	control.setParent(parent)
+
+	if parentWindow != control.Window() {
+		setWindow(control, parentWindow)
+	}
+}
+func setWindow(control Control, window *Window) {
+	control.setWindow(window)
+	for _, child := range control.Children() {
+		setWindow(child, window)
+	}
+}
+
 func (c *BaseControl) Window() *Window { return c.window }
+
+// Do not call this method directly - use SetParent function.
+func (c *BaseControl) setWindow(window *Window) {
+	c.window = window
+}
+
 func (c *BaseControl) GeometryHypervisorPause() {
 	if c.window != nil {
 		c.window.geometryHypervisorPause()
@@ -43,13 +68,9 @@ func (c *BaseControl) GeometryHypervisorResume() {
 }
 func (c BaseControl) Parent() Control { return c.parent }
 
-func (c *BaseControl) SetParent(parent Control) {
+// Do not call this method directly - use SetParent function.
+func (c *BaseControl) setParent(parent Control) {
 	c.parent = parent
-	if parent == nil {
-		c.window = nil
-	} else {
-		c.window = parent.Window()
-	}
 }
 
 func (c BaseControl) MinWidth() float64  { return c.minSize.X }

@@ -4,16 +4,18 @@ package gui
 // Any Control implementation must include BaseControl.
 type BaseControlI interface {
 	Window() *Window
-	GeometryHypervisorPause()
-	GeometryHypervisorResume()
+	setWindow(*Window)
 
 	Parent() Control
-	SetParent(Control)
+	setParent(Control)
 
 	MinWidth() float64
 	MinHeight() float64
 	MaxWidth() float64
 	MaxHeight() float64
+
+	GeometryHypervisorPause()
+	GeometryHypervisorResume()
 
 	Geometry() RectangleF64
 

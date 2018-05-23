@@ -4,10 +4,9 @@ import "github.com/apaxa-go/gui"
 
 type Label struct {
 	gui.BaseControl
-	text       string
-	font       gui.Font
-	fontHeight float64
-	color      gui.ColorF64
+	text  string
+	font  gui.Font
+	color gui.ColorF64
 }
 
 //
@@ -23,17 +22,17 @@ func (*Label) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, 
 //
 
 func (c *Label) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
-	width := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font, c.fontHeight).X
+	width := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font).X
 	return width, width
 }
 
 func (c *Label) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
-	height := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font, c.fontHeight).Y
+	height := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font).Y
 	return height, height
 }
 
 func (c Label) Draw(canvas gui.Canvas, region gui.RectangleF64) {
-	canvas.DrawTextLine(c.text, c.font, c.fontHeight, c.Geometry().LT(), c.color)
+	canvas.DrawTextLine(c.text, c.font, c.Geometry().LT(), c.color)
 }
 
 func (c Label) ProcessEvent(gui.Event) bool { return false }
@@ -54,14 +53,6 @@ func (c *Label) SetFont(font gui.Font) {
 	c.SetUPGIR(false)
 }
 
-func (c *Label) SetFontHeight(fontHeight float64) {
-	if c.fontHeight == fontHeight {
-		return
-	}
-	c.fontHeight = fontHeight
-	c.SetUPGIR(false)
-}
-
 func (c *Label) SetColor(color gui.ColorF64) {
 	if c.color == color {
 		return
@@ -70,11 +61,10 @@ func (c *Label) SetColor(color gui.ColorF64) {
 	c.SetIR()
 }
 
-func NewLabel(text string, font gui.Font, fontHeight float64, color gui.ColorF64) *Label {
+func NewLabel(text string, font gui.Font, color gui.ColorF64) *Label {
 	return &Label{
-		text:       text,
-		font:       font,
-		fontHeight: fontHeight,
-		color:      color,
+		text:  text,
+		font:  font,
+		color: color,
 	}
 }

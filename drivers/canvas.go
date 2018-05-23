@@ -1,7 +1,7 @@
 package drivers
 
 type OfflineCanvas interface {
-	TextLineGeometry(text string, font Font, fontSize float64) PointF64
+	TextLineGeometry(text string, font Font) PointF64
 }
 
 type Canvas interface {
@@ -20,5 +20,5 @@ type Canvas interface {
 	FillEllipse(ellipse EllipseF64, color ColorF64)
 	FillCircle(circle CircleF64, color ColorF64)
 
-	DrawTextLine(text string, font Font, fontSize float64, pos PointF64, color ColorF64)
+	DrawTextLine(text string, font Font, pos PointF64, color ColorF64)
 }

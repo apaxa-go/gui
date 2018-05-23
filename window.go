@@ -20,10 +20,10 @@ func (w *Window) SetTitle(title string) { w.driverWindow.SetTitle(title) }
 func (w *Window) Child() Control        { return w.child }
 func (w *Window) SetChild(child Control) {
 	if w.child != nil {
-		w.child.SetParent(nil)
+		SetParent(w.child, nil)
 	}
 	w.child = child
-	w.child.SetParent(w)
+	SetParent(w.child, w)
 	w.SetUPG(true)
 }
 
@@ -156,20 +156,18 @@ func (w *Window) baseInit() {
 	w.SetUPGIR(false)
 }
 
-func NewEmptyWindow(dw DriverWindow) *Window {
+func NewWindow() *Window {
 	var w Window
-	w.driverWindow = dw
+	w.driverWindow = driverWindowConstructor()
 	w.baseInit()
 	return &w
 }
 
-func NewWindow(dw DriverWindow, title string, child Control) *Window {
+func NewWindowAdvanced(dw DriverWindow) *Window {
 	var w Window
 	w.driverWindow = dw
 	w.GeometryHypervisorPause()
 	w.baseInit()
-	w.SetTitle(title)
-	w.SetChild(child)
 	w.GeometryHypervisorResume()
 	return &w
 }

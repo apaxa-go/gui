@@ -202,7 +202,7 @@ func (c *Context) FillCircle(circle CircleF64, color ColorF64) {
 	c.FillEllipse(circle.ToEllipse(), color)
 }
 
-func (c *Context) DrawTextLine(text string, font FontI, fontSize float64, pos PointF64, color ColorF64) {
+func (c *Context) DrawTextLine(text string, font FontI, pos PointF64, color ColorF64) {
 	// TODO color
 	// TODO fontSize
 	buf := []byte(text)
@@ -215,7 +215,7 @@ func (c *Context) DrawTextLine(text string, font FontI, fontSize float64, pos Po
 	)
 }
 
-func (c *Context) TextLineGeometry(text string, font FontI, fontSize float64) PointF64 {
+func (c *Context) TextLineGeometry(text string, font FontI) PointF64 {
 	// TODO fontSize
 	buf := []byte(text)
 	rect := C.GetTextLineGeometry(

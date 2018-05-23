@@ -19,12 +19,12 @@ type Window struct {
 	offlineCanvasCallback func()
 }
 
-func CreateWindow(width, height int) (window *Window, err error) {
+func CreateWindow() (window *Window, err error) {
 	// We need initialize Window "in C memory" because we pass pointer to Window to top view (for long live).
 	// If we do not do this Go GC can move Window to other location and applications crashes (at random moment).
 	window = (*Window)(C.calloc(1, C.size_t(unsafe.Sizeof(Window{}))))
 
-	window.pointer = C.CreateWindow(C.int(0), C.int(0), C.int(width), C.int(height)) // TODO 0 0
+	window.pointer = C.CreateWindow(C.int(0), C.int(0), 0, 0)
 	if err != nil {
 		return
 	}
@@ -44,7 +44,7 @@ func (w *Window) Title() string {
 }
 
 func (w *Window) SetTitle(title string) {
-	C.SetWindowTitle(w.pointer, C.CString(title))
+	C.SetWindowTitle(w.pointer, C.CString(title)) // TODO do not use CString if possible in any place!!!
 }
 
 func (w *Window) Destroy() {
