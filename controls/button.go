@@ -38,6 +38,7 @@ func (c Button) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	rect := c.Geometry().Inner(BorderWidth).ToRounded(BorderRadius)
 	canvas.FillRoundedRectangle(rect, backgroundColor)
 	canvas.DrawRoundedRectangle(rect, borderColor, BorderWidth)
+	canvas.DrawLine(c.Geometry().LT(), c.Geometry().LT().Add(gui.PointF64{10, 10}), labelColor, BorderWidth*3) // TODO remove this debug
 	c.label.Draw(canvas, region)
 }
 
@@ -48,8 +49,9 @@ func (c *Button) SetText(text string) {
 }
 
 func NewButton(text string) *Button {
-	label := NewLabel(text, nil, labelColor)
-	return &Button{
-		label: label,
+	r := &Button{
+		label: NewLabel(text, defaultFont, labelColor),
 	}
+	gui.SetParent(r.label, r)
+	return r
 }

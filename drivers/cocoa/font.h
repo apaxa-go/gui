@@ -1,6 +1,8 @@
 #import <CoreText/CoreText.h>
 #include "common.h"
 
+const CGAffineTransform flipped = (CGAffineTransform){1,0,0,-1,0,0};
+
 // Translate font-spec italic ([0;1], non-italic 0, italic 1) to core text boolean italic flag.
 bool translateItalic(CGFloat i){
     return i>=0.5;
@@ -131,27 +133,55 @@ CTFontDescriptorRef makeFontDescriptor(
     CFRelease(t);
     return CTFontDescriptorCreateWithAttributes(a);
 }
-/*
-CTFontRef makeFont(const UInt8 *bytes, CFIndex numBytes, CGFloat size){
-    CFStringRef name = makeStringRef(bytes, numBytes);
-    if (name==NULL) {
-        return NULL;
-    }
 
-    CTFontDescriptorRef descriptor = CTFontDescriptorCreateWithNameAndSize(name, size);
-    if (descriptor==NULL) {
-        return NULL;
-    }
+CTFontRef makeDefaultFont(
+    CGFloat size,
 
-    CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, 0.0, NULL);
-    CFRelease(descriptor);
-    CFRelease(name);
+    bool reqMonospace,
+    bool monospace,
 
-    return font;
-}*/
+    bool reqItalic,
+    CGFloat italic,
 
-CTFontRef makeDefaultFont(CGFloat size){
-    return CTFontCreateUIFontForLanguage(kCTFontUIFontUser, size, NULL);
+    bool reqSlant,
+    CGFloat slant,
+
+    bool reqWidth,
+    CGFloat width,
+
+    bool reqWeight,
+    CGFloat weight
+){
+    CTFontRef tmp = CTFontCreateUIFontForLanguage(kCTFontUIFontUser, size, NULL);
+    CTFontDescriptorRef descriptor = makeFontDescriptor(
+        false,
+        NULL,
+        0,
+
+        false,
+        NULL,
+        0,
+
+        size,
+
+        reqMonospace,
+        monospace,
+
+        reqItalic,
+        italic,
+
+        reqSlant,
+        slant,
+
+        reqWidth,
+        width,
+
+        reqWeight,
+        weight
+    );
+    CTFontRef f = CTFontCreateCopyWithAttributes(tmp, size, &flipped, descriptor);
+    CFRelease(tmp);
+    return f;
 }
 
 CTFontRef makeFont(
@@ -211,7 +241,7 @@ CTFontRef makeFont(
         return NULL;
     }
 
-    CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, size, NULL);
+    CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, size, &flipped);
     CFRelease(descriptor);
 
     return font;
@@ -273,7 +303,7 @@ CTFontRef makeFontFromFile(
                 reqWeight,
                 weight
             );
-            CTFont = CTFontCreateWithGraphicsFont(CGFont,size,NULL,descriptor);
+            CTFont = CTFontCreateWithGraphicsFont(CGFont,size,&flipped,descriptor);
             CFRelease(descriptor);
             CFRelease(CGFont);
         }

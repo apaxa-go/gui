@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/apaxa-go/gui"
-	"github.com/apaxa-go/gui/basetypes"
 	"github.com/apaxa-go/gui/controls"
 	_ "github.com/apaxa-go/gui/drivers/cocoa"
 	"log"
@@ -17,13 +16,11 @@ func main() {
 	window := gui.NewWindow()
 	window.SetTitle("Hello world")
 
-	font := gui.NewFontDefaultFont(24, false, false, false)
-	defer font.Release()
-
-	color := basetypes.MakeColorF64RGB8(80, 80, 80)
-
-	label := controls.NewLabel("Hello world!", font, color)
-	window.SetChild(label)
+	b1 := controls.NewButton("Button 1")
+	b2 := controls.NewButton("Button 2")
+	cb := controls.NewCheckBox(false, controls.CheckBoxChecked)
+	ht := controls.NewHTable(b1, b2, cb)
+	window.SetChild(ht)
 
 	err = app.Run()
 	if err != nil {

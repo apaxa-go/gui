@@ -2,10 +2,12 @@ package controls
 
 const (
 	BorderWidth  = 1
-	FontHeight   = 12
+	FontSize     = 12
 	VerPadding   = 3
 	HorPadding   = 3
 	BorderRadius = 3
+	Height       = 2*BorderWidth + 2*VerPadding + FontSize
+	SmallHeight  = 14
 )
 
 /*

@@ -26,3 +26,7 @@ func MakeColorF32RGBA8(r, g, b, a uint8) ColorF32 {
 }
 
 func MakeColorF32RGB8(r, g, b uint8) ColorF32 { return MakeColorF32RGBA8(r, g, b, max8) }
+
+func (ColorF32) MakeFromRGBA8(r, g, b, a uint8) ColorF32 { return MakeColorF32RGBA8(r, g, b, a) }
+
+func (ColorF32) MakeFromRGB8(r, g, b uint8) ColorF32 { return MakeColorF32RGB8(r, g, b) }

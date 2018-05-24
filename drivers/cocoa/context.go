@@ -33,7 +33,7 @@ func (c *Context) PopTransform() {
 	c.transforms = c.transforms[:l]
 }
 func (c *Context) GetTransform() TransformF64 {
-	t := C.CGContextGetCTM(c.pointer) // TODO free result?
+	t := C.CGContextGetCTM(c.pointer)
 	return *(*TransformF64)(unsafe.Pointer(&t))
 }
 func (c *Context) SetTransform(transform TransformF64) {
@@ -42,11 +42,23 @@ func (c *Context) SetTransform(transform TransformF64) {
 func (c *Context) Rotate(angle float64) {
 	C.CGContextRotateCTM(c.pointer, C.CGFloat(-angle))
 }
-func (c *Context) Scale(x, y float64) {
+func (c *Context) Scale(x float64) {
+	c.ScaleXY(x, x)
+}
+func (c *Context) ScaleXY(x, y float64) {
 	C.CGContextScaleCTM(c.pointer, C.CGFloat(x), C.CGFloat(y))
 }
 func (c *Context) Translate(pos PointF64) {
 	C.CGContextTranslateCTM(c.pointer, C.CGFloat(pos.X), C.CGFloat(pos.Y))
+}
+func (c *Context) Superpose(original, required RectangleF64) {
+	scaleX := required.Width() / original.Width()
+	scaleY := required.Height() / original.Height()
+	c.ScaleXY(scaleX, scaleY)
+	var translatePos PointF64
+	translatePos.X = required.Left - scaleX*original.Left
+	translatePos.Y = required.Top - scaleY*original.Top
+	c.Translate(translatePos)
 }
 
 func (c *Context) setLineColor(color ColorF64) {

@@ -45,7 +45,24 @@ func newFontDefault(spec FontSpec) Font {
 	// TODO current implementation totally ignore all requirements
 	return Font(
 		unsafe.Pointer(
-			C.makeDefaultFont(C.CGFloat(spec.Size)),
+			C.makeDefaultFont(
+				C.CGFloat(spec.Size),
+
+				C.bool(spec.Requirements.Monospace()),
+				C.bool(spec.Monospace),
+
+				C.bool(spec.Requirements.Italic()),
+				C.CGFloat(spec.Italic),
+
+				C.bool(spec.Requirements.Slant()),
+				C.CGFloat(spec.Slant),
+
+				C.bool(spec.Requirements.Width()),
+				C.CGFloat(spec.Width),
+
+				C.bool(spec.Requirements.Weight()),
+				C.CGFloat(spec.Weight),
+			),
 		),
 	)
 }

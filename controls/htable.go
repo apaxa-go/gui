@@ -2,7 +2,6 @@ package controls
 
 import (
 	"github.com/apaxa-go/gui"
-	"github.com/apaxa-go/helper/mathh"
 )
 
 type HTable struct {
@@ -20,10 +19,10 @@ func (c *HTable) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 
 func (c *HTable) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 	if len(c.children) > 0 {
-		maxHeight = mathh.MaxInt
+		maxHeight = gui.PosInfF64()
 		for _, child := range c.children {
-			minHeight = gui.Max2Float64(minHeight, child.MinWidth())
-			maxHeight = gui.Max2Float64(maxHeight, child.MaxWidth())
+			minHeight = gui.Max2Float64(minHeight, child.MinHeight())
+			maxHeight = gui.Min2Float64(maxHeight, child.MaxHeight())
 		}
 		maxHeight = gui.Max2Float64(minHeight, maxHeight)
 	}
@@ -122,7 +121,11 @@ func (c *HTable) Remove(i int) gui.Control {
 func (c *HTable) Children() []gui.Control { return c.children }
 
 func NewHTable(children ...gui.Control) *HTable {
-	return &HTable{
+	r := &HTable{
 		children: children,
 	}
+	for _, child := range children {
+		gui.SetParent(child, r)
+	}
+	return r
 }

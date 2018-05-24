@@ -19,3 +19,7 @@ func MakeColorF64RGBA8(r, g, b, a uint8) ColorF64 {
 }
 
 func MakeColorF64RGB8(r, g, b uint8) ColorF64 { return MakeColorF64RGBA8(r, g, b, max8) }
+
+func (ColorF64) MakeFromRGBA8(r, g, b, a uint8) ColorF64 { return MakeColorF64RGBA8(r, g, b, a) }
+
+func (ColorF64) MakeFromRGB8(r, g, b uint8) ColorF64 { return MakeColorF64RGB8(r, g, b) }

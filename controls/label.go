@@ -32,6 +32,7 @@ func (c *Label) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 }
 
 func (c Label) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+	// TODO align text in geometry
 	canvas.DrawTextLine(c.text, c.font, c.Geometry().LT(), c.color)
 }
 

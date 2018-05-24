@@ -6,6 +6,18 @@ type OfflineCanvas interface {
 
 type Canvas interface {
 	OfflineCanvas
+
+	ResetTransform()
+	PushTransform()
+	PopTransform()
+	GetTransform() TransformF64
+	SetTransform(TransformF64)
+	Rotate(angle float64) // In radians. Positive values rotate clockwise and negative values rotate counter-clockwise.
+	Scale(x float64)
+	ScaleXY(x, y float64)
+	Translate(pos PointF64)                    // Move (0,0) to pos.
+	Superpose(original, required RectangleF64) // Translate & scale canvas in the way that original rectangle becomes required rectangle.
+
 	DrawLine(point1, point2 PointF64, color ColorF64, width float64)
 	DrawConnectedLines(points []PointF64, color ColorF64, width float64)
 	DrawRectangle(rectangle RectangleF64, color ColorF64, width float64)

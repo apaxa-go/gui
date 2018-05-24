@@ -69,6 +69,14 @@ func Max2Float64(a, b float64) float64 {
 	return b
 }
 
+func Min2Float64(a, b float64) float64 {
+	// TODO NaN, infinities, -+0
+	if a < b {
+		return a
+	}
+	return b
+}
+
 func RoundF64(x float64) float64 { return math.Round(x) }
 
 func NegativeZeroF64() float64 { return math.Copysign(0, -1) }

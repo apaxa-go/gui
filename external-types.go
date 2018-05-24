@@ -11,10 +11,7 @@ import (
 
 type ColorF64 = basetypes.ColorF64
 
-//type PointI = basetypes.PointI
 type PointF64 = basetypes.PointF64
-
-//type RectangleI = basetypes.RectangleI
 type RectangleF64 = basetypes.RectangleF64
 type RoundedRectangleF64 = basetypes.RoundedRectangleF64
 type EllipseF64 = basetypes.EllipseF64
@@ -33,3 +30,11 @@ type Event = drivers.Event
 type Font = drivers.Font
 type FontSpec = drivers.FontSpec
 type FontIndex = drivers.FontIndex
+
+//
+// This is only to allow controls to not import basetypes
+//
+
+/*type Align = basetypes.Align
+type AlignHor = basetypes.AlignHor
+type AlignVer = basetypes.AlignVer*/

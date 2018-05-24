@@ -138,7 +138,7 @@ func (w *Window) geometryHypervisorDoUPVGRecursive(control Control) (changed boo
 func (w *Window) geometryHypervisorDoUCVG(control Control) {
 	if control.getUCVG() {
 		children := control.Children()
-		tops, bottoms := control.ComputeChildHorGeometry()
+		tops, bottoms := control.ComputeChildVerGeometry()
 		for i, child := range children {
 			changed := child.setVerGeometry(tops[i], bottoms[i])
 			if changed {

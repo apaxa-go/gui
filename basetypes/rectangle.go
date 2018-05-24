@@ -129,3 +129,45 @@ func (r RectangleF64S) InsetXY(deltaX, deltaY float64) RectangleF64S {
 }
 func (r RectangleF64) Inner(lineWidth float64) RectangleF64   { return r.Inset(lineWidth / 2) }
 func (r RectangleF64S) Inner(lineWidth float64) RectangleF64S { return r.Inset(lineWidth / 2) }
+
+func (r RectangleF64) Align(size PointF64, how Align) RectangleF64 {
+	var res RectangleF64
+	res.Left, res.Right = alignF64(r.Left, r.Right, size.X, how.Hor())
+	res.Top, res.Bottom = alignF64(r.Top, r.Bottom, size.Y, AlignHor(how.Ver()))
+	return res
+}
+
+func (r RectangleF64S) Align(size PointF64, how Align) RectangleF64S {
+	var res RectangleF64S
+	res.Origin.X, res.Size.X = alignF64S(r.Origin.X, r.Size.X, size.X, how.Hor())
+	res.Origin.Y, res.Size.Y = alignF64S(r.Origin.Y, r.Size.Y, size.Y, AlignHor(how.Ver()))
+	return res
+}
+
+// It is possible to pas AlignVer as AlignHor.
+func alignF64(p0, p1, size float64, how AlignHor) (r0, r1 float64) {
+	switch how {
+	case AlignHorLeft:
+		return p0, p0 + size
+	case AlignHorRight:
+		return p1 - size, p1
+	case AlignHorStretch:
+		return p0, p1
+	default:
+		return (p0 + p1 - size) / 2, (p0 + p1 + size) / 2
+	}
+}
+
+// It is possible to pas AlignVer as AlignHor.
+func alignF64S(p, w, size float64, how AlignHor) (rp, rw float64) {
+	switch how {
+	case AlignHorLeft:
+		return p, size
+	case AlignHorRight:
+		return p + w - size, size
+	case AlignHorStretch:
+		return p, w
+	default:
+		return p + (w-size)/2, size
+	}
+}
