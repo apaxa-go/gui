@@ -1,10 +1,11 @@
 package main
 
 import (
+	_ "github.com/apaxa-go/gui/drivers/cocoa"
+
 	"github.com/apaxa-go/gui"
 	"github.com/apaxa-go/gui/basetypes"
 	"github.com/apaxa-go/gui/controls"
-	_ "github.com/apaxa-go/gui/drivers/cocoa"
 	"log"
 )
 

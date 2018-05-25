@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/apaxa-go/gui"
 	_ "github.com/apaxa-go/gui/drivers/cocoa"
+
+	"github.com/apaxa-go/gui"
 	"log"
 )
 

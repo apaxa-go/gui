@@ -51,11 +51,13 @@ func (c *CheckBox) ComputeChildHorGeometry() (lefts, rights []float64) { return 
 func (c *CheckBox) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
 func (c CheckBox) Draw(canvas gui.Canvas, region gui.RectangleF64) {
-	space := c.Geometry().Align(gui.PointF64{SmallHeight, SmallHeight}, basetypes.AlignCenter)
+	space := basetypes.AlignCenter.ApplyF64(c.Geometry(), gui.PointF64{SmallHeight, SmallHeight})
 	rect := space.Inner(BorderWidth).ToRounded(BorderRadius)
 	canvas.FillRoundedRectangle(rect, brightBackgroundColor)
 	canvas.DrawRoundedRectangle(rect, brightBorderColor, BorderWidth)
-	checkboxMark.Draw(canvas, space, markColor)
+	if c.state.IsChecked() { // TODO what if IsUnknown?
+		checkboxMark.Draw(canvas, space, markColor)
+	}
 }
 
 func (c CheckBox) ProcessEvent(gui.Event) bool { return false }

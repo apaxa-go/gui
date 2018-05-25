@@ -9,6 +9,9 @@ type BaseControlI interface {
 	Parent() Control
 	setParent(Control)
 
+	MinSize() PointF64
+	MaxSize() PointF64
+
 	MinWidth() float64
 	MinHeight() float64
 	MaxWidth() float64

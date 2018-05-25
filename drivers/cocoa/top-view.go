@@ -32,5 +32,6 @@ func drawCallback(window, contextP unsafe.Pointer, rect C.CGRect) {
 	if w.drawCallback != nil {
 		c := newContext(contextP)
 		w.drawCallback(c, (*RectangleF64S)(unsafe.Pointer(&rect)).ToF64())
+		//log.Println(c.GetTransform())
 	}
 }

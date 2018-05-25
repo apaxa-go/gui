@@ -35,6 +35,8 @@
     CGContextSetFillColorSpace(context,colorSpace);
     CGContextSetStrokeColorSpace(context,colorSpace);
 
+    //CGContextSetTextMatrix(context, (CGAffineTransform){1,0,0,-1,0,-100});
+
     drawCallback(self.windowP,context,frame);
 }
 @end

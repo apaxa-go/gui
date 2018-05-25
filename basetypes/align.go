@@ -1,17 +1,29 @@
 package basetypes
 
-type AlignHor uint8
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 
 const (
-	AlignHorCenter  AlignHor = 0
-	AlignHorLeft    AlignHor = 1
-	AlignHorRight   AlignHor = 2
-	AlignHorStretch          = AlignHorLeft | AlignHorRight
+	alignHorShift = 0
+	alignVerShift = alignHorShift + alignHorBits
 )
+
+//replacer:replace
+//replacer:old Hor	Ver	Left	Right
+//replacer:new Ver	Hor	Top		Bottom
 
 const (
 	alignHorBits = 2
-	alignHorMask = 1<<alignHorBits - 1
+	alignHorMask = (1<<alignHorBits - 1) << alignHorShift
+)
+
+type AlignHor uint8
+
+const (
+	AlignHorCenter  AlignHor = 0 << alignHorShift
+	AlignHorLeft    AlignHor = 1 << alignHorShift
+	AlignHorRight   AlignHor = 2 << alignHorShift
+	AlignHorStretch          = AlignHorLeft | AlignHorRight
 )
 
 func (a AlignHor) IsCenter() bool  { return a == AlignHorCenter }
@@ -31,36 +43,39 @@ func (a AlignHor) KeepSize() AlignHor {
 
 func (a AlignHor) AddVer(b AlignVer) Align { return Align(a) | Align(b) }
 
-type AlignVer uint8
+//replacer:replace
+//replacer:old Hor	Left	left	Right	right	F64	float64
+//replacer:new Hor	Left	left	Right	right	F32	float32
+//replacer:new Ver	Top		top		Bottom	bottom	F64	float64
+//replacer:new Ver	Top		top		Bottom	bottom	F32	float32
 
-const (
-	AlignVerCenter  AlignVer = 0 << alignHorBits
-	AlignVerTop     AlignVer = 1 << alignHorBits
-	AlignVerBottom  AlignVer = 2 << alignHorBits
-	AlignVerStretch          = AlignVerTop | AlignVerBottom
-)
-
-const (
-	alignVerBits = 2
-	alignVerMask = (1<<alignVerBits - 1) << alignHorBits
-)
-
-func (a AlignVer) IsCenter() bool  { return a == AlignVerCenter }
-func (a AlignVer) IsTop() bool     { return a == AlignVerTop }
-func (a AlignVer) IsBottom() bool  { return a == AlignVerBottom }
-func (a AlignVer) IsStretch() bool { return a == AlignVerStretch }
-
-func (a AlignVer) PinnedToTop() bool    { return a&AlignVerTop > 0 }
-func (a AlignVer) PinnedToBottom() bool { return a&AlignVerBottom > 0 }
-
-func (a AlignVer) KeepSize() AlignVer {
-	if a.IsStretch() {
-		return AlignVerCenter
+func (a AlignHor) ApplyF64(left, right, reqWidth float64) (Left, Right float64) {
+	switch a {
+	case AlignHorLeft:
+		return left, left + reqWidth
+	case AlignHorRight:
+		return right - reqWidth, right
+	case AlignHorStretch:
+		return left, right
+	default:
+		return (left + right - reqWidth) / 2, (left + right + reqWidth) / 2
 	}
-	return a
 }
 
-func (a AlignVer) AddHor(b AlignHor) Align { return Align(a) | Align(b) }
+func (a AlignHor) ApplyF64S(left, width, reqWidth float64) (Left, Width float64) {
+	switch a {
+	case AlignHorLeft:
+		return left, reqWidth
+	case AlignHorRight:
+		return left + width - reqWidth, reqWidth
+	case AlignHorStretch:
+		return left, width
+	default:
+		return left + (width-reqWidth)/2, reqWidth
+	}
+}
+
+//replacer:ignore
 
 type Align uint8
 
@@ -116,4 +131,20 @@ func (a Align) KeepVerSize() Align {
 		return a.Hor().AddVer(AlignVerCenter)
 	}
 	return a
+}
+
+//replacer:replace
+//replacer:old F64	float64
+//replacer:new F32	float32
+
+func (a Align) ApplyF64(place RectangleF64, reqSize PointF64) RectangleF64 {
+	place.Left, place.Right = a.Hor().ApplyF64(place.Left, place.Right, reqSize.X)
+	place.Top, place.Bottom = a.Ver().ApplyF64(place.Top, place.Bottom, reqSize.Y)
+	return place
+}
+
+func (a Align) ApplyF64S(place RectangleF64S, reqSize PointF64) RectangleF64S {
+	place.Origin.X, place.Size.X = a.Hor().ApplyF64S(place.Origin.X, place.Size.X, reqSize.X)
+	place.Origin.Y, place.Size.Y = a.Ver().ApplyF64S(place.Origin.Y, place.Size.Y, reqSize.Y)
+	return place
 }

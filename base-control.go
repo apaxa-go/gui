@@ -73,6 +73,9 @@ func (c *BaseControl) setParent(parent Control) {
 	c.parent = parent
 }
 
+func (c BaseControl) MinSize() PointF64 { return c.minSize }
+func (c BaseControl) MaxSize() PointF64 { return c.maxSize }
+
 func (c BaseControl) MinWidth() float64  { return c.minSize.X }
 func (c BaseControl) MaxWidth() float64  { return c.maxSize.X }
 func (c BaseControl) MinHeight() float64 { return c.minSize.Y }

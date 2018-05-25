@@ -10,35 +10,40 @@ import "unsafe"
 // TODO C.Free each C.CString()
 
 type Context struct {
-	pointer    C.CGContextRef // TODO fix changes in files
-	transforms []TransformF64 // Stack of transforms
+	pointer C.CGContextRef // TODO fix changes in files
+	//transforms []TransformF64 // Stack of transforms
 }
 
 func newContext(rawContext unsafe.Pointer) *Context {
-	return &Context{C.CGContextRef(rawContext), nil}
+	return &Context{C.CGContextRef(rawContext)}
 }
 
-func (c *Context) ResetTransform() {
+/*func (c *Context) ResetTransform() {
 	C.resetTransform(c.pointer)
-}
+}*/
 func (c *Context) PushTransform() {
-	c.transforms = append(c.transforms, c.GetTransform())
+	C.CGContextSaveGState(C.CGContextRef(c.pointer))
+	//c.transforms = append(c.transforms, c.GetTransform())
 }
 func (c *Context) PopTransform() {
-	l := len(c.transforms) - 1
-	if l < 0 {
-		return
-	}
-	c.SetTransform(c.transforms[l])
-	c.transforms = c.transforms[:l]
+	C.CGContextRestoreGState(C.CGContextRef(c.pointer)) // TODO this restore not just transform, but other thing too.
+	/*
+		l := len(c.transforms)
+		if l <= 0 {
+			return
+		}
+		c.SetTransform(c.transforms[l-1])
+		c.transforms = c.transforms[:l-1]
+	*/
 }
 func (c *Context) GetTransform() TransformF64 {
 	t := C.CGContextGetCTM(c.pointer)
 	return *(*TransformF64)(unsafe.Pointer(&t))
 }
-func (c *Context) SetTransform(transform TransformF64) {
+
+/*func (c *Context) SetTransform(transform TransformF64) {
 	C.CGContextConcatCTM(c.pointer, *(*C.CGAffineTransform)(unsafe.Pointer(&transform)))
-}
+}*/
 func (c *Context) Rotate(angle float64) {
 	C.CGContextRotateCTM(c.pointer, C.CGFloat(-angle))
 }

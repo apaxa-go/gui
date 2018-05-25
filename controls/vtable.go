@@ -4,80 +4,80 @@ import (
 	"github.com/apaxa-go/gui"
 )
 
-type HTable struct {
+type VTable struct {
 	gui.BaseControl
 	children []gui.Control
 }
 
-func (c *HTable) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
-	for _, child := range c.children {
-		minWidth += child.MinWidth()
-		maxWidth += child.MaxWidth()
-	}
-	return
-}
-
-func (c *HTable) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+func (c *VTable) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 	if len(c.children) > 0 {
-		maxHeight = gui.PosInfF64()
+		maxWidth = gui.PosInfF64()
 		for _, child := range c.children {
-			minHeight = gui.Max2Float64(minHeight, child.MinHeight())
-			maxHeight = gui.Min2Float64(maxHeight, child.MaxHeight())
+			minWidth = gui.Max2Float64(minWidth, child.MinWidth())
+			maxWidth = gui.Min2Float64(maxWidth, child.MaxWidth())
 		}
-		maxHeight = gui.Max2Float64(minHeight, maxHeight)
+		maxWidth = gui.Max2Float64(minWidth, maxWidth)
 	}
 	return
 }
 
-func (c *HTable) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c *VTable) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+	for _, child := range c.children {
+		minHeight += child.MinHeight()
+		maxHeight += child.MaxHeight()
+	}
+	return
+}
+
+func (c *VTable) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	for _, child := range c.children {
 		// TODO draw only required children
 		child.Draw(canvas, region)
 	}
 }
 
-func (c *HTable) ProcessEvent(gui.Event) bool {
+func (c *VTable) ProcessEvent(gui.Event) bool {
 	// TODO
 	return false
 }
 
-func (c *HTable) ComputeChildHorGeometry() (lefts, rights []float64) {
+func (c *VTable) ComputeChildHorGeometry() (lefts, rights []float64) {
 	l := len(c.children)
 	lefts = make([]float64, l)
 	rights = make([]float64, l)
-
 	left := c.Geometry().Left
-	width := c.Geometry().Width()
-	minWidth := c.MinWidth()
-	for i, child := range c.children {
-		childMinWidth := child.MinWidth()
-		curWidth := width * childMinWidth / minWidth
-		right := left + curWidth
-
+	right := c.Geometry().Right
+	for i := 0; i < l; i++ {
 		lefts[i] = left
 		rights[i] = right
-
-		left = right
-		width -= curWidth
-		minWidth -= childMinWidth
 	}
 	return
 }
 
-func (c *HTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
+func (c *VTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	l := len(c.children)
 	tops = make([]float64, l)
 	bottoms = make([]float64, l)
+
 	top := c.Geometry().Top
-	bottom := c.Geometry().Bottom
-	for i := 0; i < l; i++ {
+	height := c.Geometry().Height()
+	minHeight := c.MinHeight()
+	for i, child := range c.children {
+		childMinHeight := child.MinHeight()
+		curHeight := height * childMinHeight / minHeight
+		bottom := top + curHeight
+
 		tops[i] = top
 		bottoms[i] = bottom
+
+		top = bottom
+		height -= curHeight
+		minHeight -= childMinHeight
 	}
 	return
 }
 
-func (c *HTable) Insert(control gui.Control, at int) {
+func (c *VTable) Insert(control gui.Control, at int) {
 	// TODO what if control already assigned to some other/the same parent ?
 	// TODO control.geometry must be ={0,0,-1,-1} & min/maxSize must be ={0,-1} (for simplify Hypervisor calling)
 	if at < 0 {
@@ -98,15 +98,15 @@ func (c *HTable) Insert(control gui.Control, at int) {
 	}
 }
 
-func (c *HTable) Prepend(control gui.Control) {
+func (c *VTable) Prepend(control gui.Control) {
 	c.Insert(control, 0)
 }
 
-func (c *HTable) Append(control gui.Control) {
+func (c *VTable) Append(control gui.Control) {
 	c.Insert(control, len(c.children))
 }
 
-func (c *HTable) Remove(i int) gui.Control {
+func (c *VTable) Remove(i int) gui.Control {
 	if i < 0 {
 		i = 0
 	} else if i >= len(c.children) {
@@ -119,10 +119,10 @@ func (c *HTable) Remove(i int) gui.Control {
 	return control
 }
 
-func (c *HTable) Children() []gui.Control { return c.children }
+func (c *VTable) Children() []gui.Control { return c.children }
 
-func NewHTable(children ...gui.Control) *HTable {
-	r := &HTable{
+func NewVTable(children ...gui.Control) *VTable {
+	r := &VTable{
 		children: children,
 	}
 	for _, child := range children {

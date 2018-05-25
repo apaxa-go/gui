@@ -1,7 +1,7 @@
 #import <CoreText/CoreText.h>
 #include "common.h"
 
-const CGAffineTransform flipped = (CGAffineTransform){1,0,0,-1,0,0};
+const CGAffineTransform flipped = (CGAffineTransform){1,0,0,1,0,0};//{1,0,0,-1,0,0};
 
 // Translate font-spec italic ([0;1], non-italic 0, italic 1) to core text boolean italic flag.
 bool translateItalic(CGFloat i){
