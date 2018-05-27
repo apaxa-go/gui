@@ -9,9 +9,9 @@
 void *CreateWindow(int x, int y, int width, int height)
 {
     NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(x, y, width, height)
-                                              styleMask:NSWindowStyleMaskTitled  // TODO chack for valid deprecated NSTitledWindowMask replacement
+                                              styleMask:NSWindowStyleMaskTitled  // TODO check for valid deprecated NSTitledWindowMask replacement
                                               backing:NSBackingStoreBuffered defer:NO];
-    [window setStyleMask:NSWindowStyleMaskBorderless]; // TODO chack for valid deprecated NSBorderlessWindowMask replacement
+    [window setStyleMask:NSWindowStyleMaskBorderless]; // TODO check for valid deprecated NSBorderlessWindowMask replacement
     return window;
 }
 
