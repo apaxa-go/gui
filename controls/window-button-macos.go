@@ -77,3 +77,80 @@ func newWindowButtonMacOS(image scvi.SCVI, imageColor, backgroundColor gui.Color
 		backgroundColor: backgroundColor,
 	}
 }
+
+// "x"
+var windowButtonMacOSCloseImage = scvi.SCVI{
+	Size:       gui.PointF64{13, 13},
+	KeepAspect: true,
+	Elements: []scvi.Primitive{
+		scvi.MakeLine(
+			gui.PointF64{3.5, 3.5},
+			gui.PointF64{9.5, 9.5},
+			0.7,
+			1,
+		),
+		scvi.MakeLine(
+			gui.PointF64{3.5, 9.5},
+			gui.PointF64{9.5, 3.5},
+			0.7,
+			1,
+		),
+	},
+}
+
+// "-"
+var windowButtonMacOSHideImage = scvi.SCVI{
+	Size:       gui.PointF64{13, 13},
+	KeepAspect: true,
+	Elements: []scvi.Primitive{
+		scvi.MakeLine(
+			gui.PointF64{2, 6.5},
+			gui.PointF64{11, 6.5},
+			0.7,
+			1,
+		),
+	},
+}
+
+// "<\>"
+var windowButtonMacOSMaximizeImage = scvi.SCVI{
+	Size:       gui.PointF64{13, 13},
+	KeepAspect: true,
+	Elements: []scvi.Primitive{
+		scvi.MakeFilledContour(
+			[]gui.PointF64{{3.5, 4.5}, {3.5, 9.5}, {8.5, 9.5}},
+			1,
+			1,
+		),
+		scvi.MakeFilledContour(
+			[]gui.PointF64{{4.5, 3.5}, {9.5, 3.5}, {9.5, 8.5}},
+			1,
+			1,
+		),
+	},
+}
+
+// ">\<"
+var windowButtonMacOSDemaximizeImage = scvi.SCVI{
+	Size:       gui.PointF64{13, 13},
+	KeepAspect: true,
+	Elements: []scvi.Primitive{
+		scvi.MakeFilledContour(
+			[]gui.PointF64{{3.5, 6.5}, {6.5, 6.5}, {6.5, 9.5}},
+			1,
+			1,
+		),
+		scvi.MakeFilledContour(
+			[]gui.PointF64{{6.5, 3.5}, {6.5, 6.5}, {9.5, 6.5}},
+			1,
+			1,
+		),
+	},
+}
+
+var windowButtonMacOSImageColor = gui.ColorF64{0, 0, 0, 1}
+
+var windowButtonMacOSCloseBackgroundColor = gui.ColorF64{0.97647, 0.39216, 0.38824, 1}
+var windowButtonMacOSHideBackgroundColor = gui.ColorF64{0.99216, 0.72549, 0.35294, 1}
+var windowButtonMacOSMaximizeBackgroundColor = gui.ColorF64{0.26667, 0.74902, 0.25882, 1}
+var windowButtonMacOSDisabledBackgroundColor = gui.ColorF64{0.82353, 0.82353, 0.82353, 1}

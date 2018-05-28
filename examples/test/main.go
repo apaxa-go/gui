@@ -34,7 +34,11 @@ func main() {
 	vt1 := controls.NewVTable(b1, b2)
 	vt2 := controls.NewVTable(cb1, cb2, cb3, cb4)
 	ht := controls.NewHTable(vt1, vt2, l1, l2)
-	window.SetChild(ht)
+
+	wbs := controls.NewWindowButtons()
+	l0 := controls.NewLayers(ht, wbs)
+
+	window.SetChild(l0)
 
 	err = app.Run()
 	if err != nil {

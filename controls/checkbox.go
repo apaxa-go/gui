@@ -26,11 +26,11 @@ var checkboxMark = scvi.SCVI{
 	scvi.PointF64{14, 14},
 	true,
 	[]scvi.Primitive{
-		scvi.Lines{
+		scvi.MakeLines(
 			[]scvi.PointF64{{3.5, 8}, {6, 10}, {10.5, 3}},
 			1.3,
 			1,
-		},
+		),
 	},
 }
 

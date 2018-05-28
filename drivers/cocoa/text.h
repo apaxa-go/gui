@@ -42,8 +42,10 @@ void DrawTextLine(CGContextRef context, const UInt8 *strBytes, CFIndex strLen, C
     CTLineRef line = CTLineCreateWithAttributedString(attrStr);
     CFRelease(attrStr);
     CGContextSetTextPosition(context, pos.x, pos.y);
+    CGContextSaveGState(context);
     CTLineDraw(line, context);
     CFRelease(line);
+    CGContextRestoreGState(context);
 }
 
 /*

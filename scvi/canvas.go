@@ -14,4 +14,6 @@ type Canvas interface {
 	DrawLine(point0 PointF64, point1 PointF64, color ColorF64, width float64)
 	DrawConnectedLines(points []PointF64, color ColorF64, width float64)
 	DrawRectangle(rect RectangleF64, color ColorF64, width float64)
+
+	FillStraightContour(points []PointF64, color ColorF64)
 }

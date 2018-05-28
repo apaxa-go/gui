@@ -59,7 +59,7 @@ void CGPathEllipseTo(CGMutablePathRef path, CGFloat x, CGFloat y){
     CGPathAddCurveToPoint(path,NULL,cp1x,cp1y,cp2x,cp2y,x,y);
 }
 
-// Valid fow "flipped" coordinate system (Y-axis from top to bottom; Y=0 is top)
+// Valid for "flipped" coordinate system (Y-axis from top to bottom; Y=0 is top)
 CGMutablePathRef CGPathCreateWithRoundedRectExtended(
     CGRect rect,
     CGPoint radiusLT,
@@ -150,3 +150,25 @@ void drawConnectedLines(CGContextRef context, CGPoint *points, size_t count){
     CGContextStrokePath(context);
     CGPathRelease(path);
 }
+
+void fillStraightContour(CGContextRef context, CGPoint *points, size_t count){
+     if ( count<3 ){ return; }
+
+     CGMutablePathRef path = CGPathCreateMutable();
+     CGPathAddLines(path, NULL, points, count);
+     CGPathCloseSubpath(path);
+     CGContextAddPath(context,path);
+     CGContextFillPath(context);
+     CGPathRelease(path);
+}
+
+void drawStraightContour(CGContextRef context, CGPoint *points, size_t count){
+     if ( count<3 ){ return; }
+
+     CGMutablePathRef path = CGPathCreateMutable();
+     CGPathAddLines(path, NULL, points, count);
+     CGPathCloseSubpath(path);
+     CGContextAddPath(context,path);
+     CGContextStrokePath(context);
+     CGPathRelease(path);
+ }

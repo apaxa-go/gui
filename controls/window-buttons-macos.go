@@ -70,8 +70,8 @@ func (c windowButtonsMacOS) ProcessEvent(gui.Event) bool { return false } // TOD
 
 func newWindowButtonsMacOS() *windowButtonsMacOS {
 	return &windowButtonsMacOS{
-		image:           image,
-		imageColor:      imageColor,
-		backgroundColor: backgroundColor,
+		closeButton:    newWindowButtonMacOS(windowButtonMacOSCloseImage, windowButtonMacOSImageColor, windowButtonMacOSCloseBackgroundColor),
+		hideButton:     newWindowButtonMacOS(windowButtonMacOSHideImage, windowButtonMacOSImageColor, windowButtonMacOSHideBackgroundColor),
+		maximizeButton: newWindowButtonMacOS(windowButtonMacOSMaximizeImage, windowButtonMacOSImageColor, windowButtonMacOSMaximizeBackgroundColor),
 	}
 }

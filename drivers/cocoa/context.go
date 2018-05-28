@@ -111,6 +111,25 @@ func (c *Context) DrawConnectedLines(points []PointF64, color ColorF64, width fl
 	c.drawConnectedLines(points)
 }
 
+func (c *Context) DrawStraightContour(points []PointF64, color ColorF64, width float64) {
+	c.setLineColor(color)
+	c.setLineWidth(width)
+	C.drawStraightContour(
+		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		(*C.CGPoint)(unsafe.Pointer(&points[0])), // TODO is it safe (can Go GC remove points while this function works)?
+		C.size_t(len(points)),
+	)
+}
+
+func (c *Context) FillStraightContour(points []PointF64, color ColorF64) {
+	c.setFillColor(color)
+	C.fillStraightContour(
+		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		(*C.CGPoint)(unsafe.Pointer(&points[0])), // TODO is it safe (can Go GC remove points while this function works)?
+		C.size_t(len(points)),
+	)
+}
+
 func (c *Context) drawRectangleWithWidth(rect RectangleF64, width float64) {
 	r := rect.ToF64S()
 	C.CGContextStrokeRectWithWidth(
