@@ -12,6 +12,20 @@ type SCVI struct {
 
 type Primitive interface {
 	Draw(Canvas, ColorF64)
+	Equal(Primitive) bool
+}
+
+func (image SCVI) Equal(image2 SCVI) bool {
+	r := image.Size == image2.Size && image.KeepAspect == image.KeepAspect && len(image.Elements) == len(image2.Elements)
+	if !r {
+		return false
+	}
+	for i := range image.Elements {
+		if !image.Elements[i].Equal(image2.Elements[i]) {
+			return false
+		}
+	}
+	return true
 }
 
 func (image SCVI) Draw(canvas Canvas, rect RectangleF64, color ColorF64) {
@@ -52,6 +66,8 @@ type Line struct {
 	Alpha  float64
 }
 
+func (p Line) Equal(primitive Primitive) bool { return p == primitive }
+
 func (p Line) Draw(canvas Canvas, color ColorF64) {
 	color.A *= p.Alpha
 	canvas.DrawLine(p.Point0, p.Point1, color, p.Width)
@@ -61,6 +77,20 @@ type Lines struct {
 	Points []PointF64
 	Width  float64
 	Alpha  float64
+}
+
+func (p Lines) Equal(primitive Primitive) bool {
+	p2, ok := primitive.(Lines)
+	ok = ok && len(p.Points) == len(p2.Points) && p.Width == p2.Width && p.Alpha == p2.Alpha
+	if !ok {
+		return false
+	}
+	for i := range p.Points {
+		if p.Points[i] != p2.Points[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func (p Lines) Draw(canvas Canvas, color ColorF64) {
@@ -73,6 +103,8 @@ type Rectangle struct {
 	Width float64
 	Alpha float64
 }
+
+func (p Rectangle) Equal(primitive Primitive) bool { return p == primitive }
 
 func (p Rectangle) Draw(canvas Canvas, color ColorF64) {
 	color.A *= p.Alpha

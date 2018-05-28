@@ -5,7 +5,7 @@
 #import <CoreText/CoreText.h>
 #include "common.h"
 
-const CGAffineTransform flipped = (CGAffineTransform){1,0,0,1,0,0};//{1,0,0,-1,0,0};
+//const CGAffineTransform flipped = (CGAffineTransform){1,0,0,1,0,0};//{1,0,0,-1,0,0};
 
 // Translate font-spec italic ([0;1], non-italic 0, italic 1) to core text boolean italic flag.
 bool translateItalic(CGFloat i){
@@ -183,7 +183,7 @@ CTFontRef makeDefaultFont(
         reqWeight,
         weight
     );
-    CTFontRef f = CTFontCreateCopyWithAttributes(tmp, size, &flipped, descriptor);
+    CTFontRef f = CTFontCreateCopyWithAttributes(tmp, size, NULL, descriptor);
     CFRelease(tmp);
     return f;
 }
@@ -245,7 +245,7 @@ CTFontRef makeFont(
         return NULL;
     }
 
-    CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, size, &flipped);
+    CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, size, NULL);
     CFRelease(descriptor);
 
     return font;
@@ -307,7 +307,7 @@ CTFontRef makeFontFromFile(
                 reqWeight,
                 weight
             );
-            CTFont = CTFontCreateWithGraphicsFont(CGFont,size,&flipped,descriptor);
+            CTFont = CTFontCreateWithGraphicsFont(CGFont,size,NULL,descriptor);
             CFRelease(descriptor);
             CFRelease(CGFont);
         }

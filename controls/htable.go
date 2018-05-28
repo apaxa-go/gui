@@ -123,6 +123,8 @@ func (c *HTable) Remove(i int) gui.Control {
 	return control
 }
 
+func (c *HTable) NumColumns() int { return len(c.children) }
+
 func (c *HTable) Children() []gui.Control { return c.children }
 
 func NewHTable(children ...gui.Control) *HTable {

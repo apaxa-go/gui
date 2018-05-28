@@ -123,6 +123,8 @@ func (c *VTable) Remove(i int) gui.Control {
 	return control
 }
 
+func (c *VTable) NumRows() int { return len(c.children) }
+
 func (c *VTable) Children() []gui.Control { return c.children }
 
 func NewVTable(children ...gui.Control) *VTable {

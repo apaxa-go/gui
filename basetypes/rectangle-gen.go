@@ -406,3 +406,10 @@ func (r RectangleF32S) InsetXY(deltaX, deltaY float32) RectangleF32S {
 }
 func (r RectangleF32) Inner(lineWidth float32) RectangleF32   { return r.Inset(lineWidth / 2) }
 func (r RectangleF32S) Inner(lineWidth float32) RectangleF32S { return r.Inset(lineWidth / 2) }
+
+func (r RectangleF32) Center() PointF32 {
+	return PointF32{(r.Left + r.Right) / 2, (r.Top + r.Bottom) / 2}
+}
+func (r RectangleF32S) Center() PointF32 {
+	return PointF32{r.Origin.X + r.Size.X/2, r.Origin.Y + r.Size.Y/2}
+}

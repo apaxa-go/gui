@@ -133,3 +133,10 @@ func (r RectangleF64S) InsetXY(deltaX, deltaY float64) RectangleF64S {
 }
 func (r RectangleF64) Inner(lineWidth float64) RectangleF64   { return r.Inset(lineWidth / 2) }
 func (r RectangleF64S) Inner(lineWidth float64) RectangleF64S { return r.Inset(lineWidth / 2) }
+
+func (r RectangleF64) Center() PointF64 {
+	return PointF64{(r.Left + r.Right) / 2, (r.Top + r.Bottom) / 2}
+}
+func (r RectangleF64S) Center() PointF64 {
+	return PointF64{r.Origin.X + r.Size.X/2, r.Origin.Y + r.Size.Y/2}
+}
