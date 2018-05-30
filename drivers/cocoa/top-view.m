@@ -20,6 +20,8 @@
 
 - (BOOL) isFlipped { return TRUE; }
 
+- (BOOL) acceptsFirstResponder { return TRUE; }
+
 - (void) drawRect:(NSRect)frame {
     //[[NSColor redColor] set];
     //[NSBezierPath fillRect:frame];
@@ -42,8 +44,18 @@
     // TODO do we need to set text matrix each drawRect?
     CGContextSetTextMatrix(context, (CGAffineTransform){1,0,0,-1,0,0});
 
-    drawCallback(self.windowP,context,frame);
+    drawCallback(self.windowP, context, frame);
 }
+
+- (void) keyDown:(NSEvent *)event{
+    // "ARepeat<<1" converts down event to 0 (first press) or 2 (repeat press).
+    keyboardEventCallback(self.windowP, event.ARepeat<<1, event.keyCode, event.modifierFlags);
+}
+
+- (void) keyUp:(NSEvent *)event{
+    keyboardEventCallback(self.windowP, 1, event.keyCode, event.modifierFlags);
+}
+
 @end
 
 void *CreateTopView(void *window) {

@@ -69,9 +69,19 @@ func (c windowButtonsMacOS) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 func (c windowButtonsMacOS) ProcessEvent(gui.Event) bool { return false } // TODO
 
 func newWindowButtonsMacOS() *windowButtonsMacOS {
-	return &windowButtonsMacOS{
-		closeButton:    newWindowButtonMacOS(windowButtonMacOSCloseImage, windowButtonMacOSImageColor, windowButtonMacOSCloseBackgroundColor),
-		hideButton:     newWindowButtonMacOS(windowButtonMacOSHideImage, windowButtonMacOSImageColor, windowButtonMacOSHideBackgroundColor),
-		maximizeButton: newWindowButtonMacOS(windowButtonMacOSMaximizeImage, windowButtonMacOSImageColor, windowButtonMacOSMaximizeBackgroundColor),
-	}
+	r := &windowButtonsMacOS{}
+
+	closeButton := newWindowButtonMacOS(windowButtonMacOSCloseImage, windowButtonMacOSImageColor, windowButtonMacOSCloseBackgroundColor)
+	hideButton := newWindowButtonMacOS(windowButtonMacOSHideImage, windowButtonMacOSImageColor, windowButtonMacOSHideBackgroundColor)
+	maximizeButton := newWindowButtonMacOS(windowButtonMacOSMaximizeImage, windowButtonMacOSImageColor, windowButtonMacOSMaximizeBackgroundColor)
+
+	gui.SetParent(closeButton, r)
+	gui.SetParent(hideButton, r)
+	gui.SetParent(maximizeButton, r)
+
+	r.closeButton = closeButton
+	r.hideButton = hideButton
+	r.maximizeButton = maximizeButton
+
+	return r
 }

@@ -19,9 +19,12 @@ type Window struct {
 	w.driverWindow.Run()
 }*/
 
-func (w *Window) Title() string         { return w.driverWindow.Title() }
-func (w *Window) SetTitle(title string) { w.driverWindow.SetTitle(title) }
-func (w *Window) Child() Control        { return w.child }
+func (w *Window) Title() string { return w.driverWindow.Title() }
+func (w *Window) SetTitle(title string) {
+	w.driverWindow.SetTitle(title)
+}
+
+func (w *Window) Child() Control { return w.child }
 func (w *Window) SetChild(child Control) {
 	if w.child != nil {
 		SetParent(w.child, nil)

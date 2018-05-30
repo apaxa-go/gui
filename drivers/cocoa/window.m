@@ -3,15 +3,20 @@
 // License information can be found in the LICENSE file.
 
 #include "window.h"
-
 #include <stdlib.h>
+
+@implementation PrimaryWindow
+
+- (BOOL) canBecomeKeyWindow { return TRUE; }
+
+@end
 
 void *CreateWindow(int x, int y, int width, int height)
 {
-    NSWindow* window = [[NSWindow alloc] initWithContentRect:NSMakeRect(x, y, width, height)
-                                              styleMask:NSWindowStyleMaskTitled  // TODO check for valid deprecated NSTitledWindowMask replacement
+    NSWindow* window = [[PrimaryWindow alloc] initWithContentRect:NSMakeRect(x, y, width, height)
+                                              styleMask:NSWindowStyleMaskTitled
                                               backing:NSBackingStoreBuffered defer:NO];
-    [window setStyleMask:NSWindowStyleMaskBorderless]; // TODO check for valid deprecated NSBorderlessWindowMask replacement
+    [window setStyleMask:NSWindowStyleMaskBorderless];
     return window;
 }
 
@@ -24,6 +29,7 @@ void SetWindowTopView(void *self, void *topView){
     NSWindow *window = self;
     NSView *view = topView;
     [window setContentView:view];
+    //[window makeFirstResponder:view];
 }
 
 const char* GetWindowTitle(void *self) {

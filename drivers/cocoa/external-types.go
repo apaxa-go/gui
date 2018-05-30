@@ -27,3 +27,8 @@ type FontI = drivers.Font
 type EventI = drivers.Event
 type OfflineCanvasI = drivers.OfflineCanvas
 type FontSpec = drivers.FontSpec
+
+type KeyboardEvent = drivers.KeyboardEvent
+type KeyEvent = drivers.KeyEvent
+type Key = drivers.Key
+type KeyModifiers = drivers.KeyModifiers

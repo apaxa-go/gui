@@ -4,6 +4,10 @@
 
 #include <Cocoa/Cocoa.h>
 
+@interface PrimaryWindow : NSWindow
+    - (BOOL) canBecomeKeyWindow; // Allow create key window without title and resize bars.
+@end
+
 void* CreateWindow(int x, int y, int width, int height);
 void MakeWindowKeyAndOrderFront(void *self);
 void SetWindowTopView(void *self, void *topView);

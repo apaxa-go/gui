@@ -5,6 +5,7 @@
 package cocoa
 
 import (
+	"log"
 	"unsafe"
 )
 
@@ -38,4 +39,20 @@ func drawCallback(window, contextP unsafe.Pointer, rect C.CGRect) {
 		w.drawCallback(c, (*RectangleF64S)(unsafe.Pointer(&rect)).ToF64())
 		//log.Println(c.GetTransform())
 	}
+}
+
+//export keyboardEventCallback
+func keyboardEventCallback(window unsafe.Pointer, event uint8, key uint16, modifiers uint64) {
+	kEvent := KeyEvent(event)
+	k := translateKey(key)
+	kModifiers := translateKeyModifiers(modifiers)
+
+	e := KeyboardEvent{kEvent, k, kModifiers}
+
+	log.Println(e.ShortString())
+}
+
+//export pointerEventCallback
+func pointerEventCallback(window unsafe.Pointer) {
+
 }

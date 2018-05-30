@@ -150,7 +150,7 @@ var windowButtonMacOSDemaximizeImage = scvi.SCVI{
 
 var windowButtonMacOSImageColor = gui.ColorF64{0, 0, 0, 1}
 
-var windowButtonMacOSCloseBackgroundColor = gui.ColorF64{0.97647, 0.39216, 0.38824, 1}
-var windowButtonMacOSHideBackgroundColor = gui.ColorF64{0.99216, 0.72549, 0.35294, 1}
-var windowButtonMacOSMaximizeBackgroundColor = gui.ColorF64{0.26667, 0.74902, 0.25882, 1}
-var windowButtonMacOSDisabledBackgroundColor = gui.ColorF64{0.82353, 0.82353, 0.82353, 1}
+var windowButtonMacOSCloseBackgroundColor = gui.ColorF64{}.MakeFromRGB8(249, 100, 99)
+var windowButtonMacOSHideBackgroundColor = gui.ColorF64{}.MakeFromRGB8(253, 185, 90)
+var windowButtonMacOSMaximizeBackgroundColor = gui.ColorF64{}.MakeFromRGB8(68, 191, 66)
+var windowButtonMacOSDisabledBackgroundColor = gui.ColorF64{}.MakeFromRGB8(210, 210, 210)
