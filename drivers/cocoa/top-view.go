@@ -52,7 +52,12 @@ func keyboardEventCallback(window unsafe.Pointer, event uint8, key uint16, modif
 	log.Println(e.ShortString())
 }
 
-//export pointerEventCallback
-func pointerEventCallback(window unsafe.Pointer) {
+//export pointerKeyEventCallback
+func pointerKeyEventCallback(window unsafe.Pointer, event uint8, button uint8, point C.NSPoint, modifiers uint64) {
+	kModifiers := translateKeyModifiers(modifiers)
+	p := *(*PointF64)(unsafe.Pointer(&point))
 
+	e := PointerButtonEvent{PointerButtonEventKind(event), PointerButton(button), p, kModifiers}
+
+	log.Println(e.ShortString())
 }

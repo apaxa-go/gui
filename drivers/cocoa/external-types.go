@@ -32,3 +32,7 @@ type KeyboardEvent = drivers.KeyboardEvent
 type KeyEvent = drivers.KeyEvent
 type Key = drivers.Key
 type KeyModifiers = drivers.KeyModifiers
+
+type PointerButtonEvent = drivers.PointerButtonEvent
+type PointerButtonEventKind = drivers.PointerButtonEventKind
+type PointerButton = drivers.PointerButton

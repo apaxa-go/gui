@@ -4,14 +4,16 @@
 
 package basetypes
 
+import "github.com/apaxa-go/helper/strconvh"
+
 //replacer:ignore
 //go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
 //replacer:replace
-//replacer:old int64	I64
-//replacer:new int		I
-//replacer:new int32	I32
-//replacer:new float32	F32
-//replacer:new float64	F64
+//replacer:old int64	Int64	I64
+//replacer:new int		Int		I
+//replacer:new int32	Int32	I32
+//replacer:new float32	Float32	F32
+//replacer:new float64	Float64	F64
 
 type PointI64 struct {
 	X int64
@@ -21,6 +23,9 @@ type PointI64 struct {
 func (p PointI64) Add(point PointI64) PointI64 { return PointI64{p.X + point.X, p.Y + point.Y} }
 func (p PointI64) Mul(k int64) PointI64        { return PointI64{p.X * k, p.Y * k} }
 func (p PointI64) ToI64() PointI64             { return p }
+func (p PointI64) String() string {
+	return "(" + strconvh.FormatInt64(p.X) + "; " + strconvh.FormatInt64(p.Y) + ")"
+}
 
 //replacer:replace
 //replacer:old I64	F32	float32
