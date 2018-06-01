@@ -61,27 +61,27 @@
 //
 
 - (void) mouseDown:(NSEvent *)event{
-    [self mouseButton:true Button:0 Point:NSEvent.mouseLocation Modifiers:event.modifierFlags];
+    [self mouseButton:true Button:0 Point:[self currentMousePos] Modifiers:event.modifierFlags];
 }
 
 - (void) mouseUp:(NSEvent *)event{
-    [self mouseButton:false Button:0 Point:NSEvent.mouseLocation Modifiers:event.modifierFlags];
+    [self mouseButton:false Button:0 Point:[self currentMousePos] Modifiers:event.modifierFlags];
 }
 
 - (void) rightMouseDown:(NSEvent *)event{
-    [self mouseButton:true Button:1 Point:NSEvent.mouseLocation Modifiers:event.modifierFlags];
+    [self mouseButton:true Button:1 Point:[self currentMousePos] Modifiers:event.modifierFlags];
 }
 
 - (void) rightMouseUp:(NSEvent *)event{
-    [self mouseButton:false Button:1 Point:NSEvent.mouseLocation Modifiers:event.modifierFlags];
+    [self mouseButton:false Button:1 Point:[self currentMousePos] Modifiers:event.modifierFlags];
 }
 
 - (void) otherMouseDown:(NSEvent *)event{
-    [self mouseButton:true Button:event.buttonNumber Point:NSEvent.mouseLocation Modifiers:event.modifierFlags];
+    [self mouseButton:true Button:event.buttonNumber Point:[self currentMousePos] Modifiers:event.modifierFlags];
 }
 
 - (void) otherMouseUp:(NSEvent *)event{
-    [self mouseButton:false Button:event.buttonNumber Point:NSEvent.mouseLocation Modifiers:event.modifierFlags];
+    [self mouseButton:false Button:event.buttonNumber Point:[self currentMousePos] Modifiers:event.modifierFlags];
 }
 
 - (void) mouseButtonTimerRestart{
@@ -145,6 +145,30 @@
         }
     }
     pointerKeyEventCallback(self.windowP, down?0:255, button, point, modifiers);
+}
+
+//
+// Mouse move
+//
+
+- (void) mouseMoved:(NSEvent *)event{
+    pointerMoveEventCallback(self.windowP, [self currentMousePos]);
+    // TODO There is no move events between press & release. May be send move event on release and/or in dragging event?
+}
+
+- (NSPoint) currentMousePos{
+    NSPoint r = [[self window] mouseLocationOutsideOfEventStream]; // NSEvent.mouseLocation;
+    r = [self convertPoint:r
+                       fromView:nil];
+    return r;
+}
+
+//
+// Scroll
+//
+
+- (void)scrollWheel:(NSEvent *)event{
+    scrollEventCallback(self.windowP, event.deltaX, event.deltaY);
 }
 
 @end

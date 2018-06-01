@@ -17,6 +17,7 @@ void *CreateWindow(int x, int y, int width, int height)
                                               styleMask:NSWindowStyleMaskTitled
                                               backing:NSBackingStoreBuffered defer:NO];
     [window setStyleMask:NSWindowStyleMaskBorderless];
+    [window  setAcceptsMouseMovedEvents:YES]; // TODO this is very CPU expensive - disable by default?
     return window;
 }
 

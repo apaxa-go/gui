@@ -28,6 +28,10 @@ type EventI = drivers.Event
 type OfflineCanvasI = drivers.OfflineCanvas
 type FontSpec = drivers.FontSpec
 
+//
+// Events
+//
+
 type KeyboardEvent = drivers.KeyboardEvent
 type KeyEvent = drivers.KeyEvent
 type Key = drivers.Key
@@ -36,3 +40,7 @@ type KeyModifiers = drivers.KeyModifiers
 type PointerButtonEvent = drivers.PointerButtonEvent
 type PointerButtonEventKind = drivers.PointerButtonEventKind
 type PointerButton = drivers.PointerButton
+
+type PointerMoveEvent = drivers.PointerMoveEvent
+
+type ScrollEvent = drivers.ScrollEvent

@@ -61,3 +61,19 @@ func pointerKeyEventCallback(window unsafe.Pointer, event uint8, button uint8, p
 
 	log.Println(e.ShortString())
 }
+
+//export pointerMoveEventCallback
+func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
+	p := *(*PointF64)(unsafe.Pointer(&point))
+
+	e := PointerMoveEvent{p}
+
+	_ = e //log.Println(e.String())
+}
+
+//export scrollEventCallback
+func scrollEventCallback(window unsafe.Pointer, deltaX float64, deltaY float64) {
+	e := ScrollEvent{deltaX, deltaY}
+
+	log.Println(e.String())
+}

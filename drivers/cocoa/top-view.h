@@ -26,14 +26,17 @@
     - (void) rightMouseUp:(NSEvent *)event;
     - (void) otherMouseDown:(NSEvent *)event;
     - (void) otherMouseUp:(NSEvent *)event;
+
+    - (void) mouseMoved:(NSEvent *)event;
+
+    - (void) scrollWheel:(NSEvent *)event;
 @end
 
+double distance(NSPoint p0, NSPoint p1);
 void *CreateTopView(void *window);
 
-void drawCallback(void*, void*, NSRect);
-
-void keyboardEventCallback(void*, uint8 event, uint16_t key, uint64_t modifiers);
-
-void pointerKeyEventCallback(void*, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
-
-double distance(NSPoint p0, NSPoint p1);
+void drawCallback(void* window, void*, NSRect);
+void keyboardEventCallback(void* window, uint8 event, uint16_t key, uint64_t modifiers);
+void pointerKeyEventCallback(void* window, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
+void pointerMoveEventCallback(void* window, NSPoint point);
+void scrollEventCallback(void* window, double deltaX, double deltaY);
