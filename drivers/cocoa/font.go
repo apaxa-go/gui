@@ -49,7 +49,7 @@ func newFontDefault(spec FontSpec) Font {
 	// TODO current implementation totally ignore all requirements
 	return Font(
 		unsafe.Pointer(
-			C.makeDefaultFont(
+			C.CreateDefaultFont(
 				C.CGFloat(spec.Size),
 
 				C.bool(spec.Requirements.Monospace()),

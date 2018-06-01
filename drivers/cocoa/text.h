@@ -38,7 +38,7 @@ void drawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGPoint
 
 void DrawTextLine(CGContextRef context, const UInt8* strBytes, CFIndex strLen, CTFontRef font, CGPoint pos) {
 	// TODO check functions results for nil???
-	CFStringRef           str     = makeStringRef(strBytes, strLen);
+	CFStringRef           str     = CreateStringRef(strBytes, strLen);
 	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
 	CFRelease(str);
 	CTLineRef line = CTLineCreateWithAttributedString(attrStr);
@@ -61,7 +61,7 @@ CGRect getTextLineGeometry(CGContextRef context, CFStringRef str, CTFontRef font
 
 CGRect GetTextLineGeometry(CGContextRef context, const UInt8* strBytes, CFIndex strLen, CTFontRef font) {
 	// TODO check functions results for nil???
-	CFStringRef           str     = makeStringRef(strBytes, strLen);
+	CFStringRef           str     = CreateStringRef(strBytes, strLen);
 	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
 	CFRelease(str);
 	CTLineRef line = CTLineCreateWithAttributedString(attrStr);

@@ -42,11 +42,17 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB); // TODO may return NULL
 	CGContextSetFillColorSpace(context, colorSpace);
 	CGContextSetStrokeColorSpace(context, colorSpace);
+	CFRelease(colorSpace);
 
 	// TODO do we need to set text matrix each drawRect?
 	CGContextSetTextMatrix(context, (CGAffineTransform){1, 0, 0, -1, 0, 0});
 
 	drawCallback(self.windowP, context, frame);
+}
+
+- (void)dealloc {
+	if (self.mouseTimer.valid) { [[self mouseTimer] invalidate]; }
+	[super dealloc];
 }
 
 - (void)keyDown:(NSEvent*)event {

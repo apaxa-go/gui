@@ -29,6 +29,8 @@
 - (void)mouseMoved:(NSEvent*)event;
 
 - (void)scrollWheel:(NSEvent*)event;
+
+- (void)dealloc;
 @end
 
 double distance(NSPoint p0, NSPoint p1);

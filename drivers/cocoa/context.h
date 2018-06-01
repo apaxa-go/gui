@@ -36,8 +36,8 @@ void CGPathEllipseTo(CGMutablePathRef path, CGFloat x, CGFloat y) {
 
 	CGPoint p0 = CGPathGetCurrentPoint(path);
 
-	CGFloat tmpx = (x - p0.x) * (1 - magic);
-	CGFloat tmpy = (y - p0.y) * (1 - magic);
+	//CGFloat tmpx = (x - p0.x) * (1 - magic);
+	//CGFloat tmpy = (y - p0.y) * (1 - magic);
 
 	CGFloat cp1x;
 	CGFloat cp1y;

@@ -7,6 +7,6 @@
 
 #include <CoreFoundation/CoreFoundation.h>
 
-CFStringRef makeStringRef(const UInt8* bytes, CFIndex numBytes);
+CFStringRef CreateStringRef(const UInt8* bytes, CFIndex numBytes);
 
 #endif

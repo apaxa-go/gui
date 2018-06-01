@@ -15,7 +15,7 @@ function debug () {
     fi
 }
 
-# Script require single argument - path to directory of file.
+# Script requires single argument - path to directory of file.
 if [ "$#" -ne 1 ]; then
     error "Please pass single parameter: file name or directory"
     exit 1

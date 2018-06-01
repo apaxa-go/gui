@@ -57,17 +57,17 @@ CTFontDescriptorRef makeFontDescriptor(
     bool    reqWeight,
     CGFloat weight //
 ) {
-	CFMutableDictionaryRef a = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // attributes // TODO may return NULL
-	CFMutableDictionaryRef t = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // traits // TODO may return NULL
-	uint32_t               st; // symbolic traits // TODO may be set kCTFontUIOptimizedTrait ?
+	CFMutableDictionaryRef a  = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // attributes // TODO may return NULL
+	CFMutableDictionaryRef t  = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // traits // TODO may return NULL
+	uint32_t               st = 0; // symbolic traits // TODO may be set kCTFontUIOptimizedTrait ?
 
 	if (reqName) {
-		CFStringRef tmp = makeStringRef(name, nameLen);
+		CFStringRef tmp = CreateStringRef(name, nameLen);
 		CFDictionarySetValue(a, kCTFontNameAttribute, tmp);
 		CFRelease(tmp);
 	}
 	if (reqFamily) {
-		CFStringRef tmp = makeStringRef(family, familyLen);
+		CFStringRef tmp = CreateStringRef(family, familyLen);
 		CFDictionarySetValue(a, kCTFontFamilyNameAttribute, tmp);
 		CFRelease(tmp);
 	}
@@ -112,10 +112,12 @@ CTFontDescriptorRef makeFontDescriptor(
 
 	CFDictionarySetValue(a, kCTFontTraitsAttribute, t);
 	CFRelease(t);
-	return CTFontDescriptorCreateWithAttributes(a);
+	CTFontDescriptorRef r = CTFontDescriptorCreateWithAttributes(a);
+	CFRelease(a);
+	return r;
 }
 
-CTFontRef makeDefaultFont(
+CTFontRef CreateDefaultFont(
     CGFloat size,
     bool    reqMonospace,
     bool    monospace,
@@ -149,6 +151,7 @@ CTFontRef makeDefaultFont(
 	    weight //
 	);
 	CTFontRef f = CTFontCreateCopyWithAttributes(tmp, size, NULL, descriptor);
+	CFRelease(descriptor);
 	CFRelease(tmp);
 	return f;
 }
@@ -216,8 +219,8 @@ CTFontRef makeFontFromFile(
     CGFloat weight //
 ) {
 	// TODO implement index access for collection
-	CTFontRef         CTFont;
-	CFStringRef       pathRef      = makeStringRef(path, pathLen);
+	CTFontRef         CTFont       = nil;
+	CFStringRef       pathRef      = CreateStringRef(path, pathLen);
 	CFURLRef          url          = CFURLCreateWithFileSystemPath(NULL, pathRef, kCFURLPOSIXPathStyle, false);
 	CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
 
