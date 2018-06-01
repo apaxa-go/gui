@@ -4,20 +4,22 @@
 
 #include "common.h"
 
-CFAttributedStringRef makeAttrStringRef(CFStringRef str, CTFontRef font){
-    // TODO check functions results for nil???
-    CFStringRef keys[] = { kCTFontAttributeName };
-    CFTypeRef values[] = { font };
+CFAttributedStringRef makeAttrStringRef(CFStringRef str, CTFontRef font) {
+	// TODO check functions results for nil???
+	CFStringRef keys[]   = {kCTFontAttributeName};
+	CFTypeRef   values[] = {font};
 
-    CFDictionaryRef attributes =
-        CFDictionaryCreate(kCFAllocatorDefault, (const void**)&keys,
-            (const void**)&values, sizeof(keys) / sizeof(keys[0]),
-            &kCFTypeDictionaryKeyCallBacks,
-            &kCFTypeDictionaryValueCallBacks);
+	CFDictionaryRef attributes = CFDictionaryCreate(
+	    kCFAllocatorDefault, //
+	    (const void**)&keys,
+	    (const void**)&values,
+	    sizeof(keys) / sizeof(keys[0]),
+	    &kCFTypeDictionaryKeyCallBacks,
+	    &kCFTypeDictionaryValueCallBacks);
 
-    CFAttributedStringRef attrString = CFAttributedStringCreate(kCFAllocatorDefault, str, attributes);
-    CFRelease(attributes);
-    return attrString;
+	CFAttributedStringRef attrString = CFAttributedStringCreate(kCFAllocatorDefault, str, attributes);
+	CFRelease(attributes);
+	return attrString;
 }
 
 /*
@@ -34,18 +36,18 @@ void drawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGPoint
 }
 */
 
-void DrawTextLine(CGContextRef context, const UInt8 *strBytes, CFIndex strLen, CTFontRef font, CGPoint pos){
-    // TODO check functions results for nil???
-    CFStringRef str = makeStringRef(strBytes, strLen);
-    CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
-    CFRelease(str);
-    CTLineRef line = CTLineCreateWithAttributedString(attrStr);
-    CFRelease(attrStr);
-    CGContextSetTextPosition(context, pos.x, pos.y);
-    CGContextSaveGState(context);
-    CTLineDraw(line, context);
-    CFRelease(line);
-    CGContextRestoreGState(context);
+void DrawTextLine(CGContextRef context, const UInt8* strBytes, CFIndex strLen, CTFontRef font, CGPoint pos) {
+	// TODO check functions results for nil???
+	CFStringRef           str     = makeStringRef(strBytes, strLen);
+	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
+	CFRelease(str);
+	CTLineRef line = CTLineCreateWithAttributedString(attrStr);
+	CFRelease(attrStr);
+	CGContextSetTextPosition(context, pos.x, pos.y);
+	CGContextSaveGState(context);
+	CTLineDraw(line, context);
+	CFRelease(line);
+	CGContextRestoreGState(context);
 }
 
 /*
@@ -57,14 +59,14 @@ CGRect getTextLineGeometry(CGContextRef context, CFStringRef str, CTFontRef font
 }
 */
 
-CGRect GetTextLineGeometry(CGContextRef context, const UInt8 *strBytes, CFIndex strLen, CTFontRef font){
-    // TODO check functions results for nil???
-    CFStringRef str = makeStringRef(strBytes, strLen);
-    CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
-    CFRelease(str);
-    CTLineRef line = CTLineCreateWithAttributedString(attrStr);
-    CFRelease(attrStr);
-    CGRect r = CTLineGetImageBounds(line, context);
-    CFRelease(line);
-    return r;
+CGRect GetTextLineGeometry(CGContextRef context, const UInt8* strBytes, CFIndex strLen, CTFontRef font) {
+	// TODO check functions results for nil???
+	CFStringRef           str     = makeStringRef(strBytes, strLen);
+	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
+	CFRelease(str);
+	CTLineRef line = CTLineCreateWithAttributedString(attrStr);
+	CFRelease(attrStr);
+	CGRect r = CTLineGetImageBounds(line, context);
+	CFRelease(line);
+	return r;
 }

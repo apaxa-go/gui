@@ -4,22 +4,22 @@
 
 #include <Cocoa/Cocoa.h>
 
-@interface PrimaryWindow : NSWindow
-    - (BOOL) canBecomeKeyWindow; // Allow create key window without title and resize bars.
+@interface PrimaryWindow: NSWindow
+- (BOOL)canBecomeKeyWindow; // Allow create key window without title and resize bars.
 @end
 
-void* CreateWindow(int x, int y, int width, int height);
-void MakeWindowKeyAndOrderFront(void *self);
-void SetWindowTopView(void *self, void *topView);
-const char* GetWindowTitle(void *self);
-void SetWindowTitle(void *self, char* title);
+void*       CreateWindow(int x, int y, int width, int height);
+void        MakeWindowKeyAndOrderFront(void* self);
+void        SetWindowTopView(void* self, void* topView);
+const char* GetWindowTitle(void* self);
+void        SetWindowTitle(void* self, char* title);
 
-NSRect GetWindowGeometry(void *self);
-void SetWindowPos(void *self, NSPoint pos);
-void SetWindowSize(void *self, CGSize size);
+NSRect GetWindowGeometry(void* self);
+void   SetWindowPos(void* self, NSPoint pos);
+void   SetWindowSize(void* self, CGSize size);
 
-CGContextRef GetWindowContext(void *self);
-CGFloat GetWindowScaleFactor(void *self);
+CGContextRef GetWindowContext(void* self);
+CGFloat      GetWindowScaleFactor(void* self);
 
-void InvalidateRegion(void *self, NSRect rect);
-void Invalidate(void *self);
+void InvalidateRegion(void* self, NSRect rect);
+void Invalidate(void* self);

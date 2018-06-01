@@ -6,4 +6,4 @@
 
 void* InitApplication();
 
-void ApplicationRun(void *app);
+void ApplicationRun(void* app);

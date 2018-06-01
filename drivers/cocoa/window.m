@@ -7,82 +7,84 @@
 
 @implementation PrimaryWindow
 
-- (BOOL) canBecomeKeyWindow { return TRUE; }
+- (BOOL)canBecomeKeyWindow {
+	return TRUE;
+}
 
 @end
 
-void *CreateWindow(int x, int y, int width, int height)
-{
-    NSWindow* window = [[PrimaryWindow alloc] initWithContentRect:NSMakeRect(x, y, width, height)
-                                              styleMask:NSWindowStyleMaskTitled
-                                              backing:NSBackingStoreBuffered defer:NO];
-    [window setStyleMask:NSWindowStyleMaskBorderless];
-    [window  setAcceptsMouseMovedEvents:YES]; // TODO this is very CPU expensive - disable by default?
-    return window;
+void* CreateWindow(int x, int y, int width, int height) {
+	NSWindow* window = [[PrimaryWindow alloc] initWithContentRect:NSMakeRect(x, y, width, height) //
+	                                                    styleMask:NSWindowStyleMaskTitled
+	                                                      backing:NSBackingStoreBuffered
+	                                                        defer:NO];
+	[window setStyleMask:NSWindowStyleMaskBorderless];
+	[window setAcceptsMouseMovedEvents:YES]; // TODO this is very CPU expensive - disable by default?
+	return window;
 }
 
-void MakeWindowKeyAndOrderFront(void *self) {
-    NSWindow *window = self;
-    [window makeKeyAndOrderFront:nil];
+void MakeWindowKeyAndOrderFront(void* self) {
+	NSWindow* window = self;
+	[window makeKeyAndOrderFront:nil];
 }
 
-void SetWindowTopView(void *self, void *topView){
-    NSWindow *window = self;
-    NSView *view = topView;
-    [window setContentView:view];
-    //[window makeFirstResponder:view];
+void SetWindowTopView(void* self, void* topView) {
+	NSWindow* window = self;
+	NSView*   view   = topView;
+	[window setContentView:view];
+	//[window makeFirstResponder:view];
 }
 
-const char* GetWindowTitle(void *self) {
-    NSWindow *window = self;
-    NSString *nsTitle = [window title];
-    return [nsTitle UTF8String];
+const char* GetWindowTitle(void* self) {
+	NSWindow* window  = self;
+	NSString* nsTitle = [window title];
+	return [nsTitle UTF8String];
 }
 
-void SetWindowTitle(void *self, char *title) {
-    NSWindow *window = self;
-    NSString *nsTitle = [NSString stringWithUTF8String:title];
-    [window setTitle:nsTitle];
-    free(title);
+void SetWindowTitle(void* self, char* title) {
+	NSWindow* window  = self;
+	NSString* nsTitle = [NSString stringWithUTF8String:title];
+	[window setTitle:nsTitle];
+	free(title);
 }
 
-NSRect GetWindowGeometry(void *self) {
-    NSWindow *window = self;
-    return [window frame];
+NSRect GetWindowGeometry(void* self) {
+	NSWindow* window = self;
+	return [window frame];
 }
 
-void SetWindowPos(void *self, NSPoint pos) {
-    NSWindow *window = self;
-    [window setFrameTopLeftPoint:pos];
+void SetWindowPos(void* self, NSPoint pos) {
+	NSWindow* window = self;
+	[window setFrameTopLeftPoint:pos];
 }
 
-void SetWindowSize(void *self, CGSize size) {
-    NSRect geometry;
-    geometry.origin=GetWindowGeometry(self).origin;
-    geometry.size=size;
+void SetWindowSize(void* self, CGSize size) {
+	NSRect geometry;
+	geometry.origin = GetWindowGeometry(self).origin;
+	geometry.size   = size;
 
-    NSWindow *window = self;
-    [window setFrame:geometry display:YES];
+	NSWindow* window = self;
+	[window setFrame:geometry display:YES];
 }
 
-CGContextRef GetWindowContext(void *self){
-    NSWindow *window = self;
-    return [[window graphicsContext] CGContext];
+CGContextRef GetWindowContext(void* self) {
+	NSWindow* window = self;
+	return [[window graphicsContext] CGContext];
 }
 
-CGFloat GetWindowScaleFactor(void *self){
-    NSWindow *window = self;
-    return [window backingScaleFactor];
+CGFloat GetWindowScaleFactor(void* self) {
+	NSWindow* window = self;
+	return [window backingScaleFactor];
 }
 
-void InvalidateRegion(void *self, NSRect rect){
-    NSWindow *window = self;
-    NSView *view = [window contentView];
-    [view setNeedsDisplayInRect:rect];
+void InvalidateRegion(void* self, NSRect rect) {
+	NSWindow* window = self;
+	NSView*   view   = [window contentView];
+	[view setNeedsDisplayInRect:rect];
 }
 
-void Invalidate(void *self){
-    NSWindow *window = self;
-    NSView *view = [window contentView];
-    [view setNeedsDisplay:YES];
+void Invalidate(void* self) {
+	NSWindow* window = self;
+	NSView*   view   = [window contentView];
+	[view setNeedsDisplay:YES];
 }
