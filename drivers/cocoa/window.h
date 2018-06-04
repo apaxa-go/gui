@@ -9,6 +9,7 @@
 @end
 
 void*       CreateWindow(int x, int y, int width, int height);
+void        SetWindowAcceptMouseMoved(void* self, bool accept);
 void        MakeWindowKeyAndOrderFront(void* self);
 void        SetWindowTopView(void* self, void* topView);
 const char* GetWindowTitle(void* self);

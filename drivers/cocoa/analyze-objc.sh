@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# TODO - remove this file because we can use just "../tools/analyze-objc.sh" from this directory?
+
 # Output error messages to stderr.
 function error () {
     >&2 echo "$@"
@@ -9,7 +11,7 @@ function error () {
 pkgDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Get absolute path of GoLang sources directory
-srcDir="${GOPATH}/src/"
+srcDir="`go env GOPATH`/src/"
 
 # Compute package path as relation between pkgDir and srcDir.
 if [[ "${pkgDir}" = "${srcDir}"* ]] ; then

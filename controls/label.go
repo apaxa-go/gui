@@ -39,7 +39,8 @@ func (c *Label) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 	return height, height
 }
 
-func (c Label) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c Label) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
+	// TODO use region
 	place := c.align.ApplyF64(c.Geometry(), c.MinSize())
 	canvas.DrawTextLine(c.text, c.font, place.LT(), c.color)
 }

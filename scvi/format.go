@@ -16,7 +16,7 @@ type Primitive interface {
 }
 
 func (image SCVI) Equal(image2 SCVI) bool {
-	r := image.Size == image2.Size && image.KeepAspect == image.KeepAspect && len(image.Elements) == len(image2.Elements)
+	r := image.Size == image2.Size && image.KeepAspect == image2.KeepAspect && len(image.Elements) == len(image2.Elements)
 	if !r {
 		return false
 	}
@@ -83,7 +83,7 @@ type Lines struct {
 	Alpha  float64
 }
 
-func (p Lines) Equal(primitive Primitive) bool {
+func (p Lines) Equal(primitive Primitive) bool { // nolint: dupl
 	p2, ok := primitive.(Lines)
 	ok = ok && len(p.Points) == len(p2.Points) && p.Width == p2.Width && p.Alpha == p2.Alpha
 	if !ok {
@@ -125,7 +125,7 @@ type FilledContour struct {
 	Alpha  float64
 }
 
-func (p FilledContour) Equal(primitive Primitive) bool {
+func (p FilledContour) Equal(primitive Primitive) bool { // nolint: dupl
 	p2, ok := primitive.(FilledContour)
 	ok = ok && len(p.Points) == len(p2.Points) && p.Width == p2.Width && p.Alpha == p2.Alpha
 	if !ok {

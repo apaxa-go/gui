@@ -25,7 +25,7 @@ function makeCheckerOpts() {
 	done
 }
 
-# Script requires single argument - path to directory of file.
+# Script requires single argument - GoLang package name.
 if [ "$#" -ne 1 ]; then
     error "Please pass single parameter: GoLang package name (github.com/some-user/.../some-package)"
     exit 1

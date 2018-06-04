@@ -6,6 +6,6 @@ package controls
 
 type WindowTitle = windowTitleMacOS
 
-func NewWindowTitle() *WindowTitle {
+func NewWindowTitle() *WindowTitle { // nolint: golint
 	return newWindowTitleMacOS()
 }

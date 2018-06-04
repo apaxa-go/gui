@@ -36,7 +36,7 @@
 double distance(NSPoint p0, NSPoint p1);
 void*  CreateTopView(void* window);
 
-void drawCallback(void* window, void*, NSRect);
+void drawCallback(void* window, CGContextRef context, NSRect);
 void keyboardEventCallback(void* window, uint8 event, uint16_t key, uint64_t modifiers);
 void pointerKeyEventCallback(void* window, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
 void pointerMoveEventCallback(void* window, NSPoint point);

@@ -54,7 +54,8 @@ func (c *CheckBox) ComputeChildHorGeometry() (lefts, rights []float64) { return 
 
 func (c *CheckBox) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
-func (c CheckBox) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c CheckBox) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
+	// TODO use region
 	space := basetypes.AlignCenter.ApplyF64(c.Geometry(), gui.PointF64{SmallHeight, SmallHeight})
 	rect := space.Inner(BorderWidth).ToRounded(BorderRadius)
 	canvas.FillRoundedRectangle(rect, brightBackgroundColor)

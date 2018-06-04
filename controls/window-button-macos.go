@@ -33,7 +33,8 @@ func (c *windowButtonMacOS) ComputeChildHorGeometry() (lefts, rights []float64) 
 
 func (c *windowButtonMacOS) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
-func (c windowButtonMacOS) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c windowButtonMacOS) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
+	// TODO use region
 	place := basetypes.AlignCenter.ApplyF64(c.Geometry(), c.MinSize())
 	circle := gui.CircleF64{place.Center(), windowButtonMacOSSize / 2}.Inner(BorderWidth)
 	canvas.FillCircle(circle, c.backgroundColor)

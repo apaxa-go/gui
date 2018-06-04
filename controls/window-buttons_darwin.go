@@ -6,6 +6,6 @@ package controls
 
 type WindowButtons = windowButtonsMacOS
 
-func NewWindowButtons() *WindowButtons {
+func NewWindowButtons() *WindowButtons { // nolint: golint
 	return newWindowButtonsMacOS()
 }

@@ -25,7 +25,11 @@ type Window interface {
 	Invalidate()
 
 	RegisterDrawCallback(func(Canvas, RectangleF64))
-	RegisterEventCallback(func(Event) bool)
 	RegisterResizeCallback(func())
 	RegisterOfflineCanvasCallback(func())
+
+	RegisterKeyboardCallback(f func(KeyboardEvent))
+	RegisterPointerKeyCallback(f func(PointerButtonEvent))
+	RegisterPointerMoveCallback(f func(PointerMoveEvent))
+	RegisterScrollCallback(f func(ScrollEvent))
 }

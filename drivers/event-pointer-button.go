@@ -7,8 +7,8 @@ package drivers
 type PointerButtonEvent struct {
 	Kind      PointerButtonEventKind
 	Button    PointerButton
-	Point     PointF64
 	Modifiers KeyModifiers
+	Point     PointF64
 }
 
 func (e PointerButtonEvent) String() string {

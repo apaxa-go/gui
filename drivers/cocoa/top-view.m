@@ -55,6 +55,10 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 	[super dealloc];
 }
 
+//
+// Keyboard events
+//
+
 - (void)keyDown:(NSEvent*)event {
 	// "ARepeat<<1" converts down event to 0 (first press) or 2 (repeat press).
 	keyboardEventCallback(self.windowP, event.ARepeat << 1, event.keyCode, event.modifierFlags);
@@ -65,7 +69,7 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 }
 
 //
-// Mouse buttons
+// Mouse button events
 //
 
 - (void)mouseDown:(NSEvent*)event {
@@ -159,7 +163,7 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 }
 
 //
-// Mouse move
+// Mouse move events
 //
 
 - (void)mouseMoved:(NSEvent*)event {
@@ -175,7 +179,7 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 }
 
 //
-// Scroll
+// Scroll events
 //
 
 - (void)scrollWheel:(NSEvent*)event {

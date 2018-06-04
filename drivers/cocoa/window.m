@@ -19,8 +19,12 @@ void* CreateWindow(int x, int y, int width, int height) {
 	                                                      backing:NSBackingStoreBuffered
 	                                                        defer:NO];
 	[window setStyleMask:NSWindowStyleMaskBorderless];
-	[window setAcceptsMouseMovedEvents:YES]; // TODO this is very CPU expensive - disable by default?
 	return window;
+}
+
+void SetWindowAcceptMouseMoved(void* self, bool accept) {
+	NSWindow* window = self;
+	[window setAcceptsMouseMovedEvents:accept];
 }
 
 void MakeWindowKeyAndOrderFront(void* self) {

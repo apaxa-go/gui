@@ -12,14 +12,12 @@ package cocoa
 import "C"
 import "unsafe"
 
-//type ApplicationP unsafe.Pointer
-
 type Application struct {
-	pointer unsafe.Pointer
+	pointer unsafe.Pointer // may be uintptr better here?
 }
 
 func InitApplication() (app *Application, err error) {
-	return &Application{unsafe.Pointer(C.InitApplication())}, nil
+	return &Application{C.InitApplication()}, nil
 }
 
 func (a *Application) Run() (err error) {

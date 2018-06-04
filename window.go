@@ -156,7 +156,6 @@ func (w *Window) ProcessEvent(event Event) bool {
 
 func (w *Window) baseInit() {
 	w.driverWindow.RegisterDrawCallback(w.Draw)
-	w.driverWindow.RegisterEventCallback(w.ProcessEvent)
 	w.driverWindow.RegisterResizeCallback(w.onExternalResize)
 	w.driverWindow.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
 	w.BaseControl.window = w

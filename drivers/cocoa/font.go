@@ -13,24 +13,22 @@ import "C"
 import (
 	"errors"
 	"github.com/apaxa-go/gui/drivers"
-	"unsafe"
 )
 
-type Font uintptr // CTFontRef
+type Font struct {
+	pointer uintptr // CTFontRef
+}
 
 // Implements drivers.Font interface.
 func (f Font) IAmFont() {}
 
-// Handler
-func (f Font) H() unsafe.Pointer { return unsafe.Pointer(f) }
-
 func (f Font) Release() {
-	C.releaseFont(C.CTFontRef(f.H()))
+	C.releaseFont(C.CTFontRef(f.pointer))
 	// *f = 0 // TODO remove this or use *Font as receiver for all methods
 }
 
 func (f Font) Size() float64 {
-	return float64(C.CTFontGetSize(C.CTFontRef(f.H())))
+	return float64(C.CTFontGetSize(C.CTFontRef(f.pointer)))
 }
 
 func NewFont(spec FontSpec) (f Font, err error) {
@@ -47,8 +45,8 @@ func NewFont(spec FontSpec) (f Font, err error) {
 
 func newFontDefault(spec FontSpec) Font {
 	// TODO current implementation totally ignore all requirements
-	return Font(
-		unsafe.Pointer(
+	return Font{
+		uintptr(
 			C.CreateDefaultFont(
 				C.CGFloat(spec.Size),
 
@@ -68,7 +66,7 @@ func newFontDefault(spec FontSpec) Font {
 				C.CGFloat(spec.Weight),
 			),
 		),
-	)
+	}
 }
 
 func newFont(spec FontSpec) (f Font, err error) {
@@ -81,34 +79,38 @@ func newFont(spec FontSpec) (f Font, err error) {
 		name = (*C.UInt8)(&tmp[0])
 	}
 
-	f = Font(unsafe.Pointer(C.makeFont(
-		C.bool(reqName),
-		name,
-		nameLen,
+	f = Font{
+		uintptr(
+			C.makeFont(
+				C.bool(reqName),
+				name,
+				nameLen,
 
-		C.bool(reqFamily),
-		name,
-		nameLen,
+				C.bool(reqFamily),
+				name,
+				nameLen,
 
-		C.CGFloat(spec.Size),
+				C.CGFloat(spec.Size),
 
-		C.bool(spec.Requirements.Monospace()),
-		C.bool(spec.Monospace),
+				C.bool(spec.Requirements.Monospace()),
+				C.bool(spec.Monospace),
 
-		C.bool(spec.Requirements.Italic()),
-		C.CGFloat(spec.Italic),
+				C.bool(spec.Requirements.Italic()),
+				C.CGFloat(spec.Italic),
 
-		C.bool(spec.Requirements.Slant()),
-		C.CGFloat(spec.Slant),
+				C.bool(spec.Requirements.Slant()),
+				C.CGFloat(spec.Slant),
 
-		C.bool(spec.Requirements.Width()),
-		C.CGFloat(spec.Width),
+				C.bool(spec.Requirements.Width()),
+				C.CGFloat(spec.Width),
 
-		C.bool(spec.Requirements.Weight()),
-		C.CGFloat(spec.Weight),
-	)))
+				C.bool(spec.Requirements.Weight()),
+				C.CGFloat(spec.Weight),
+			),
+		),
+	}
 
-	if f == 0 { // TODO is it possible
+	if f.pointer == 0 { // TODO is it possible
 		err = errors.New("unable to create font")
 	}
 
@@ -123,29 +125,33 @@ func newFontFromFile(spec FontSpec) (f Font, err error) {
 		name = (*C.UInt8)(&tmp[0])
 	}
 
-	f = Font(unsafe.Pointer(C.makeFontFromFile(
-		name,
-		nameLen,
+	f = Font{
+		uintptr(
+			C.makeFontFromFile(
+				name,
+				nameLen,
 
-		C.CGFloat(spec.Size),
+				C.CGFloat(spec.Size),
 
-		C.bool(spec.Requirements.Monospace()),
-		C.bool(spec.Monospace),
+				C.bool(spec.Requirements.Monospace()),
+				C.bool(spec.Monospace),
 
-		C.bool(spec.Requirements.Italic()),
-		C.CGFloat(spec.Italic),
+				C.bool(spec.Requirements.Italic()),
+				C.CGFloat(spec.Italic),
 
-		C.bool(spec.Requirements.Slant()),
-		C.CGFloat(spec.Slant),
+				C.bool(spec.Requirements.Slant()),
+				C.CGFloat(spec.Slant),
 
-		C.bool(spec.Requirements.Width()),
-		C.CGFloat(spec.Width),
+				C.bool(spec.Requirements.Width()),
+				C.CGFloat(spec.Width),
 
-		C.bool(spec.Requirements.Weight()),
-		C.CGFloat(spec.Weight),
-	)))
+				C.bool(spec.Requirements.Weight()),
+				C.CGFloat(spec.Weight),
+			),
+		),
+	}
 
-	if f == 0 {
+	if f.pointer == 0 {
 		err = errors.New("unable to create font from file\"" + spec.Name + "\"")
 	}
 

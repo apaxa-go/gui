@@ -1,0 +1,48 @@
+{
+  "Config comment":[
+    "Enable full path to file (for JB external tools).",
+    "Disable safesql linter because of no SQL code.]",
+    "Disable dupl linter - useless because of horizontal & vertical equivalents and '-gen.go' files.]",
+    "Disable unnamed composite literals - useless for smth like Point* literals.",
+    "Disable gas G103 rule - nothing wrong with using unsafe.* functions (especially in drivers).",
+    "Exclude warnings about comments (temporary)."
+  ],
+  "Format":"{{.Path.Abs}}:{{.Line}}:{{if .Col}}{{.Col}}{{end}}:{{.Severity}}: {{.Message}} ({{.Linter}})",
+  "Sort":["path","line"],
+  "Enable": [
+    "deadcode",
+    "errcheck",
+    "gas",
+    "goconst",
+    "gocyclo",
+    "gofmt",
+    "golint",
+    "gotype",
+    "gotypex",
+    "ineffassign",
+    "interfacer",
+    "maligned",
+    "megacheck",
+    "misspell",
+    "structcheck",
+    "unconvert",
+    "unparam",
+    "varcheck",
+    "vet",
+    "vetshadow"
+  ],
+  "Linters": {
+    "vet": {
+      "Command":"go vet -composites=false"
+    },
+    "gas": {
+      "Command":"gas -fmt=csv -exclude=G103"
+    }
+  },
+  "Exclude": [
+    "package comment should be of the form .*",
+    "exported .* should have comment or be unexported",
+    "exported .* should have comment \\(or a comment on this block\\) or be unexported",
+    "comment on exported .* should be of the form .*"
+  ]
+}

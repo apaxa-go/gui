@@ -9,22 +9,23 @@ package cocoa
 import "C"
 import "unsafe"
 
-//type ContextP unsafe.Pointer
-
 // TODO C.Free each C.CString()
 
 type Context struct {
-	pointer C.CGContextRef // TODO fix changes in files
+	pointer uintptr // C.CGContextRef
 	//transforms []TransformF64 // Stack of transforms
 }
 
-func newContext(rawContext unsafe.Pointer) *Context {
-	return &Context{C.CGContextRef(rawContext)}
+func newContext(rawContext uintptr) *Context { // TODO remove this function?
+	return &Context{rawContext}
 }
 
-/*func (c *Context) ResetTransform() {
+/*
+func (c *Context) ResetTransform() {
 	C.resetTransform(c.pointer)
-}*/
+}
+*/
+
 func (c *Context) PushTransform() {
 	C.CGContextSaveGState(C.CGContextRef(c.pointer))
 	//c.transforms = append(c.transforms, c.GetTransform())
@@ -41,7 +42,7 @@ func (c *Context) PopTransform() {
 	*/
 }
 func (c *Context) GetTransform() TransformF64 {
-	t := C.CGContextGetCTM(c.pointer)
+	t := C.CGContextGetCTM(C.CGContextRef(c.pointer))
 	return *(*TransformF64)(unsafe.Pointer(&t))
 }
 
@@ -49,16 +50,16 @@ func (c *Context) GetTransform() TransformF64 {
 	C.CGContextConcatCTM(c.pointer, *(*C.CGAffineTransform)(unsafe.Pointer(&transform)))
 }*/
 func (c *Context) Rotate(angle float64) {
-	C.CGContextRotateCTM(c.pointer, C.CGFloat(-angle))
+	C.CGContextRotateCTM(C.CGContextRef(c.pointer), C.CGFloat(-angle))
 }
 func (c *Context) Scale(x float64) {
 	c.ScaleXY(x, x)
 }
 func (c *Context) ScaleXY(x, y float64) {
-	C.CGContextScaleCTM(c.pointer, C.CGFloat(x), C.CGFloat(y))
+	C.CGContextScaleCTM(C.CGContextRef(c.pointer), C.CGFloat(x), C.CGFloat(y))
 }
 func (c *Context) Translate(pos PointF64) {
-	C.CGContextTranslateCTM(c.pointer, C.CGFloat(pos.X), C.CGFloat(pos.Y))
+	C.CGContextTranslateCTM(C.CGContextRef(c.pointer), C.CGFloat(pos.X), C.CGFloat(pos.Y))
 }
 func (c *Context) Superpose(original, required RectangleF64) {
 	scaleX := required.Width() / original.Width()
@@ -71,21 +72,21 @@ func (c *Context) Superpose(original, required RectangleF64) {
 }
 
 func (c *Context) setLineColor(color ColorF64) {
-	C.CGContextSetStrokeColor(C.CGContextRef(unsafe.Pointer(c.pointer)), (*C.CGFloat)(unsafe.Pointer(&color)))
+	C.CGContextSetStrokeColor(C.CGContextRef(c.pointer), (*C.CGFloat)(unsafe.Pointer(&color)))
 }
 
 func (c *Context) setLineWidth(width float64) {
-	C.CGContextSetLineWidth(C.CGContextRef(unsafe.Pointer(c.pointer)), C.CGFloat(width))
+	C.CGContextSetLineWidth(C.CGContextRef(c.pointer), C.CGFloat(width))
 }
 
 func (c *Context) setFillColor(color ColorF64) {
-	C.CGContextSetFillColor(C.CGContextRef(unsafe.Pointer(c.pointer)), (*C.CGFloat)(unsafe.Pointer(&color)))
+	C.CGContextSetFillColor(C.CGContextRef(c.pointer), (*C.CGFloat)(unsafe.Pointer(&color)))
 }
 
 func (c *Context) drawLine(point1, point2 PointF64) {
 	points := [2]PointF64{point1, point2}
-	C.CGContextStrokeLineSegments(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+	C.CGContextStrokeLineSegments( // nolint: unparam
+		C.CGContextRef(c.pointer),
 		(*C.CGPoint)(unsafe.Pointer(&points)), // TODO is it safe (can Go GC remove points while this function works)?
 		2,
 	)
@@ -99,7 +100,7 @@ func (c *Context) DrawLine(point1, point2 PointF64, color ColorF64, width float6
 
 func (c *Context) drawConnectedLines(points []PointF64) {
 	C.drawConnectedLines(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		(*C.CGPoint)(unsafe.Pointer(&points[0])), // TODO is it safe (can Go GC remove points while this function works)?
 		C.size_t(len(points)),
 	)
@@ -115,7 +116,7 @@ func (c *Context) DrawStraightContour(points []PointF64, color ColorF64, width f
 	c.setLineColor(color)
 	c.setLineWidth(width)
 	C.drawStraightContour(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		(*C.CGPoint)(unsafe.Pointer(&points[0])), // TODO is it safe (can Go GC remove points while this function works)?
 		C.size_t(len(points)),
 	)
@@ -124,7 +125,7 @@ func (c *Context) DrawStraightContour(points []PointF64, color ColorF64, width f
 func (c *Context) FillStraightContour(points []PointF64, color ColorF64) {
 	c.setFillColor(color)
 	C.fillStraightContour(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		(*C.CGPoint)(unsafe.Pointer(&points[0])), // TODO is it safe (can Go GC remove points while this function works)?
 		C.size_t(len(points)),
 	)
@@ -133,7 +134,7 @@ func (c *Context) FillStraightContour(points []PointF64, color ColorF64) {
 func (c *Context) drawRectangleWithWidth(rect RectangleF64, width float64) {
 	r := rect.ToF64S()
 	C.CGContextStrokeRectWithWidth(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		*(*C.CGRect)(unsafe.Pointer(&r)),
 		C.CGFloat(width),
 	)
@@ -147,7 +148,7 @@ func (c *Context) DrawRectangle(rect RectangleF64, color ColorF64, width float64
 func (c *Context) DrawRoundedRectangle(rect RoundedRectangleF64, color ColorF64, width float64) {
 	r := rect.Rectangle.ToF64S()
 	C.drawRoundedRectangle(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		*(*C.CGRect)(unsafe.Pointer(&r)),
 		C.CGFloat(rect.RadiusX),
 		C.CGFloat(rect.RadiusY),
@@ -164,7 +165,7 @@ func (c *Context) DrawRoundedRectangleExtended(
 ) {
 	r := rect.ToF64S()
 	C.drawRoundedRectangleExtended(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		*(*C.CGRect)(unsafe.Pointer(&r)),
 		*(*C.CGPoint)(unsafe.Pointer(&radiusLT)),
 		*(*C.CGPoint)(unsafe.Pointer(&radiusRT)),
@@ -177,7 +178,7 @@ func (c *Context) DrawRoundedRectangleExtended(
 
 func (c *Context) drawEllipse(ellipse EllipseF64) {
 	r := ellipse.OuterRectangle().ToF64S()
-	C.CGContextStrokeEllipseInRect(C.CGContextRef(unsafe.Pointer(c.pointer)), *(*C.CGRect)(unsafe.Pointer(&r)))
+	C.CGContextStrokeEllipseInRect(C.CGContextRef(c.pointer), *(*C.CGRect)(unsafe.Pointer(&r)))
 }
 
 func (c *Context) DrawEllipse(ellipse EllipseF64, color ColorF64, width float64) {
@@ -192,7 +193,7 @@ func (c *Context) DrawCircle(circle CircleF64, color ColorF64, width float64) {
 
 func (c *Context) fillRectangle(rect RectangleF64) {
 	r := rect.ToF64S()
-	C.CGContextFillRect(C.CGContextRef(unsafe.Pointer(c.pointer)), *(*C.CGRect)(unsafe.Pointer(&r)))
+	C.CGContextFillRect(C.CGContextRef(c.pointer), *(*C.CGRect)(unsafe.Pointer(&r)))
 }
 
 func (c *Context) FillRectangle(rect RectangleF64, color ColorF64) {
@@ -203,7 +204,7 @@ func (c *Context) FillRectangle(rect RectangleF64, color ColorF64) {
 func (c *Context) FillRoundedRectangle(rect RoundedRectangleF64, color ColorF64) {
 	r := rect.Rectangle.ToF64S()
 	C.fillRoundedRectangle(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		*(*C.CGRect)(unsafe.Pointer(&r)),
 		C.CGFloat(rect.RadiusX),
 		C.CGFloat(rect.RadiusY),
@@ -218,7 +219,7 @@ func (c *Context) FillRoundedRectangleExtended(
 ) {
 	r := rect.ToF64S()
 	C.fillRoundedRectangleExtended(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		*(*C.CGRect)(unsafe.Pointer(&r)),
 		*(*C.CGPoint)(unsafe.Pointer(&radiusLT)),
 		*(*C.CGPoint)(unsafe.Pointer(&radiusRT)),
@@ -230,7 +231,7 @@ func (c *Context) FillRoundedRectangleExtended(
 
 func (c *Context) fillEllipse(ellipse EllipseF64) {
 	r := ellipse.OuterRectangle().ToF64S()
-	C.CGContextFillEllipseInRect(C.CGContextRef(unsafe.Pointer(c.pointer)), *(*C.CGRect)(unsafe.Pointer(&r)))
+	C.CGContextFillEllipseInRect(C.CGContextRef(c.pointer), *(*C.CGRect)(unsafe.Pointer(&r)))
 }
 
 func (c *Context) FillEllipse(ellipse EllipseF64, color ColorF64) {
@@ -247,10 +248,10 @@ func (c *Context) DrawTextLine(text string, font FontI, pos PointF64, color Colo
 	// TODO fontSize
 	buf := []byte(text)
 	C.DrawTextLine(
-		C.CGContextRef(unsafe.Pointer(c.pointer)),
+		C.CGContextRef(c.pointer),
 		(*C.UInt8)(unsafe.Pointer(&buf[0])), // TODO is it safe to pass pointer here?
 		C.CFIndex(len(buf)),
-		C.CTFontRef(font.H()),
+		C.CTFontRef(font.(Font).pointer),
 		*(*C.CGPoint)(unsafe.Pointer(&pos)),
 	)
 }
@@ -259,10 +260,10 @@ func (c *Context) TextLineGeometry(text string, font FontI) PointF64 {
 	// TODO fontSize
 	buf := []byte(text)
 	rect := C.GetTextLineGeometry(
-		c.pointer,
+		C.CGContextRef(c.pointer),
 		(*C.UInt8)(unsafe.Pointer(&buf[0])), // TODO is it safe to pass pointer here?
 		C.CFIndex(len(buf)),
-		C.CTFontRef(font.H()),
+		C.CTFontRef(font.(Font).pointer),
 	)
 	return (*(*RectangleF64S)(unsafe.Pointer(&rect))).Size
 }

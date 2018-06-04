@@ -16,11 +16,16 @@ import (
 )
 
 type Window struct {
-	pointer               unsafe.Pointer
+	pointer unsafe.Pointer
+
 	drawCallback          func(CanvasI, RectangleF64) // TODO Rectangle is too simple
-	eventCallback         func(EventI) bool
 	resizeCallback        func()
 	offlineCanvasCallback func()
+
+	keyboardEventCallback    func(KeyboardEvent)
+	pointerKeyEventCallback  func(PointerButtonEvent)
+	pointerMoveEventCallback func(PointerMoveEvent)
+	scrollEventCallback      func(ScrollEvent)
 }
 
 func CreateWindow() (window *Window, err error) {
@@ -33,13 +38,13 @@ func CreateWindow() (window *Window, err error) {
 		return
 	}
 
-	view, ok := CreateTopView(window)
+	view, ok := createTopView(window)
 	if !ok {
 		return nil, errors.New("Unable to create top NSView")
 	}
 
-	C.SetWindowTopView(unsafe.Pointer(window.pointer), unsafe.Pointer(view))
-	C.MakeWindowKeyAndOrderFront(unsafe.Pointer(window.pointer))
+	C.SetWindowTopView(window.pointer, view)
+	C.MakeWindowKeyAndOrderFront(window.pointer)
 	return
 }
 
@@ -90,7 +95,7 @@ func (w *Window) Invalidate() {
 }
 
 func (w *Window) OfflineCanvas() OfflineCanvasI {
-	return newContext(unsafe.Pointer(C.GetWindowContext(w.pointer)))
+	return newContext(uintptr(C.GetWindowContext(w.pointer)))
 }
 
 func (w *Window) ScaleFactor() float64 {
@@ -98,6 +103,19 @@ func (w *Window) ScaleFactor() float64 {
 }
 
 func (w *Window) RegisterDrawCallback(f func(CanvasI, RectangleF64)) { w.drawCallback = f }
-func (w *Window) RegisterEventCallback(f func(EventI) bool)          { w.eventCallback = f }
 func (w *Window) RegisterResizeCallback(f func())                    { w.resizeCallback = f }
 func (w *Window) RegisterOfflineCanvasCallback(f func())             { w.offlineCanvasCallback = f }
+
+func (w *Window) RegisterKeyboardCallback(f func(KeyboardEvent)) { w.keyboardEventCallback = f }
+func (w *Window) RegisterPointerKeyCallback(f func(PointerButtonEvent)) {
+	w.pointerKeyEventCallback = f
+}
+func (w *Window) RegisterPointerMoveCallback(f func(PointerMoveEvent)) {
+	if w.pointerMoveEventCallback == nil && f != nil {
+		C.SetWindowAcceptMouseMoved(w.pointer, true)
+	} else if w.pointerMoveEventCallback != nil && f == nil {
+		C.SetWindowAcceptMouseMoved(w.pointer, false)
+	}
+	w.pointerMoveEventCallback = f
+}
+func (w *Window) RegisterScrollCallback(f func(ScrollEvent)) { w.scrollEventCallback = f }

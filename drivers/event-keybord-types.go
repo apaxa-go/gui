@@ -13,6 +13,7 @@ import (
 
 type Key uint8
 
+// com
 const (
 	//
 	// Function keys
@@ -183,9 +184,11 @@ const (
 	// Unknown keys
 	//
 
-	KeyKnownCount, KeyFirstUnknown = iota, iota
-	KeyLastUnknown                 = mathh.MaxUint8
+	KeyKnownCount  = iota
+	KeyLastUnknown = mathh.MaxUint8
 )
+
+const KeyFirstUnknown Key = KeyKnownCount
 
 // MacOS alternative names.
 // TODO this may be wrong
