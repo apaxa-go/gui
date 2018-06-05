@@ -100,5 +100,79 @@ type Control interface {
 	ComputeChildVerGeometry() (tops, bottoms []float64) // index according Children()
 
 	Draw(canvas Canvas, region RectangleF64)
-	ProcessEvent(Event) bool
+
+	OnKeyboardEvent(event KeyboardEvent) (done bool)
+	OnPointerButtonEvent(event PointerButtonEvent)
+	OnPointerMoveEvent(event PointerMoveEvent)
+	OnScrollEvent(event ScrollEvent)
+
+	// FocusCandidate returns candidate for keyboard event focus. This method is called by Window on Tab and Shift-Tab shortcuts.
+	//
+	// Process limited to the Controls itself and his direct children. Implementation usually do not work with child directly, but only returns them as candidates.
+	// 3 different kind of results possible.
+	// Returning nil means that there is no candidate for focus.
+	// Returning receiver itself means that receiver decided become a focused Control (no other checks will be performed).
+	// Returning child means that receiver suggest this child as Control for focus. In this case child's FocusCandidate method will be called.
+	// In any case if x.FocusCandidate(*, *) returns "y" then x.FocusCandidate must accept "y" as "current" parameter.
+	//
+	// If reverse is true then looking backward (looking for previous before current, Shift-Tab), otherwise looking for forward (looking for next after current, Tab).
+	// Passed current is the start point for search and must be direct child of receiver itself.
+	// If current is nil then looking for first (if forward) or last (if backward) candidate.
+	//
+	// It is uncommon (but possible) to manipulate focus in some specific way there self.FocusCandidate(*, self)==self.
+	// Usually this means that Control has children implemented not by this library (e.g. embedded browser).
+	//
+	// Common implementations:
+	// 1. Control itself does not accept focus and it has no child:
+	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//		return nil
+	//	}
+	//
+	// 2. Control itself accepts focus and has no child:
+	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//		if current==nil{ // First/last focus
+	//			return c
+	//		}
+	//		return nil // Next/previous (usually after/before control itself)
+	//	}
+	//
+	// 3. Control itself accepts focus and has single child (focus order: <Control itself> before <child>):
+	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//		switch {
+	//		//
+	//		// Forward
+	//		//
+	//		case !reverse && current==nil: // First focus
+	//			return c
+	//		case !reverse && current==c: // Next after control itself
+	//			return c.child
+	//		case !reverse && current==c.child: // Next after child
+	//			return nil
+	//		//
+	//		// Backward
+	//		//
+	//		case reverse && current==nil: // Last focus
+	//			return c.child
+	//		case reverse && current==c.child: // Previous before child
+	//			return c
+	//		case reverse && current==c: // Previous before control itself
+	//			return nil
+	//		//
+	//		// Fallback - unexpected case
+	//		//
+	//		default:
+	//			return c
+	//		}
+	//	}
+	//
+	// 4. Control itself does not accept focus and has single child:
+	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//		if current==nil{ // First/last focus
+	//			return c.child
+	//		}
+	//		return nil // Next/previous (usually after/before child)
+	//	}
+	FocusCandidate(reverse bool, current Control) Control
+
+	OnFocus(event FocusEvent)
 }

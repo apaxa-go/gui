@@ -29,11 +29,15 @@ type Application = drivers.Application
 type DriverWindow = drivers.Window
 type Canvas = drivers.Canvas
 type OfflineCanvas = drivers.OfflineCanvas
-type Event = drivers.Event
 
 type Font = drivers.Font
 type FontSpec = drivers.FontSpec
 type FontIndex = drivers.FontIndex
+
+type KeyboardEvent = drivers.KeyboardEvent
+type PointerButtonEvent = drivers.PointerButtonEvent
+type PointerMoveEvent = drivers.PointerMoveEvent
+type ScrollEvent = drivers.ScrollEvent
 
 //
 // This is only to allow controls to not import basetypes

@@ -50,8 +50,6 @@ func (c windowTitleMacOS) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	c.label.Draw(canvas, region)
 }
 
-func (c windowTitleMacOS) ProcessEvent(gui.Event) bool { return false } // TODO
-
 func newWindowTitleMacOS() *windowTitleMacOS {
 	r := &windowTitleMacOS{}
 	label := NewLabel("", defaultFont, windowTitleMacOSTitleColor)

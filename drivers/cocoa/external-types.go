@@ -24,7 +24,6 @@ type ApplicationI = drivers.Application
 type WindowI = drivers.Window
 type CanvasI = drivers.Canvas
 type FontI = drivers.Font
-type EventI = drivers.Event
 type OfflineCanvasI = drivers.OfflineCanvas
 type FontSpec = drivers.FontSpec
 

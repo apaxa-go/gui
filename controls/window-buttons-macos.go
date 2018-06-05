@@ -66,8 +66,6 @@ func (c windowButtonsMacOS) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	c.maximizeButton.Draw(canvas, region)
 }
 
-func (c windowButtonsMacOS) ProcessEvent(gui.Event) bool { return false } // TODO
-
 func newWindowButtonsMacOS() *windowButtonsMacOS {
 	r := &windowButtonsMacOS{}
 

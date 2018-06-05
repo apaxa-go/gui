@@ -45,8 +45,6 @@ func (c Label) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
 	canvas.DrawTextLine(c.text, c.font, place.LT(), c.color)
 }
 
-func (c Label) ProcessEvent(gui.Event) bool { return false }
-
 func (c *Label) GetText() string { return c.text }
 func (c *Label) SetText(text string) {
 	if c.text == text {

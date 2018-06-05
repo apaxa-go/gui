@@ -4,11 +4,14 @@
 
 package gui
 
+import "github.com/apaxa-go/gui/drivers"
+
 type Window struct {
 	driverWindow DriverWindow
 	BaseControl
 	child                   Control
 	geometryHypervisorState uint // 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
+	focusedControl          Control
 }
 
 //
@@ -142,22 +145,46 @@ func (w *Window) Draw(canvas Canvas, region RectangleF64) {
 	}
 }
 
-// TODO may remove this method?
-func (w *Window) ProcessEvent(event Event) bool {
-	if w.child != nil {
-		return w.child.ProcessEvent(event)
+//
+// Raw events handlers (process events directly from driver).
+//
+
+func (w *Window) processHotKeys(e KeyboardEvent) (processed bool) {
+	switch {
+	case e.Event.IsPressed() && e.Key == drivers.KeyTab && (e.Modifiers & ^drivers.KeyModifierShift == 0): // TODO use smth like e.Modifiers.OnlyShift()
+		w.ShiftFocus(e.Modifiers.IsShiftPressed())
+	default:
+		return false
 	}
-	return false
+	return true
 }
+
+func (w *Window) onKeyboardEvent(e KeyboardEvent) {
+	if w.processHotKeys(e) {
+		return
+	}
+	for c, done := w.focusedControl, false; !done && c != nil; c = c.Parent() {
+		done = c.OnKeyboardEvent(e)
+	}
+}
+
+//
+// Events related.
+//
+
+func (w *Window) FocusedControl() Control         { return w.focusedControl }
+func (w *Window) IfControlFocused(c Control) bool { return w.focusedControl == c }
 
 //
 // Constructors & destructor
 //
 
 func (w *Window) baseInit() {
+	w.focusedControl = w
 	w.driverWindow.RegisterDrawCallback(w.Draw)
 	w.driverWindow.RegisterResizeCallback(w.onExternalResize)
 	w.driverWindow.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
+	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
 	w.BaseControl.window = w
 	w.SetUPGIR(false)
 }

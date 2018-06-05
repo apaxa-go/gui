@@ -42,8 +42,6 @@ func (c windowButtonMacOS) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
 	c.image.Draw(canvas, place, c.imageColor)
 }
 
-func (c windowButtonMacOS) ProcessEvent(gui.Event) bool { return false } // TODO
-
 func (c *windowButtonMacOS) Image() scvi.SCVI { return c.image }
 func (c *windowButtonMacOS) SetImage(image scvi.SCVI) {
 	if c.image.Equal(image) {

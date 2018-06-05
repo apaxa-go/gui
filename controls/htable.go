@@ -40,9 +40,33 @@ func (c *HTable) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	}
 }
 
-func (c *HTable) ProcessEvent(gui.Event) bool {
-	// TODO
-	return false
+func (c *HTable) FocusCandidate(reverse bool, current gui.Control) gui.Control {
+	l := len(c.children)
+	if l == 0 {
+		return nil
+	}
+	switch {
+	case current == nil && !reverse: // first
+		return c.children[0]
+	case current == nil && reverse: // last
+		return c.children[l-1]
+	default:
+		i := 0
+		for ; i < l && c.children[i] != current; i++ {
+		}
+		if i == l { // not found
+			return c.children[0]
+		}
+		if reverse {
+			i--
+		} else {
+			i++
+		}
+		if i < 0 || i >= l { // out of current control
+			return nil
+		}
+		return c.children[i]
+	}
 }
 
 func (c *HTable) ComputeChildHorGeometry() (lefts, rights []float64) {

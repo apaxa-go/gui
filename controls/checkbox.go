@@ -65,7 +65,12 @@ func (c CheckBox) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
 	}
 }
 
-func (c CheckBox) ProcessEvent(gui.Event) bool { return false }
+func (c *CheckBox) FocusCandidate(reverse bool, current gui.Control) gui.Control {
+	if current == nil {
+		return c
+	}
+	return nil
+}
 
 func (c CheckBox) correctState(state CheckBoxState) CheckBoxState {
 	if !c.mayUnknown && state.IsUnknown() {

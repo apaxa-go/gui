@@ -42,12 +42,34 @@ func (c *Layers) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 		child.Draw(canvas, region)
 	}
 }
-
-func (c *Layers) ProcessEvent(gui.Event) bool {
-	// TODO
-	return false
+func (c *Layers) FocusCandidate(reverse bool, current gui.Control) gui.Control {
+	l := len(c.layers)
+	if l == 0 {
+		return nil
+	}
+	switch {
+	case current == nil && !reverse: // first
+		return c.layers[0]
+	case current == nil && reverse: // last
+		return c.layers[l-1]
+	default:
+		i := 0
+		for ; i < l && c.layers[i] != current; i++ {
+		}
+		if i == l { // not found
+			return c.layers[0]
+		}
+		if reverse {
+			i--
+		} else {
+			i++
+		}
+		if i < 0 || i >= l { // out of current control
+			return nil
+		}
+		return c.layers[i]
+	}
 }
-
 func (c *Layers) ComputeChildHorGeometry() (lefts, rights []float64) {
 	l := len(c.layers)
 	lefts = make([]float64, l)

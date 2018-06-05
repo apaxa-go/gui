@@ -35,15 +35,27 @@ type BaseControl struct {
 }
 
 func SetParent(control, parent Control) {
-	var parentWindow *Window
+	oldWindow := control.Window()
+	oldParent := control.Parent()
+
+	var newWindow *Window
 	if parent != nil {
-		parentWindow = parent.Window()
+		newWindow = parent.Window()
 	}
 
 	control.setParent(parent)
 
-	if parentWindow != control.Window() {
-		setWindow(control, parentWindow)
+	if newWindow != control.Window() {
+		setWindow(control, newWindow)
+
+		// Validate focus
+		if oldWindow != nil && oldWindow.focusedControl.Window() != oldWindow {
+			// Assume that "control" which has been moved to other parent itself has focus or contains such child.
+			// Make old parent focused (or window itself if something goes wrong).
+			if !oldWindow.SetFocus(oldParent) { // TODO this may causes unfocusable Control receive focus.
+				oldWindow.SetFocus(oldWindow)
+			}
+		}
 	}
 }
 func setWindow(control Control, window *Window) {
@@ -314,3 +326,20 @@ func (c *BaseControl) SetUCGIR() {
 	c.setIR()
 	c.GeometryHypervisorResume()
 }
+
+//
+// Default event handlers & related methods - controls may reimplement them. TODO - remove this section?
+//
+
+func (c *BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool) { return false }
+func (c *BaseControl) OnPointerButtonEvent(_ PointerButtonEvent)   {}
+func (c *BaseControl) OnPointerMoveEvent(_ PointerMoveEvent)       {}
+func (c *BaseControl) OnScrollEvent(_ ScrollEvent)                 {}
+func (c *BaseControl) OnFocus(_ FocusEvent)                        {}
+
+//
+// Related to event handlers
+//
+
+// FocusCandidate is default implementation. It always returns nil - neither Control itself nor his children (if any) accepts focus.
+func (c *BaseControl) FocusCandidate(reverse bool, current Control) Control { return nil } // TODO remove this?
