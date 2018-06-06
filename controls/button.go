@@ -54,7 +54,7 @@ func (c *Button) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 }
 
 func (c *Button) OnPointerButtonEvent(e gui.PointerButtonEvent) (processed bool) {
-	// TODO
+	c.SetText(e.ShortString()) // TODO
 	return true
 }
 
@@ -63,10 +63,6 @@ func (c *Button) FocusCandidate(reverse bool, current gui.Control) gui.Control {
 		return c
 	}
 	return nil
-}
-
-func (c *Button) PointerCandidates() []gui.Control {
-	return []gui.Control{c.label}
 }
 
 func (c *Button) OnFocus(e gui.FocusEvent) {

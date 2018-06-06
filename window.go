@@ -172,20 +172,13 @@ func processPointerButtonEvent(c Control, e PointerButtonEvent) (processed bool)
 	if !c.Geometry().Contains(e.Point) {
 		return false
 	}
-	for _, candidate := range c.PointerCandidates() {
+	for _, candidate := range c.Children() {
 		processed = processPointerButtonEvent(candidate, e)
 		if processed {
 			return
 		}
 	}
 	return c.OnPointerButtonEvent(e)
-}
-
-func (w *Window) PointerCandidates() []Control {
-	if w.child == nil {
-		return nil
-	}
-	return []Control{w.child}
 }
 
 func (w *Window) onPointerKey(e PointerButtonEvent) {

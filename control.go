@@ -175,6 +175,4 @@ type Control interface {
 	FocusCandidate(reverse bool, current Control) Control
 
 	OnFocus(event FocusEvent)
-
-	PointerCandidates() []Control
 }

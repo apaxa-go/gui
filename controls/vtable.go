@@ -68,10 +68,6 @@ func (c *VTable) FocusCandidate(reverse bool, current gui.Control) gui.Control {
 	}
 }
 
-func (c *VTable) PointerCandidates() []gui.Control {
-	return c.children
-}
-
 func (c *VTable) ComputeChildHorGeometry() (lefts, rights []float64) {
 	l := len(c.children)
 	lefts = make([]float64, l)

@@ -343,5 +343,3 @@ func (c *BaseControl) OnFocus(_ FocusEvent)                                     
 
 // FocusCandidate is default implementation. It always returns nil - neither Control itself nor his children (if any) accepts focus.
 func (c *BaseControl) FocusCandidate(reverse bool, current Control) Control { return nil } // TODO remove this?
-
-func (c *BaseControl) PointerCandidates() []Control { return nil }

@@ -71,10 +71,6 @@ func (c *Layers) FocusCandidate(reverse bool, current gui.Control) gui.Control {
 	}
 }
 
-func (c *Layers) PointerCandidates() []gui.Control {
-	return c.layers
-}
-
 func (c *Layers) ComputeChildHorGeometry() (lefts, rights []float64) {
 	l := len(c.layers)
 	lefts = make([]float64, l)
