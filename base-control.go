@@ -334,7 +334,7 @@ func (c *BaseControl) SetUCGIR() {
 func (c *BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool)                { return false }
 func (c *BaseControl) OnPointerButtonEvent(_ PointerButtonEvent) (processed bool) { return false }
 func (c *BaseControl) OnPointerMoveEvent(_ PointerMoveEvent)                      {}
-func (c *BaseControl) OnScrollEvent(_ ScrollEvent)                                {}
+func (c *BaseControl) OnScrollEvent(_ ScrollEvent) (processed bool)               { return false }
 func (c *BaseControl) OnFocus(_ FocusEvent)                                       {}
 
 //

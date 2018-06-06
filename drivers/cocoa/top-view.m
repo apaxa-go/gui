@@ -55,6 +55,11 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 	[super dealloc];
 }
 
+- (NSPoint)mouseLocation {
+	NSPoint r = [[self window] mouseLocationOutsideOfEventStream];
+	r         = [self convertPoint:r fromView:nil];
+	return r;
+}
 //
 // Keyboard events
 //
@@ -75,42 +80,42 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 - (void)mouseDown:(NSEvent*)event {
 	[self mouseButton:true //
 	           Button:0
-	            Point:[self currentMousePos]
+	            Point:[self mouseLocation]
 	        Modifiers:event.modifierFlags];
 }
 
 - (void)mouseUp:(NSEvent*)event {
 	[self mouseButton:false //
 	           Button:0
-	            Point:[self currentMousePos]
+	            Point:[self mouseLocation]
 	        Modifiers:event.modifierFlags];
 }
 
 - (void)rightMouseDown:(NSEvent*)event {
 	[self mouseButton:true //
 	           Button:1
-	            Point:[self currentMousePos]
+	            Point:[self mouseLocation]
 	        Modifiers:event.modifierFlags];
 }
 
 - (void)rightMouseUp:(NSEvent*)event {
 	[self mouseButton:false //
 	           Button:1
-	            Point:[self currentMousePos]
+	            Point:[self mouseLocation]
 	        Modifiers:event.modifierFlags];
 }
 
 - (void)otherMouseDown:(NSEvent*)event {
 	[self mouseButton:true //
 	           Button:event.buttonNumber
-	            Point:[self currentMousePos]
+	            Point:[self mouseLocation]
 	        Modifiers:event.modifierFlags];
 }
 
 - (void)otherMouseUp:(NSEvent*)event {
 	[self mouseButton:false //
 	           Button:event.buttonNumber
-	            Point:[self currentMousePos]
+	            Point:[self mouseLocation]
 	        Modifiers:event.modifierFlags];
 }
 
@@ -167,15 +172,9 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 //
 
 - (void)mouseMoved:(NSEvent*)event {
-	pointerMoveEventCallback(self.windowP, [self currentMousePos]);
+	pointerMoveEventCallback(self.windowP, [self mouseLocation]);
 	// TODO There is no move events between press & release. May be send move event on release and/or
 	// in dragging event?
-}
-
-- (NSPoint)currentMousePos {
-	NSPoint r = [[self window] mouseLocationOutsideOfEventStream]; // NSEvent.mouseLocation;
-	r         = [self convertPoint:r fromView:nil];
-	return r;
 }
 
 //
@@ -183,7 +182,8 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 //
 
 - (void)scrollWheel:(NSEvent*)event {
-	scrollEventCallback(self.windowP, event.deltaX, event.deltaY);
+	NSPoint delta = NSMakePoint(event.deltaX, event.deltaY);
+	scrollEventCallback(self.windowP, delta, [self mouseLocation], event.modifierFlags);
 }
 
 @end

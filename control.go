@@ -104,7 +104,7 @@ type Control interface {
 	OnKeyboardEvent(event KeyboardEvent) (done bool)
 	OnPointerButtonEvent(event PointerButtonEvent) (processed bool)
 	OnPointerMoveEvent(event PointerMoveEvent)
-	OnScrollEvent(event ScrollEvent)
+	OnScrollEvent(event ScrollEvent) (processed bool)
 
 	// FocusCandidate returns candidate for keyboard event focus. This method is called by Window on Tab and Shift-Tab shortcuts.
 	//
@@ -124,12 +124,12 @@ type Control interface {
 	//
 	// Common implementations:
 	// 1. Control itself does not accept focus and it has no child:
-	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//	func (c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
 	//		return nil
 	//	}
 	//
 	// 2. Control itself accepts focus and has no child:
-	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//	func (c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
 	//		if current==nil{ // First/last focus
 	//			return c
 	//		}
@@ -137,7 +137,7 @@ type Control interface {
 	//	}
 	//
 	// 3. Control itself accepts focus and has single child (focus order: <Control itself> before <child>):
-	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//	func (c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
 	//		switch {
 	//		//
 	//		// Forward
@@ -166,7 +166,7 @@ type Control interface {
 	//	}
 	//
 	// 4. Control itself does not accept focus and has single child:
-	//	(c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
+	//	func (c *SomeControl)FocusCandidate(reverse bool, current Control)(Control){
 	//		if current==nil{ // First/last focus
 	//			return c.child
 	//		}

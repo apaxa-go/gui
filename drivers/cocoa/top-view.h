@@ -40,4 +40,4 @@ void drawCallback(void* window, CGContextRef context, NSRect);
 void keyboardEventCallback(void* window, uint8 event, uint16_t key, uint64_t modifiers);
 void pointerKeyEventCallback(void* window, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
 void pointerMoveEventCallback(void* window, NSPoint point);
-void scrollEventCallback(void* window, double deltaX, double deltaY);
+void scrollEventCallback(void* window, NSPoint delta, NSPoint point, uint64 modifiers);

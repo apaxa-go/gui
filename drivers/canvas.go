@@ -22,6 +22,8 @@ type Canvas interface {
 	Translate(pos PointF64)                    // Move (0,0) to pos.
 	Superpose(original, required RectangleF64) // Translate & scale canvas in the way that original rectangle becomes required rectangle.
 
+	ClipToRectangle(region RectangleF64)
+
 	DrawLine(point1, point2 PointF64, color ColorF64, width float64)
 	DrawConnectedLines(points []PointF64, color ColorF64, width float64)
 	DrawStraightContour(points []PointF64, color ColorF64, width float64)

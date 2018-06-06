@@ -7,18 +7,18 @@ package drivers
 import "github.com/apaxa-go/helper/strconvh"
 
 type ScrollEvent struct {
-	// TODO if only one direction per event may changed then may be use single Delta and flag for coordinate (X or Y)?
-	DeltaX float64
-	DeltaY float64
+	Delta     PointF64 // TODO if only one direction per event may changed then may be use float64 Delta and flag for coordinate (X or Y)?
+	Modifiers KeyModifiers
+	Point     PointF64
 }
 
 func (e ScrollEvent) String() string {
 	r := "scroll"
-	if e.DeltaX != 0 {
-		r += " horizontal " + strconvh.FormatFloat64(e.DeltaX)
+	if e.Delta.X != 0 {
+		r += " horizontal " + strconvh.FormatFloat64(e.Delta.X)
 	}
-	if e.DeltaY != 0 {
-		r += " vertical " + strconvh.FormatFloat64(e.DeltaY)
+	if e.Delta.Y != 0 {
+		r += " vertical " + strconvh.FormatFloat64(e.Delta.Y)
 	}
 	return r
 }

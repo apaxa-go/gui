@@ -114,7 +114,7 @@ func (c *VTable) Insert(control gui.Control, at int) {
 	}
 	gui.SetParent(control, c)
 	c.children = append(append(c.children[:at], control), c.children[at:]...)
-	c.SetUPG(false)
+	c.SetUPG(false) // TODO why not recursive?
 	{
 		// TODO do smth with this:
 		// c.window.Hypervisor().UpdatePossibleHorGeometry(c, false)

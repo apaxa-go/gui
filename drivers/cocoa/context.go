@@ -71,6 +71,11 @@ func (c *Context) Superpose(original, required RectangleF64) {
 	c.Translate(translatePos)
 }
 
+func (c *Context) ClipToRectangle(region RectangleF64) {
+	rect := region.ToF64S()
+	C.CGContextClipToRect(C.CGContextRef(c.pointer), *(*C.CGRect)(unsafe.Pointer(&rect)))
+}
+
 func (c *Context) setLineColor(color ColorF64) {
 	C.CGContextSetStrokeColor(C.CGContextRef(c.pointer), (*C.CGFloat)(unsafe.Pointer(&color)))
 }

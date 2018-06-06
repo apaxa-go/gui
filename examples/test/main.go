@@ -33,7 +33,8 @@ func main() {
 	l2 := controls.NewLabel("Label 2", f, gui.ColorF64{0, 0, 1, 1})
 	vt1 := controls.NewVTable(b1, b2)
 	vt2 := controls.NewVTable(cb1, cb2, cb3, cb4)
-	ht := controls.NewHTable(vt1, vt2, l1, l2)
+	sc := controls.NewScroll(vt1, 20, 20)
+	ht := controls.NewHTable(sc, vt2, l1, l2)
 
 	wbs := controls.NewWindowButtons()
 	l0 := controls.NewLayers(ht, wbs)

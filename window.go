@@ -185,6 +185,23 @@ func (w *Window) onPointerKey(e PointerButtonEvent) {
 	processPointerButtonEvent(w, e)
 }
 
+func processScrollEvent(c Control, e ScrollEvent) (processed bool) {
+	if !c.Geometry().Contains(e.Point) {
+		return false
+	}
+	for _, candidate := range c.Children() {
+		processed = processScrollEvent(candidate, e)
+		if processed {
+			return
+		}
+	}
+	return c.OnScrollEvent(e)
+}
+
+func (w *Window) onScroll(e ScrollEvent) {
+	processScrollEvent(w, e)
+}
+
 //
 // Events related.
 //
@@ -203,6 +220,7 @@ func (w *Window) baseInit() {
 	w.driverWindow.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
 	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
 	w.driverWindow.RegisterPointerKeyCallback(w.onPointerKey)
+	w.driverWindow.RegisterScrollCallback(w.onScroll)
 	w.BaseControl.window = w
 	w.SetUPGIR(false)
 }

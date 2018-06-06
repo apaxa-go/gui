@@ -83,7 +83,7 @@ func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
 }
 
 //export scrollEventCallback
-func scrollEventCallback(window unsafe.Pointer, deltaX float64, deltaY float64) {
+func scrollEventCallback(window unsafe.Pointer, delta C.NSPoint, point C.NSPoint, modifiers uint64) {
 	if window == nil {
 		panic("NIL window") // TODO
 	}
@@ -91,6 +91,9 @@ func scrollEventCallback(window unsafe.Pointer, deltaX float64, deltaY float64) 
 	if w.scrollEventCallback == nil {
 		return
 	}
-	e := ScrollEvent{deltaX, deltaY}
+	tDelta := *(*PointF64)(unsafe.Pointer(&delta))
+	tModifiers := translateKeyModifiers(modifiers)
+	tPoint := *(*PointF64)(unsafe.Pointer(&point))
+	e := ScrollEvent{tDelta, tModifiers, tPoint}
 	w.scrollEventCallback(e)
 }
