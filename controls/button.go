@@ -45,7 +45,7 @@ func (c *Button) ComputeChildVerGeometry() (tops, bottoms []float64) {
 func (c *Button) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	rect := c.align.ApplyF64(c.Geometry(), c.MinSize()).Inner(BorderWidth).ToRounded(BorderRadius)
 	if c.Window().IfControlFocused(c) {
-		canvas.FillRoundedRectangle(rect, gui.ColorF64{}.MakeFromRGB8(255, 0, 0))
+		canvas.FillRoundedRectangle(rect, gui.ColorF64{}.MakeFromRGB8(255, 0, 0)) // TODO
 	} else {
 		canvas.FillRoundedRectangle(rect, backgroundColor)
 	}
@@ -53,11 +53,20 @@ func (c *Button) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	c.label.Draw(canvas, region)
 }
 
+func (c *Button) OnPointerButtonEvent(e gui.PointerButtonEvent) (processed bool) {
+	// TODO
+	return true
+}
+
 func (c *Button) FocusCandidate(reverse bool, current gui.Control) gui.Control {
 	if current == nil {
 		return c
 	}
 	return nil
+}
+
+func (c *Button) PointerCandidates() []gui.Control {
+	return []gui.Control{c.label}
 }
 
 func (c *Button) OnFocus(e gui.FocusEvent) {

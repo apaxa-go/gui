@@ -73,6 +73,20 @@ func (r RectangleI64S) Shift(shift PointI64) RectangleI64S {
 	return RectangleI64S{r.Origin.Add(shift), r.Size.Add(shift)}
 }
 
+func (r RectangleI64) Contains(point PointI64) bool {
+	return point.X >= r.Left &&
+		point.X <= r.Right &&
+		point.Y >= r.Top &&
+		point.Y <= r.Bottom
+}
+
+func (r RectangleI64S) Contains(point PointI64) bool {
+	return point.X >= r.Origin.X &&
+		point.X <= r.GetRight() &&
+		point.Y >= r.Origin.Y &&
+		point.Y <= r.GetBottom()
+}
+
 //replacer:replace
 //replacer:old I64	F32	float32
 //replacer:new I64	F64	float64

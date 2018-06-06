@@ -102,7 +102,7 @@ type Control interface {
 	Draw(canvas Canvas, region RectangleF64)
 
 	OnKeyboardEvent(event KeyboardEvent) (done bool)
-	OnPointerButtonEvent(event PointerButtonEvent)
+	OnPointerButtonEvent(event PointerButtonEvent) (processed bool)
 	OnPointerMoveEvent(event PointerMoveEvent)
 	OnScrollEvent(event ScrollEvent)
 
@@ -175,4 +175,6 @@ type Control interface {
 	FocusCandidate(reverse bool, current Control) Control
 
 	OnFocus(event FocusEvent)
+
+	PointerCandidates() []Control
 }

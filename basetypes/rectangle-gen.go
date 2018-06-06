@@ -66,6 +66,20 @@ func (r RectangleIS) Shift(shift PointI) RectangleIS {
 	return RectangleIS{r.Origin.Add(shift), r.Size.Add(shift)}
 }
 
+func (r RectangleI) Contains(point PointI) bool {
+	return point.X >= r.Left &&
+		point.X <= r.Right &&
+		point.Y >= r.Top &&
+		point.Y <= r.Bottom
+}
+
+func (r RectangleIS) Contains(point PointI) bool {
+	return point.X >= r.Origin.X &&
+		point.X <= r.GetRight() &&
+		point.Y >= r.Origin.Y &&
+		point.Y <= r.GetBottom()
+}
+
 type RectangleI32 struct {
 	Left   int32
 	Top    int32
@@ -124,6 +138,20 @@ func (r RectangleI32) Shift(shift PointI32) RectangleI32 {
 }
 func (r RectangleI32S) Shift(shift PointI32) RectangleI32S {
 	return RectangleI32S{r.Origin.Add(shift), r.Size.Add(shift)}
+}
+
+func (r RectangleI32) Contains(point PointI32) bool {
+	return point.X >= r.Left &&
+		point.X <= r.Right &&
+		point.Y >= r.Top &&
+		point.Y <= r.Bottom
+}
+
+func (r RectangleI32S) Contains(point PointI32) bool {
+	return point.X >= r.Origin.X &&
+		point.X <= r.GetRight() &&
+		point.Y >= r.Origin.Y &&
+		point.Y <= r.GetBottom()
 }
 
 type RectangleF32 struct {
@@ -186,6 +214,20 @@ func (r RectangleF32S) Shift(shift PointF32) RectangleF32S {
 	return RectangleF32S{r.Origin.Add(shift), r.Size.Add(shift)}
 }
 
+func (r RectangleF32) Contains(point PointF32) bool {
+	return point.X >= r.Left &&
+		point.X <= r.Right &&
+		point.Y >= r.Top &&
+		point.Y <= r.Bottom
+}
+
+func (r RectangleF32S) Contains(point PointF32) bool {
+	return point.X >= r.Origin.X &&
+		point.X <= r.GetRight() &&
+		point.Y >= r.Origin.Y &&
+		point.Y <= r.GetBottom()
+}
+
 type RectangleF64 struct {
 	Left   float64
 	Top    float64
@@ -244,6 +286,20 @@ func (r RectangleF64) Shift(shift PointF64) RectangleF64 {
 }
 func (r RectangleF64S) Shift(shift PointF64) RectangleF64S {
 	return RectangleF64S{r.Origin.Add(shift), r.Size.Add(shift)}
+}
+
+func (r RectangleF64) Contains(point PointF64) bool {
+	return point.X >= r.Left &&
+		point.X <= r.Right &&
+		point.Y >= r.Top &&
+		point.Y <= r.Bottom
+}
+
+func (r RectangleF64S) Contains(point PointF64) bool {
+	return point.X >= r.Origin.X &&
+		point.X <= r.GetRight() &&
+		point.Y >= r.Origin.Y &&
+		point.Y <= r.GetBottom()
 }
 
 func (r RectangleI64) ToF64() RectangleF64 {

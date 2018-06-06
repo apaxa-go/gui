@@ -331,11 +331,11 @@ func (c *BaseControl) SetUCGIR() {
 // Default event handlers & related methods - controls may reimplement them. TODO - remove this section?
 //
 
-func (c *BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool) { return false }
-func (c *BaseControl) OnPointerButtonEvent(_ PointerButtonEvent)   {}
-func (c *BaseControl) OnPointerMoveEvent(_ PointerMoveEvent)       {}
-func (c *BaseControl) OnScrollEvent(_ ScrollEvent)                 {}
-func (c *BaseControl) OnFocus(_ FocusEvent)                        {}
+func (c *BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool)                { return false }
+func (c *BaseControl) OnPointerButtonEvent(_ PointerButtonEvent) (processed bool) { return false }
+func (c *BaseControl) OnPointerMoveEvent(_ PointerMoveEvent)                      {}
+func (c *BaseControl) OnScrollEvent(_ ScrollEvent)                                {}
+func (c *BaseControl) OnFocus(_ FocusEvent)                                       {}
 
 //
 // Related to event handlers
@@ -343,3 +343,5 @@ func (c *BaseControl) OnFocus(_ FocusEvent)                        {}
 
 // FocusCandidate is default implementation. It always returns nil - neither Control itself nor his children (if any) accepts focus.
 func (c *BaseControl) FocusCandidate(reverse bool, current Control) Control { return nil } // TODO remove this?
+
+func (c *BaseControl) PointerCandidates() []Control { return nil }

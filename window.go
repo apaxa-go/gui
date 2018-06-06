@@ -168,6 +168,30 @@ func (w *Window) onKeyboardEvent(e KeyboardEvent) {
 	}
 }
 
+func processPointerButtonEvent(c Control, e PointerButtonEvent) (processed bool) {
+	if !c.Geometry().Contains(e.Point) {
+		return false
+	}
+	for _, candidate := range c.PointerCandidates() {
+		processed = processPointerButtonEvent(candidate, e)
+		if processed {
+			return
+		}
+	}
+	return c.OnPointerButtonEvent(e)
+}
+
+func (w *Window) PointerCandidates() []Control {
+	if w.child == nil {
+		return nil
+	}
+	return []Control{w.child}
+}
+
+func (w *Window) onPointerKey(e PointerButtonEvent) {
+	processPointerButtonEvent(w, e)
+}
+
 //
 // Events related.
 //
@@ -185,6 +209,7 @@ func (w *Window) baseInit() {
 	w.driverWindow.RegisterResizeCallback(w.onExternalResize)
 	w.driverWindow.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
 	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
+	w.driverWindow.RegisterPointerKeyCallback(w.onPointerKey)
 	w.BaseControl.window = w
 	w.SetUPGIR(false)
 }
