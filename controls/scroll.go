@@ -4,7 +4,9 @@
 
 package controls
 
-import "github.com/apaxa-go/gui"
+import (
+	"github.com/apaxa-go/helper/mathh"
+)
 
 type ScrollState struct {
 	enabled     bool
@@ -100,12 +102,12 @@ func (c *Scroll) ComputeChildVerGeometry() (tops, bottoms []float64) {
 
 func (c *Scroll) Draw(canvas Canvas, region RectangleF64) {
 	// TODO draw scrolls itself
-	canvas.SaveState() // TODO rename to PushState
+	canvas.SaveState()
 	canvas.ClipToRectangle(c.Geometry())
 	if c.child != nil { // TODO call child draw from window method directly
 		c.child.Draw(canvas, region)
 	}
-	canvas.RestoreState() // TODO rename to PopState
+	canvas.RestoreState()
 }
 
 func (c *Scroll) FocusCandidate(reverse bool, current Control) Control {
@@ -178,7 +180,7 @@ func (c *Scroll) EnableVer()  { c.enableVer(true) }
 func (c *Scroll) DisableVer() { c.enableVer(false) }
 
 func (c *Scroll) SetMinimumVisibleWidth(width float64) {
-	width = gui.Max2Float64(0, width)
+	width = mathh.Max2Float64(0, width)
 	if c.hor.minimumSize == width {
 		return
 	}
@@ -193,7 +195,7 @@ func (c *Scroll) SetMinimumVisibleWidth(width float64) {
 }
 
 func (c *Scroll) SetMinimumVisibleHeight(height float64) {
-	height = gui.Max2Float64(0, height)
+	height = mathh.Max2Float64(0, height)
 	if c.ver.minimumSize == height {
 		return
 	}
@@ -251,9 +253,9 @@ func (c *Scroll) ScrollVer(delta float64) (hasEffect bool) {
 func (c *Scroll) Child() Control { return c.child }
 func (c *Scroll) SetChild(child Control) {
 	if c.child != nil {
-		gui.SetParent(c.child, nil) // TODO move SetParent to some class as static method.
+		c.BaseControl.SetParent(c.child, nil) // TODO move SetParent to some class as static method.
 	}
-	gui.SetParent(child, c)
+	c.BaseControl.SetParent(child, c)
 	c.child = child
 	c.SetUPGIR(true)
 }

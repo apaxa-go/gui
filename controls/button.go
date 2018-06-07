@@ -5,21 +5,20 @@
 package controls
 
 import (
-	"github.com/apaxa-go/gui"
-	"github.com/apaxa-go/gui/basetypes"
+	"github.com/apaxa-go/helper/mathh"
 )
 
 type Button struct {
-	gui.BaseControl
+	BaseControl
 	label *Label
-	align basetypes.Align
+	align Align
 }
 
-func (c *Button) Children() []gui.Control { return []gui.Control{c.label} }
+func (c *Button) Children() []Control { return []Control{c.label} }
 
 func (c *Button) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 	minWidth = c.label.MinWidth() + 2*(BorderWidth+HorPadding)
-	maxWidth = gui.PosInfF64()
+	maxWidth = mathh.PositiveInfFloat64()
 	return
 }
 
@@ -42,10 +41,10 @@ func (c *Button) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	return []float64{top}, []float64{bottom}
 }
 
-func (c *Button) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c *Button) Draw(canvas Canvas, region RectangleF64) {
 	rect := c.align.ApplyF64(c.Geometry(), c.MinSize()).Inner(BorderWidth).ToRounded(BorderRadius)
 	if c.Window().IfControlFocused(c) {
-		canvas.FillRoundedRectangle(rect, gui.ColorF64{}.MakeFromRGB8(255, 0, 0)) // TODO
+		canvas.FillRoundedRectangle(rect, ColorF64{}.MakeFromRGB8(255, 0, 0)) // TODO
 	} else {
 		canvas.FillRoundedRectangle(rect, backgroundColor)
 	}
@@ -53,19 +52,19 @@ func (c *Button) Draw(canvas gui.Canvas, region gui.RectangleF64) {
 	c.label.Draw(canvas, region)
 }
 
-func (c *Button) OnPointerButtonEvent(e gui.PointerButtonEvent) (processed bool) {
+func (c *Button) OnPointerButtonEvent(e PointerButtonEvent) (processed bool) {
 	c.SetText(e.ShortString()) // TODO
 	return true
 }
 
-func (c *Button) FocusCandidate(reverse bool, current gui.Control) gui.Control {
+func (c *Button) FocusCandidate(reverse bool, current Control) Control {
 	if current == nil {
 		return c
 	}
 	return nil
 }
 
-func (c *Button) OnFocus(e gui.FocusEvent) {
+func (c *Button) OnFocus(e FocusEvent) {
 	c.SetIR()
 }
 
@@ -74,8 +73,8 @@ func (c *Button) SetText(text string) {
 	c.label.SetText(text)
 }
 
-func (c *Button) GetAlign() basetypes.Align { return c.align }
-func (c *Button) SetAlign(align basetypes.Align) {
+func (c *Button) GetAlign() Align { return c.align }
+func (c *Button) SetAlign(align Align) {
 	if c.align == align {
 		return
 	}
@@ -86,8 +85,8 @@ func (c *Button) SetAlign(align basetypes.Align) {
 func NewButton(text string) *Button {
 	r := &Button{
 		label: NewLabel(text, defaultFont, labelColor),
-		align: basetypes.AlignStretchCenter,
+		align: Align(0).MakeStretchCenter(),
 	}
-	gui.SetParent(r.label, r)
+	r.BaseControl.SetParent(r.label, r)
 	return r
 }

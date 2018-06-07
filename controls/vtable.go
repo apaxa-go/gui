@@ -5,22 +5,22 @@
 package controls
 
 import (
-	"github.com/apaxa-go/gui"
+	"github.com/apaxa-go/helper/mathh"
 )
 
 type VTable struct {
-	gui.BaseControl
-	children []gui.Control
+	BaseControl
+	children []Control
 }
 
 func (c *VTable) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 	if len(c.children) > 0 {
-		maxWidth = gui.PosInfF64()
+		maxWidth = mathh.PositiveInfFloat64()
 		for _, child := range c.children {
-			minWidth = gui.Max2Float64(minWidth, child.MinWidth())
-			maxWidth = gui.Min2Float64(maxWidth, child.MaxWidth())
+			minWidth = mathh.Max2Float64(minWidth, child.MinWidth())
+			maxWidth = mathh.Min2Float64(maxWidth, child.MaxWidth())
 		}
-		maxWidth = gui.Max2Float64(minWidth, maxWidth)
+		maxWidth = mathh.Max2Float64(minWidth, maxWidth)
 	}
 	return
 }
@@ -33,13 +33,13 @@ func (c *VTable) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 	return
 }
 
-func (c *VTable) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c *VTable) Draw(canvas Canvas, region RectangleF64) {
 	for _, child := range c.children {
 		// TODO draw only required children
 		child.Draw(canvas, region)
 	}
 }
-func (c *VTable) FocusCandidate(reverse bool, current gui.Control) gui.Control {
+func (c *VTable) FocusCandidate(reverse bool, current Control) Control {
 	l := len(c.children)
 	if l == 0 {
 		return nil
@@ -104,7 +104,7 @@ func (c *VTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	return
 }
 
-func (c *VTable) Insert(control gui.Control, at int) {
+func (c *VTable) Insert(control Control, at int) {
 	// TODO what if control already assigned to some other/the same parent ?
 	// TODO control.geometry must be ={0,0,-1,-1} & min/maxSize must be ={0,-1} (for simplify Hypervisor calling)
 	if at < 0 {
@@ -112,7 +112,7 @@ func (c *VTable) Insert(control gui.Control, at int) {
 	} else if at > len(c.children) {
 		at = len(c.children)
 	}
-	gui.SetParent(control, c)
+	c.BaseControl.SetParent(control, c)
 	c.children = append(append(c.children[:at], control), c.children[at:]...)
 	c.SetUPG(false) // TODO why not recursive?
 	{
@@ -125,22 +125,22 @@ func (c *VTable) Insert(control gui.Control, at int) {
 	}
 }
 
-func (c *VTable) Prepend(control gui.Control) {
+func (c *VTable) Prepend(control Control) {
 	c.Insert(control, 0)
 }
 
-func (c *VTable) Append(control gui.Control) {
+func (c *VTable) Append(control Control) {
 	c.Insert(control, len(c.children))
 }
 
-func (c *VTable) Remove(i int) gui.Control {
+func (c *VTable) Remove(i int) Control {
 	if i < 0 {
 		i = 0
 	} else if i >= len(c.children) {
 		i = len(c.children) - 1
 	}
 	control := c.children[i]
-	gui.SetParent(control, nil)
+	c.BaseControl.SetParent(control, nil)
 	c.children = append(c.children[:i], c.children[i+1:]...)
 	c.SetUPG(false)
 	return control
@@ -148,14 +148,14 @@ func (c *VTable) Remove(i int) gui.Control {
 
 func (c *VTable) NumRows() int { return len(c.children) }
 
-func (c *VTable) Children() []gui.Control { return c.children }
+func (c *VTable) Children() []Control { return c.children }
 
-func NewVTable(children ...gui.Control) *VTable {
+func NewVTable(children ...Control) *VTable {
 	r := &VTable{
 		children: children,
 	}
 	for _, child := range children {
-		gui.SetParent(child, r)
+		r.BaseControl.SetParent(child, r)
 	}
 	return r
 }

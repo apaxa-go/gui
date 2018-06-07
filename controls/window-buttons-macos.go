@@ -4,10 +4,6 @@
 
 package controls
 
-import (
-	"github.com/apaxa-go/gui"
-)
-
 const (
 	windowButtonsMacOSNumButtons   = 3
 	windowButtonsMacOSLeftPadding  = 7
@@ -21,14 +17,14 @@ const (
 )
 
 type windowButtonsMacOS struct {
-	gui.BaseControl
+	BaseControl
 	closeButton    *windowButtonMacOS
 	hideButton     *windowButtonMacOS
 	maximizeButton *windowButtonMacOS
 }
 
-func (c *windowButtonsMacOS) Children() []gui.Control {
-	return []gui.Control{c.closeButton, c.hideButton, c.maximizeButton}
+func (c *windowButtonsMacOS) Children() []Control {
+	return []Control{c.closeButton, c.hideButton, c.maximizeButton}
 }
 
 func (c *windowButtonsMacOS) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
@@ -60,7 +56,7 @@ func (c *windowButtonsMacOS) ComputeChildVerGeometry() (tops, bottoms []float64)
 	return []float64{top, top, top}, []float64{bottom, bottom, bottom}
 }
 
-func (c windowButtonsMacOS) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c windowButtonsMacOS) Draw(canvas Canvas, region RectangleF64) {
 	c.closeButton.Draw(canvas, region)
 	c.hideButton.Draw(canvas, region)
 	c.maximizeButton.Draw(canvas, region)
@@ -73,9 +69,9 @@ func newWindowButtonsMacOS() *windowButtonsMacOS {
 	hideButton := newWindowButtonMacOS(windowButtonMacOSHideImage, windowButtonMacOSImageColor, windowButtonMacOSHideBackgroundColor)
 	maximizeButton := newWindowButtonMacOS(windowButtonMacOSMaximizeImage, windowButtonMacOSImageColor, windowButtonMacOSMaximizeBackgroundColor)
 
-	gui.SetParent(closeButton, r)
-	gui.SetParent(hideButton, r)
-	gui.SetParent(maximizeButton, r)
+	r.BaseControl.SetParent(closeButton, r)
+	r.BaseControl.SetParent(hideButton, r)
+	r.BaseControl.SetParent(maximizeButton, r)
 
 	r.closeButton = closeButton
 	r.hideButton = hideButton

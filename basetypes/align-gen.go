@@ -20,6 +20,11 @@ const (
 	AlignVerStretch          = AlignVerTop | AlignVerBottom
 )
 
+func (_ AlignVer) MakeCenter() AlignVer  { return AlignVerCenter }
+func (_ AlignVer) MakeTop() AlignVer     { return AlignVerTop }
+func (_ AlignVer) MakeBottom() AlignVer  { return AlignVerBottom }
+func (_ AlignVer) MakeStretch() AlignVer { return AlignVerStretch }
+
 func (a AlignVer) IsCenter() bool  { return a == AlignVerCenter }
 func (a AlignVer) IsTop() bool     { return a == AlignVerTop }
 func (a AlignVer) IsBottom() bool  { return a == AlignVerBottom }

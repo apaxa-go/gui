@@ -4,7 +4,10 @@
 
 package gui
 
-import "math"
+import (
+	"github.com/apaxa-go/helper/mathh"
+	"math"
+)
 
 var tan05 = math.Tan(0.5)
 
@@ -45,13 +48,13 @@ type Scale struct {
 }
 
 func (s *Scale) update() {
-	s.lineWidth = Max2Float64(1, RoundF64(s.scale))
+	s.lineWidth = mathh.Max2Float64(1, mathh.RoundFloat64(s.scale))
 	s.borderRadius = s.scale * 3
-	s.fontHeight = Max2Float64(6, RoundF64(s.scale*12))
-	s.controlHeight = Max2Float64(s.lineWidth*2+2+s.controlHeight, s.scale*20)
-	s.topPadding = RoundF64((s.controlHeight - 2*s.lineWidth - s.fontHeight) / 2)
+	s.fontHeight = mathh.Max2Float64(6, mathh.RoundFloat64(s.scale*12))
+	s.controlHeight = mathh.Max2Float64(s.lineWidth*2+2+s.controlHeight, s.scale*20)
+	s.topPadding = mathh.RoundFloat64((s.controlHeight - 2*s.lineWidth - s.fontHeight) / 2)
 	s.bottomPadding = s.controlHeight - 2*s.lineWidth - s.fontHeight - s.topPadding
-	s.horPadding = Max2Float64(s.topPadding, s.bottomPadding)
+	s.horPadding = mathh.Max2Float64(s.topPadding, s.bottomPadding)
 }
 
 func MakeScale(dpi, distance float64) Scale {
@@ -60,55 +63,3 @@ func MakeScale(dpi, distance float64) Scale {
 	s.update()
 	return s
 }
-
-//
-// TODO move to mathh
-//
-
-func Max2Float64(a, b float64) float64 {
-	// TODO NaN, infinities, -+0
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func Min2Float64(a, b float64) float64 {
-	// TODO NaN, infinities, -+0
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func RoundF64(x float64) float64 { return math.Round(x) }
-
-func NegativeZeroF64() float64 { return math.Copysign(0, -1) }
-
-func roundF64ToI(x float64) int {
-	if x >= 0 {
-		return int(x + 0.5)
-	}
-	return int(x - 0.5)
-}
-
-func RoundF64ToI(x float64) int {
-	switch x {
-	case 0, NegativeZeroF64(), math.NaN(), PosInfF64(), NegInfF64():
-		return 0
-	}
-	return roundF64ToI(x)
-}
-
-func RoundExtF64ToI(x float64) (r int, ok bool) {
-	switch x {
-	case 0, NegativeZeroF64():
-		return 0, true
-	case math.NaN(), PosInfF64(), NegInfF64():
-		return 0, false
-	}
-	return roundF64ToI(x), true
-}
-
-func PosInfF64() float64 { return math.Inf(0) }
-func NegInfF64() float64 { return math.Inf(-1) }

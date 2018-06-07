@@ -20,6 +20,9 @@ type RectangleF64 = basetypes.RectangleF64
 type RoundedRectangleF64 = basetypes.RoundedRectangleF64
 type EllipseF64 = basetypes.EllipseF64
 type CircleF64 = basetypes.CircleF64
+type Align = basetypes.Align
+type AlignHor = basetypes.AlignHor
+type AlignVer = basetypes.AlignVer
 
 //
 // Driver's types

@@ -4,24 +4,19 @@
 
 package controls
 
-import (
-	"github.com/apaxa-go/gui"
-	"github.com/apaxa-go/gui/basetypes"
-)
-
 type Label struct {
-	gui.BaseControl
+	BaseControl
 	text  string
-	font  gui.Font
-	color gui.ColorF64
-	align basetypes.Align
+	font  Font
+	color ColorF64
+	align Align
 }
 
 //
 // Empty implementations
 //
 
-func (*Label) Children() []gui.Control                            { return nil }
+func (*Label) Children() []Control                                { return nil }
 func (*Label) ComputeChildHorGeometry() (lefts, rights []float64) { return nil, nil }
 func (*Label) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
@@ -39,7 +34,7 @@ func (c *Label) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 	return height, height
 }
 
-func (c Label) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
+func (c Label) Draw(canvas Canvas, _ RectangleF64) {
 	// TODO use region
 	place := c.align.ApplyF64(c.Geometry(), c.MinSize())
 	canvas.DrawTextLine(c.text, c.font, place.LT(), c.color)
@@ -54,8 +49,8 @@ func (c *Label) SetText(text string) {
 	c.SetUPGIR(false)
 }
 
-func (c *Label) GetFont() gui.Font { return c.font }
-func (c *Label) SetFont(font gui.Font) {
+func (c *Label) GetFont() Font { return c.font }
+func (c *Label) SetFont(font Font) {
 	if c.font == font {
 		return
 	}
@@ -63,8 +58,8 @@ func (c *Label) SetFont(font gui.Font) {
 	c.SetUPGIR(false)
 }
 
-func (c *Label) GetColor() gui.ColorF64 { return c.color }
-func (c *Label) SetColor(color gui.ColorF64) {
+func (c *Label) GetColor() ColorF64 { return c.color }
+func (c *Label) SetColor(color ColorF64) {
 	if c.color == color {
 		return
 	}
@@ -72,8 +67,8 @@ func (c *Label) SetColor(color gui.ColorF64) {
 	c.SetIR()
 }
 
-func (c *Label) GetAlign() basetypes.Align { return c.align }
-func (c *Label) SetAlign(align basetypes.Align) {
+func (c *Label) GetAlign() Align { return c.align }
+func (c *Label) SetAlign(align Align) {
 	align = align.KeepSize()
 	if c.align == align {
 		return
@@ -82,11 +77,11 @@ func (c *Label) SetAlign(align basetypes.Align) {
 	c.SetIR()
 }
 
-func NewLabel(text string, font gui.Font, color gui.ColorF64) *Label {
+func NewLabel(text string, font Font, color ColorF64) *Label {
 	return &Label{
 		text:  text,
 		font:  font,
 		color: color,
-		align: basetypes.AlignCenter,
+		align: Align(0).MakeCenter(),
 	}
 }

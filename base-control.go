@@ -4,6 +4,8 @@
 
 package gui
 
+import "github.com/apaxa-go/helper/mathh"
+
 // HypervisorData is a bit flags for GeometryHypervisor.
 // Example 1: it contains flag UPHG - "current control requests Update of self Possible Horizontal Geometry (minWidth & maxWidth)".
 // Example 2: it contains flag CUPHG - "at least one Child of current control requests Update of self Possible Horizontal Geometry (minWidth & maxWidth)".
@@ -34,7 +36,10 @@ type BaseControl struct {
 	hypervisorData HypervisorData
 }
 
-func SetParent(control, parent Control) {
+// SetParent is a static method.
+func (_ *BaseControl) SetParent(child, parent Control) { setParent(child, parent) }
+
+func setParent(control, parent Control) {
 	oldWindow := control.Window()
 	oldParent := control.Parent()
 
@@ -98,7 +103,7 @@ func (c BaseControl) MinHeight() float64 { return c.minSize.Y }
 func (c BaseControl) MaxHeight() float64 { return c.maxSize.Y }
 
 func (c *BaseControl) setPossibleHorGeometry(minWidth, maxWidth float64) (changed bool) {
-	maxWidth = Max2Float64(minWidth, maxWidth)
+	maxWidth = mathh.Max2Float64(minWidth, maxWidth)
 	changed = c.minSize.X != minWidth || c.maxSize.X != maxWidth
 	c.minSize.X = minWidth
 	c.maxSize.X = maxWidth
@@ -106,7 +111,7 @@ func (c *BaseControl) setPossibleHorGeometry(minWidth, maxWidth float64) (change
 }
 
 func (c *BaseControl) setPossibleVerGeometry(minHeight, maxHeight float64) (changed bool) {
-	maxHeight = Max2Float64(minHeight, maxHeight)
+	maxHeight = mathh.Max2Float64(minHeight, maxHeight)
 	changed = c.minSize.Y != minHeight || c.maxSize.Y != maxHeight
 	c.minSize.Y = minHeight
 	c.maxSize.Y = maxHeight

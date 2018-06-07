@@ -21,8 +21,7 @@ CFAttributedStringRef makeAttrStringRef(CFStringRef str, CTFontRef font) {
 
 void DrawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGPoint pos) {
 	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
-	CFRelease(str);
-	CTLineRef line = CTLineCreateWithAttributedString(attrStr);
+	CTLineRef             line    = CTLineCreateWithAttributedString(attrStr);
 	CFRelease(attrStr);
 	CGContextSetTextPosition(context, pos.x, pos.y);
 	CGContextSaveGState(context);
@@ -33,8 +32,7 @@ void DrawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGPoint
 
 CGRect GetTextLineGeometry(CGContextRef context, CFStringRef str, CTFontRef font) {
 	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
-	CFRelease(str);
-	CTLineRef line = CTLineCreateWithAttributedString(attrStr);
+	CTLineRef             line    = CTLineCreateWithAttributedString(attrStr);
 	CFRelease(attrStr);
 	CGRect r = CTLineGetImageBounds(line, context);
 	CFRelease(line);

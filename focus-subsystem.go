@@ -31,7 +31,7 @@ func (w *Window) ShiftFocus(reverse bool) {
 			// Go to upper level and look for next or previous candidates.
 			current = where
 			where = where.Parent()
-			if where == nil { // TODO remove this case?
+			if where == nil {
 				w.SetFocus(w)
 				return
 			}

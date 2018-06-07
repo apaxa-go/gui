@@ -30,6 +30,11 @@ const (
 	AlignHorStretch          = AlignHorLeft | AlignHorRight
 )
 
+func (_ AlignHor) MakeCenter() AlignHor  { return AlignHorCenter }
+func (_ AlignHor) MakeLeft() AlignHor    { return AlignHorLeft }
+func (_ AlignHor) MakeRight() AlignHor   { return AlignHorRight }
+func (_ AlignHor) MakeStretch() AlignHor { return AlignHorStretch }
+
 func (a AlignHor) IsCenter() bool  { return a == AlignHorCenter }
 func (a AlignHor) IsLeft() bool    { return a == AlignHorLeft }
 func (a AlignHor) IsRight() bool   { return a == AlignHorRight }
@@ -105,6 +110,23 @@ const (
 	AlignTopStretch    = Align(AlignHorStretch) | Align(AlignVerTop)
 	AlignBottomStretch = Align(AlignHorStretch) | Align(AlignVerBottom)
 )
+
+func (_ Align) MakeCenter() Align        { return AlignCenter }
+func (_ Align) MakeStretch() Align       { return AlignStretch }
+func (_ Align) MakeCenterStretch() Align { return AlignCenterStretch }
+func (_ Align) MakeStretchCenter() Align { return AlignStretchCenter }
+func (_ Align) MakeLeftTop() Align       { return AlignLeftTop }
+func (_ Align) MakeRightTop() Align      { return AlignRightTop }
+func (_ Align) MakeLeftBottom() Align    { return AlignLeftBottom }
+func (_ Align) MakeRightBottom() Align   { return AlignRightBottom }
+func (_ Align) MakeLeftCenter() Align    { return AlignLeftCenter }
+func (_ Align) MakeRightCenter() Align   { return AlignRightCenter }
+func (_ Align) MakeTopCenter() Align     { return AlignTopCenter }
+func (_ Align) MakeBottomCenter() Align  { return AlignBottomCenter }
+func (_ Align) MakeLeftStretch() Align   { return AlignLeftStretch }
+func (_ Align) MakeRightStretch() Align  { return AlignRightStretch }
+func (_ Align) MakeTopStretch() Align    { return AlignTopStretch }
+func (_ Align) MakeBottomStretch() Align { return AlignBottomStretch }
 
 func (a Align) Hor() AlignHor   { return AlignHor(a & alignHorMask) }
 func (a Align) Ver() AlignVer   { return AlignVer(a & alignVerMask) }

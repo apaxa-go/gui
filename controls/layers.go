@@ -5,44 +5,44 @@
 package controls
 
 import (
-	"github.com/apaxa-go/gui"
+	"github.com/apaxa-go/helper/mathh"
 )
 
 type Layers struct {
-	gui.BaseControl
-	layers []gui.Control
+	BaseControl
+	layers []Control
 }
 
 func (c *Layers) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 	if len(c.layers) > 0 {
-		maxWidth = gui.PosInfF64()
+		maxWidth = mathh.PositiveInfFloat64()
 		for _, child := range c.layers {
-			minWidth = gui.Max2Float64(minWidth, child.MinWidth())
-			maxWidth = gui.Min2Float64(maxWidth, child.MaxWidth())
+			minWidth = mathh.Max2Float64(minWidth, child.MinWidth())
+			maxWidth = mathh.Min2Float64(maxWidth, child.MaxWidth())
 		}
-		maxWidth = gui.Max2Float64(minWidth, maxWidth)
+		maxWidth = mathh.Max2Float64(minWidth, maxWidth)
 	}
 	return
 }
 
 func (c *Layers) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
 	if len(c.layers) > 0 {
-		maxHeight = gui.PosInfF64()
+		maxHeight = mathh.PositiveInfFloat64()
 		for _, child := range c.layers {
-			minHeight = gui.Max2Float64(minHeight, child.MinHeight())
-			maxHeight = gui.Min2Float64(maxHeight, child.MaxHeight())
+			minHeight = mathh.Max2Float64(minHeight, child.MinHeight())
+			maxHeight = mathh.Min2Float64(maxHeight, child.MaxHeight())
 		}
-		maxHeight = gui.Max2Float64(minHeight, maxHeight)
+		maxHeight = mathh.Max2Float64(minHeight, maxHeight)
 	}
 	return
 }
 
-func (c *Layers) Draw(canvas gui.Canvas, region gui.RectangleF64) {
+func (c *Layers) Draw(canvas Canvas, region RectangleF64) {
 	for _, child := range c.layers {
 		child.Draw(canvas, region)
 	}
 }
-func (c *Layers) FocusCandidate(reverse bool, current gui.Control) gui.Control {
+func (c *Layers) FocusCandidate(reverse bool, current Control) Control {
 	l := len(c.layers)
 	if l == 0 {
 		return nil
@@ -97,7 +97,7 @@ func (c *Layers) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	return
 }
 
-func (c *Layers) Insert(control gui.Control, at int) {
+func (c *Layers) Insert(control Control, at int) {
 	// TODO what if control already assigned to some other/the same parent ?
 	// TODO control.geometry must be ={0,0,-1,-1} & min/maxSize must be ={0,-1} (for simplify Hypervisor calling)
 	if at < 0 {
@@ -105,7 +105,7 @@ func (c *Layers) Insert(control gui.Control, at int) {
 	} else if at > len(c.layers) {
 		at = len(c.layers)
 	}
-	gui.SetParent(control, c)
+	c.BaseControl.SetParent(control, c)
 	c.layers = append(append(c.layers[:at], control), c.layers[at:]...)
 	c.SetUPGIR(false)
 	{
@@ -118,22 +118,22 @@ func (c *Layers) Insert(control gui.Control, at int) {
 	}
 }
 
-func (c *Layers) Prepend(control gui.Control) {
+func (c *Layers) Prepend(control Control) {
 	c.Insert(control, 0)
 }
 
-func (c *Layers) Append(control gui.Control) {
+func (c *Layers) Append(control Control) {
 	c.Insert(control, len(c.layers))
 }
 
-func (c *Layers) Remove(i int) gui.Control {
+func (c *Layers) Remove(i int) Control {
 	if i < 0 {
 		i = 0
 	} else if i >= len(c.layers) {
 		i = len(c.layers) - 1
 	}
 	control := c.layers[i]
-	gui.SetParent(control, nil)
+	c.BaseControl.SetParent(control, nil)
 	c.layers = append(c.layers[:i], c.layers[i+1:]...)
 	c.SetUPGIR(false)
 	return control
@@ -141,14 +141,14 @@ func (c *Layers) Remove(i int) gui.Control {
 
 func (c *Layers) NumLayers() int { return len(c.layers) }
 
-func (c *Layers) Children() []gui.Control { return c.layers }
+func (c *Layers) Children() []Control { return c.layers }
 
-func NewLayers(layers ...gui.Control) *Layers {
+func NewLayers(layers ...Control) *Layers {
 	r := &Layers{
 		layers: layers,
 	}
 	for _, child := range layers {
-		gui.SetParent(child, r)
+		r.BaseControl.SetParent(child, r)
 	}
 	return r
 }

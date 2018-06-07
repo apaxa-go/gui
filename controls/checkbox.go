@@ -5,8 +5,6 @@
 package controls
 
 import (
-	"github.com/apaxa-go/gui"
-	"github.com/apaxa-go/gui/basetypes"
 	"github.com/apaxa-go/gui/scvi"
 )
 
@@ -35,12 +33,12 @@ var checkboxMark = scvi.SCVI{
 }
 
 type CheckBox struct {
-	gui.BaseControl
+	BaseControl
 	mayUnknown bool
 	state      CheckBoxState
 }
 
-func (c *CheckBox) Children() []gui.Control { return nil }
+func (c *CheckBox) Children() []Control { return nil }
 
 func (c *CheckBox) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
 	return SmallHeight, SmallHeight
@@ -54,9 +52,9 @@ func (c *CheckBox) ComputeChildHorGeometry() (lefts, rights []float64) { return 
 
 func (c *CheckBox) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
-func (c CheckBox) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
+func (c CheckBox) Draw(canvas Canvas, _ RectangleF64) {
 	// TODO use region
-	space := basetypes.AlignCenter.ApplyF64(c.Geometry(), gui.PointF64{SmallHeight, SmallHeight})
+	space := Align(0).MakeCenter().ApplyF64(c.Geometry(), PointF64{SmallHeight, SmallHeight})
 	rect := space.Inner(BorderWidth).ToRounded(BorderRadius)
 	canvas.FillRoundedRectangle(rect, brightBackgroundColor)
 	canvas.DrawRoundedRectangle(rect, brightBorderColor, BorderWidth)
@@ -65,7 +63,7 @@ func (c CheckBox) Draw(canvas gui.Canvas, _ gui.RectangleF64) {
 	}
 }
 
-func (c *CheckBox) FocusCandidate(reverse bool, current gui.Control) gui.Control {
+func (c *CheckBox) FocusCandidate(reverse bool, current Control) Control {
 	if current == nil {
 		return c
 	}

@@ -30,10 +30,10 @@ func (w *Window) SetTitle(title string) {
 func (w *Window) Child() Control { return w.child }
 func (w *Window) SetChild(child Control) {
 	if w.child != nil {
-		SetParent(w.child, nil)
+		w.BaseControl.SetParent(w.child, nil)
 	}
 	w.child = child
-	SetParent(w.child, w)
+	w.BaseControl.SetParent(w.child, w)
 	w.SetUPG(true)
 }
 

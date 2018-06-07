@@ -32,8 +32,6 @@ func (image SCVI) Draw(canvas Canvas, rect RectangleF64, color ColorF64) {
 	canvas.SaveState()
 	defer canvas.RestoreState()
 
-	// TODO simplify coordinate translation via geometry types methods (align)
-
 	if !image.KeepAspect {
 		canvas.Translate(rect.LT())
 		canvas.ScaleXY(rect.Width()/image.Size.X, rect.Height()/image.Size.Y)
