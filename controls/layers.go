@@ -13,26 +13,40 @@ type Layers struct {
 	layers []Control
 }
 
-func (c *Layers) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
-	if len(c.layers) > 0 {
+func (c *Layers) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
+	// There are multiple ways to calculate bestWidth.
+	// Here we use average from children's bestWidths.
+	// And in this case maxWidth has higher priority than bestWidth.
+	if l := len(c.layers); l > 0 {
 		maxWidth = mathh.PositiveInfFloat64()
 		for _, child := range c.layers {
 			minWidth = mathh.Max2Float64(minWidth, child.MinWidth())
+			bestWidth += child.BestWidth()
 			maxWidth = mathh.Min2Float64(maxWidth, child.MaxWidth())
 		}
 		maxWidth = mathh.Max2Float64(minWidth, maxWidth)
+		bestWidth /= float64(l)
+		bestWidth = mathh.Max2Float64(minWidth, bestWidth)
+		bestWidth = mathh.Min2Float64(maxWidth, bestWidth)
 	}
 	return
 }
 
-func (c *Layers) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
-	if len(c.layers) > 0 {
+func (c *Layers) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
+	// There are multiple ways to calculate bestHeight.
+	// Here we use average from children's bestHeights.
+	// And in this case maxHeight has higher priority than bestHeight.
+	if l := len(c.layers); l > 0 {
 		maxHeight = mathh.PositiveInfFloat64()
 		for _, child := range c.layers {
 			minHeight = mathh.Max2Float64(minHeight, child.MinHeight())
+			bestHeight += child.BestHeight()
 			maxHeight = mathh.Min2Float64(maxHeight, child.MaxHeight())
 		}
 		maxHeight = mathh.Max2Float64(minHeight, maxHeight)
+		bestHeight /= float64(l)
+		bestHeight = mathh.Max2Float64(minHeight, bestHeight)
+		bestHeight = mathh.Min2Float64(maxHeight, bestHeight)
 	}
 	return
 }

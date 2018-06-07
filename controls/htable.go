@@ -13,22 +13,30 @@ type HTable struct {
 	children []Control
 }
 
-func (c *HTable) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
+func (c *HTable) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	for _, child := range c.children {
 		minWidth += child.MinWidth()
+		bestWidth += child.BestWidth()
 		maxWidth += child.MaxWidth()
 	}
 	return
 }
 
-func (c *HTable) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
-	if len(c.children) > 0 {
+func (c *HTable) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
+	// There are multiple ways to calculate bestHeight.
+	// Here we use average from children's bestHeights.
+	// And in this case maxHeight has higher priority than bestHeight.
+	if l := len(c.children); l > 0 {
 		maxHeight = mathh.PositiveInfFloat64()
 		for _, child := range c.children {
 			minHeight = mathh.Max2Float64(minHeight, child.MinHeight())
+			bestHeight += child.BestHeight()
 			maxHeight = mathh.Min2Float64(maxHeight, child.MaxHeight())
 		}
 		maxHeight = mathh.Max2Float64(minHeight, maxHeight)
+		bestHeight /= float64(l)
+		bestHeight = mathh.Max2Float64(minHeight, bestHeight)
+		bestHeight = mathh.Min2Float64(maxHeight, bestHeight)
 	}
 	return
 }
@@ -76,18 +84,49 @@ func (c *HTable) ComputeChildHorGeometry() (lefts, rights []float64) {
 
 	left := c.Geometry().Left
 	width := c.Geometry().Width()
-	minWidth := c.MinWidth()
-	for i, child := range c.children {
-		childMinWidth := child.MinWidth()
-		curWidth := width * childMinWidth / minWidth
-		right := left + curWidth
+	switch {
+	case width >= c.MaxWidth(): // scale according to MaxWidth
+		scale := c.MaxWidth()
+		for i, child := range c.children {
+			scalePart := child.MaxWidth()
+			curWidth := width * scalePart / scale
+			right := left + curWidth
 
-		lefts[i] = left
-		rights[i] = right
+			lefts[i] = left
+			rights[i] = right
 
-		left = right
-		width -= curWidth
-		minWidth -= childMinWidth
+			left = right
+			width -= curWidth
+			scale -= scalePart
+		}
+	case width >= c.BestWidth(): // scale according to BestWidth
+		scale := c.BestWidth()
+		for i, child := range c.children {
+			scalePart := child.BestWidth()
+			curWidth := width * scalePart / scale
+			right := left + curWidth
+
+			lefts[i] = left
+			rights[i] = right
+
+			left = right
+			width -= curWidth
+			scale -= scalePart
+		}
+	default: // scale according to MinWidth
+		scale := c.MinWidth()
+		for i, child := range c.children {
+			scalePart := child.MinWidth()
+			curWidth := width * scalePart / scale
+			right := left + curWidth
+
+			lefts[i] = left
+			rights[i] = right
+
+			left = right
+			width -= curWidth
+			scale -= scalePart
+		}
 	}
 	return
 }
@@ -116,14 +155,6 @@ func (c *HTable) Insert(control Control, at int) {
 	c.BaseControl.SetParent(control, c)
 	c.children = append(append(c.children[:at], control), c.children[at:]...)
 	c.SetUPG(false)
-	{
-		// TODO do smth with this:
-		// c.window.Hypervisor().UpdatePossibleHorGeometry(c, false)
-		// c.window.Hypervisor().UpdatePossibleVerGeometry(c, false)
-		// c.window.Hypervisor().UpdateChildHorGeometry(c)
-		// c.window.Hypervisor().UpdateChildVerGeometry(c)
-		// c.window.Hypervisor().InvalidateRegion(control)
-	}
 }
 
 func (c *HTable) Prepend(control Control) {

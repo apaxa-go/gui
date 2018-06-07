@@ -27,12 +27,12 @@ func (c *windowButtonsMacOS) Children() []Control {
 	return []Control{c.closeButton, c.hideButton, c.maximizeButton}
 }
 
-func (c *windowButtonsMacOS) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
-	return windowButtonsMacOSWidth, windowButtonsMacOSWidth
+func (c *windowButtonsMacOS) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
+	return windowButtonsMacOSWidth, windowButtonsMacOSWidth, windowButtonsMacOSWidth
 }
 
-func (c *windowButtonsMacOS) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
-	return windowButtonsMacOSHeight, windowButtonsMacOSHeight
+func (c *windowButtonsMacOS) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
+	return windowButtonsMacOSHeight, windowButtonsMacOSHeight, windowButtonsMacOSHeight
 }
 
 func (c *windowButtonsMacOS) ComputeChildHorGeometry() (lefts, rights []float64) {

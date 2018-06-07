@@ -38,19 +38,13 @@ type CheckBox struct {
 	state      CheckBoxState
 }
 
-func (c *CheckBox) Children() []Control { return nil }
-
-func (c *CheckBox) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
-	return SmallHeight, SmallHeight
+func (c *CheckBox) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
+	return SmallHeight, SmallHeight, SmallHeight
 }
 
-func (c *CheckBox) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
-	return SmallHeight, SmallHeight
+func (c *CheckBox) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
+	return SmallHeight, SmallHeight, SmallHeight
 }
-
-func (c *CheckBox) ComputeChildHorGeometry() (lefts, rights []float64) { return nil, nil }
-
-func (c *CheckBox) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
 func (c CheckBox) Draw(canvas Canvas, _ RectangleF64) {
 	// TODO use region

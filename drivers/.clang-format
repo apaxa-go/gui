@@ -1,6 +1,6 @@
 ---
 # Language: Cpp
-AccessModifierOffset: -1 # TODO
+AccessModifierOffset: -1
 AlignAfterOpenBracket: AlwaysBreak
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true

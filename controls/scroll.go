@@ -36,26 +36,28 @@ func (c *Scroll) Children() []Control {
 	return []Control{c.child}
 }
 
-func (c *Scroll) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
+func (c *Scroll) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	if c.child == nil {
-		return 0, 0
+		return 0, 0, 0
 	}
 	minWidth = c.child.MinWidth()
 	if c.hor.enabled && c.hor.minimumSize < minWidth {
 		minWidth = c.hor.minimumSize
 	}
+	bestWidth = c.child.BestWidth()
 	maxWidth = c.child.MaxWidth()
 	return
 }
 
-func (c *Scroll) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+func (c *Scroll) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
 	if c.child == nil {
-		return 0, 0
+		return 0, 0, 0
 	}
 	minHeight = c.child.MinHeight()
 	if c.ver.enabled && c.ver.minimumSize < minHeight {
 		minHeight = c.ver.minimumSize
 	}
+	bestHeight = c.child.BestHeight()
 	maxHeight = c.child.MaxHeight()
 	return
 }
@@ -69,7 +71,7 @@ func (c *Scroll) ComputeChildHorGeometry() (lefts, rights []float64) {
 	}
 
 	containerSize := c.Geometry().Width()
-	childSize := c.child.MinWidth() // TODO use recommended value instead of minimum
+	childSize := c.child.BestWidth()
 	if containerSize >= childSize { // disabled by sizes
 		return []float64{c.Geometry().Left}, []float64{c.Geometry().Right}
 	}
@@ -89,8 +91,8 @@ func (c *Scroll) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	}
 
 	containerSize := c.Geometry().Height()
-	childSize := c.child.MinHeight() // TODO use recommended value instead of minimum
-	if containerSize >= childSize {  // disabled by sizes
+	childSize := c.child.BestHeight()
+	if containerSize >= childSize { // disabled by sizes
 		return []float64{c.Geometry().Top}, []float64{c.Geometry().Bottom}
 	}
 
@@ -104,7 +106,7 @@ func (c *Scroll) Draw(canvas Canvas, region RectangleF64) {
 	// TODO draw scrolls itself
 	canvas.SaveState()
 	canvas.ClipToRectangle(c.Geometry())
-	if c.child != nil { // TODO call child draw from window method directly
+	if c.child != nil { // TODO call child draw from window method directly ?
 		c.child.Draw(canvas, region)
 	}
 	canvas.RestoreState()

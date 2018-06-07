@@ -23,13 +23,13 @@ type windowTitleMacOS struct {
 
 func (c *windowTitleMacOS) Children() []Control { return []Control{c.label} }
 
-func (c *windowTitleMacOS) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
-	return c.label.MinWidth(), mathh.PositiveInfFloat64()
+func (c *windowTitleMacOS) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
+	return c.label.MinWidth(), c.label.MinWidth(), mathh.PositiveInfFloat64() // TODO implement WithOutBestWidth
 }
 
-func (c *windowTitleMacOS) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+func (c *windowTitleMacOS) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
 	height := mathh.Max2Float64(windowTitleMacOSHeight, c.label.MinHeight()+2*windowTitleMacOSVerPadding)
-	return height, height
+	return height, height, height
 }
 
 func (c *windowTitleMacOS) ComputeChildHorGeometry() (lefts, rights []float64) {

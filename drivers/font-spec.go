@@ -169,7 +169,7 @@ func (v FontVariationWeight) Normalize() FontVariationWeight {
 func initFontSpecCommonFields(size float64, monospace, italic, bold bool) FontSpec {
 	r := FontSpec{
 		Size:         size,
-		Requirements: FontRequirementMonospace | FontRequirementMonospace | FontRequirementWeight,
+		Requirements: FontRequirementMonospace | FontRequirementItalic | FontRequirementWeight,
 		Monospace:    monospace,
 	}
 	if italic {

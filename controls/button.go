@@ -8,6 +8,8 @@ import (
 	"github.com/apaxa-go/helper/mathh"
 )
 
+const ButtonBestWidth = 60
+
 type Button struct {
 	BaseControl
 	label *Label
@@ -16,15 +18,16 @@ type Button struct {
 
 func (c *Button) Children() []Control { return []Control{c.label} }
 
-func (c *Button) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
+func (c *Button) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	minWidth = c.label.MinWidth() + 2*(BorderWidth+HorPadding)
+	bestWidth = mathh.Max2Float64(ButtonBestWidth, minWidth)
 	maxWidth = mathh.PositiveInfFloat64()
 	return
 }
 
-func (c *Button) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+func (c *Button) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
 	height := c.label.MinHeight() + 2*(BorderWidth+VerPadding)
-	return height, height
+	return height, height, height
 }
 
 func (c *Button) ComputeChildHorGeometry() (lefts, rights []float64) {

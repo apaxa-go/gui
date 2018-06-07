@@ -31,13 +31,14 @@ type BaseControl struct {
 	window         *Window
 	parent         Control
 	minSize        PointF64
+	bestSize       PointF64
 	maxSize        PointF64
 	geometry       RectangleF64
 	hypervisorData HypervisorData
 }
 
 // SetParent is a static method.
-func (_ *BaseControl) SetParent(child, parent Control) { setParent(child, parent) }
+func (BaseControl) SetParent(child, parent Control) { setParent(child, parent) }
 
 func setParent(control, parent Control) {
 	oldWindow := control.Window()
@@ -94,26 +95,33 @@ func (c *BaseControl) setParent(parent Control) {
 	c.parent = parent
 }
 
-func (c BaseControl) MinSize() PointF64 { return c.minSize }
-func (c BaseControl) MaxSize() PointF64 { return c.maxSize }
+func (c BaseControl) MinSize() PointF64  { return c.minSize }
+func (c BaseControl) BestSize() PointF64 { return c.bestSize }
+func (c BaseControl) MaxSize() PointF64  { return c.maxSize }
 
-func (c BaseControl) MinWidth() float64  { return c.minSize.X }
-func (c BaseControl) MaxWidth() float64  { return c.maxSize.X }
-func (c BaseControl) MinHeight() float64 { return c.minSize.Y }
-func (c BaseControl) MaxHeight() float64 { return c.maxSize.Y }
+func (c BaseControl) MinWidth() float64   { return c.minSize.X }
+func (c BaseControl) BestWidth() float64  { return c.bestSize.X }
+func (c BaseControl) MaxWidth() float64   { return c.maxSize.X }
+func (c BaseControl) MinHeight() float64  { return c.minSize.Y }
+func (c BaseControl) BestHeight() float64 { return c.bestSize.Y }
+func (c BaseControl) MaxHeight() float64  { return c.maxSize.Y }
 
-func (c *BaseControl) setPossibleHorGeometry(minWidth, maxWidth float64) (changed bool) {
-	maxWidth = mathh.Max2Float64(minWidth, maxWidth)
-	changed = c.minSize.X != minWidth || c.maxSize.X != maxWidth
+func (c *BaseControl) setPossibleHorGeometry(minWidth, bestWidth, maxWidth float64) (changed bool) {
+	bestWidth = mathh.Max2Float64(minWidth, bestWidth)
+	maxWidth = mathh.Max2Float64(bestWidth, maxWidth)
+	changed = c.minSize.X != minWidth || c.bestSize.X != bestWidth || c.maxSize.X != maxWidth
 	c.minSize.X = minWidth
+	c.bestSize.X = bestWidth
 	c.maxSize.X = maxWidth
 	return
 }
 
-func (c *BaseControl) setPossibleVerGeometry(minHeight, maxHeight float64) (changed bool) {
-	maxHeight = mathh.Max2Float64(minHeight, maxHeight)
-	changed = c.minSize.Y != minHeight || c.maxSize.Y != maxHeight
+func (c *BaseControl) setPossibleVerGeometry(minHeight, bestHeight, maxHeight float64) (changed bool) {
+	bestHeight = mathh.Max2Float64(minHeight, bestHeight)
+	maxHeight = mathh.Max2Float64(bestHeight, maxHeight)
+	changed = c.minSize.Y != minHeight || c.bestSize.X != bestHeight || c.maxSize.Y != maxHeight
 	c.minSize.Y = minHeight
+	c.bestSize.Y = bestHeight
 	c.maxSize.Y = maxHeight
 	return
 }
@@ -333,18 +341,28 @@ func (c *BaseControl) SetUCGIR() {
 }
 
 //
-// Default event handlers & related methods - controls may reimplement them. TODO - remove this section?
+//
+// Default implementations for method.
+//
 //
 
-func (c *BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool)                { return false }
-func (c *BaseControl) OnPointerButtonEvent(_ PointerButtonEvent) (processed bool) { return false }
-func (c *BaseControl) OnPointerMoveEvent(_ PointerMoveEvent)                      {}
-func (c *BaseControl) OnScrollEvent(_ ScrollEvent) (processed bool)               { return false }
-func (c *BaseControl) OnFocus(_ FocusEvent)                                       {}
+func (BaseControl) Children() []Control                                { return nil }
+func (BaseControl) ComputeChildHorGeometry() (lefts, rights []float64) { return nil, nil }
+func (BaseControl) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
+
+//
+// Default event handlers & related methods - controls may reimplement them.
+//
+
+func (BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool)                { return false }
+func (BaseControl) OnPointerButtonEvent(_ PointerButtonEvent) (processed bool) { return false }
+func (BaseControl) OnPointerMoveEvent(_ PointerMoveEvent)                      {}
+func (BaseControl) OnScrollEvent(_ ScrollEvent) (processed bool)               { return false }
+func (BaseControl) OnFocus(_ FocusEvent)                                       {}
 
 //
 // Related to event handlers
 //
 
 // FocusCandidate is default implementation. It always returns nil - neither Control itself nor his children (if any) accepts focus.
-func (c *BaseControl) FocusCandidate(reverse bool, current Control) Control { return nil } // TODO remove this?
+func (BaseControl) FocusCandidate(reverse bool, current Control) Control { return nil }

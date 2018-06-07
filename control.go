@@ -14,11 +14,14 @@ type BaseControlI interface {
 	setParent(Control)
 
 	MinSize() PointF64
+	BestSize() PointF64
 	MaxSize() PointF64
 
 	MinWidth() float64
-	MinHeight() float64
+	BestWidth() float64
 	MaxWidth() float64
+	MinHeight() float64
+	BestHeight() float64
 	MaxHeight() float64
 
 	GeometryHypervisorPause()
@@ -26,8 +29,8 @@ type BaseControlI interface {
 
 	Geometry() RectangleF64
 
-	setPossibleHorGeometry(minWidth, maxWidth float64) (changed bool)
-	setPossibleVerGeometry(minHeight, maxHeight float64) (changed bool)
+	setPossibleHorGeometry(minWidth, bestWidth, maxWidth float64) (changed bool)
+	setPossibleVerGeometry(minHeight, bestHeight, maxHeight float64) (changed bool)
 
 	setHorGeometry(left, right float64) (changed bool)
 	setVerGeometry(top, bottom float64) (changed bool)
@@ -93,8 +96,8 @@ type Control interface {
 
 	Children() []Control
 
-	ComputePossibleHorGeometry() (minWidth, maxWidth float64)
-	ComputePossibleVerGeometry() (minHeight, maxHeight float64)
+	ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64)
+	ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64)
 
 	ComputeChildHorGeometry() (lefts, rights []float64) // index according Children()
 	ComputeChildVerGeometry() (tops, bottoms []float64) // index according Children()

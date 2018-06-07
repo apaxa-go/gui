@@ -12,26 +12,14 @@ type Label struct {
 	align Align
 }
 
-//
-// Empty implementations
-//
-
-func (*Label) Children() []Control                                { return nil }
-func (*Label) ComputeChildHorGeometry() (lefts, rights []float64) { return nil, nil }
-func (*Label) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
-
-//
-//
-//
-
-func (c *Label) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
+func (c *Label) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	width := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font).X
-	return width, width
+	return width, width, width
 }
 
-func (c *Label) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+func (c *Label) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
 	height := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font).Y
-	return height, height
+	return height, height, height
 }
 
 func (c Label) Draw(canvas Canvas, _ RectangleF64) {

@@ -6,6 +6,8 @@ package gui
 
 import "github.com/apaxa-go/gui/drivers"
 
+// TODO implement best size logic for window.
+
 type Window struct {
 	driverWindow DriverWindow
 	BaseControl
@@ -66,8 +68,8 @@ func (w *Window) OfflineCanvas() OfflineCanvas { return w.driverWindow.OfflineCa
 // BaseControlI overrides
 //
 
-func (w *Window) setPossibleHorGeometry(minWidth, maxWidth float64) (changed bool) {
-	changed = w.BaseControl.setPossibleHorGeometry(minWidth, maxWidth)
+func (w *Window) setPossibleHorGeometry(minWidth, bestWidth, maxWidth float64) (changed bool) {
+	changed = w.BaseControl.setPossibleHorGeometry(minWidth, bestWidth, maxWidth)
 	if !changed {
 		return
 	}
@@ -81,8 +83,8 @@ func (w *Window) setPossibleHorGeometry(minWidth, maxWidth float64) (changed boo
 	return
 }
 
-func (w *Window) setPossibleVerGeometry(minHeight, maxHeight float64) (changed bool) {
-	changed = w.BaseControl.setPossibleVerGeometry(minHeight, maxHeight)
+func (w *Window) setPossibleVerGeometry(minHeight, bestHeight, maxHeight float64) (changed bool) {
+	changed = w.BaseControl.setPossibleVerGeometry(minHeight, bestHeight, maxHeight)
 	if !changed {
 		return
 	}
@@ -110,18 +112,18 @@ func (w *Window) Children() []Control {
 	return []Control{w.child}
 }
 
-func (w *Window) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
+func (w *Window) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	if w.child == nil {
-		return 100, 100
+		return 100, 100, 100
 	}
-	return w.child.MinWidth(), w.child.MaxWidth()
+	return w.child.MinWidth(), w.child.BestWidth(), w.child.MaxWidth()
 }
 
-func (w *Window) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
+func (w *Window) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
 	if w.child == nil {
-		return 100, 100
+		return 100, 100, 100
 	}
-	return w.child.MinHeight(), w.child.MaxHeight()
+	return w.child.MinHeight(), w.child.BestHeight(), w.child.MaxHeight()
 }
 
 func (w *Window) ComputeChildHorGeometry() (lefts, rights []float64) {

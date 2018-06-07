@@ -17,19 +17,13 @@ type windowButtonMacOS struct {
 	backgroundColor ColorF64
 }
 
-func (c *windowButtonMacOS) Children() []Control { return nil }
-
-func (c *windowButtonMacOS) ComputePossibleHorGeometry() (minWidth, maxWidth float64) {
-	return windowButtonMacOSSize, windowButtonMacOSSize
+func (c *windowButtonMacOS) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
+	return windowButtonMacOSSize, windowButtonMacOSSize, windowButtonMacOSSize
 }
 
-func (c *windowButtonMacOS) ComputePossibleVerGeometry() (minHeight, maxHeight float64) {
-	return windowButtonMacOSSize, windowButtonMacOSSize
+func (c *windowButtonMacOS) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
+	return windowButtonMacOSSize, windowButtonMacOSSize, windowButtonMacOSSize
 }
-
-func (c *windowButtonMacOS) ComputeChildHorGeometry() (lefts, rights []float64) { return nil, nil }
-
-func (c *windowButtonMacOS) ComputeChildVerGeometry() (tops, bottoms []float64) { return nil, nil }
 
 func (c windowButtonMacOS) Draw(canvas Canvas, _ RectangleF64) {
 	// TODO use region
