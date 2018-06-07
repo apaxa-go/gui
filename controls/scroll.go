@@ -100,12 +100,12 @@ func (c *Scroll) ComputeChildVerGeometry() (tops, bottoms []float64) {
 
 func (c *Scroll) Draw(canvas Canvas, region RectangleF64) {
 	// TODO draw scrolls itself
-	canvas.PushTransform() // TODO rename to PushState
+	canvas.SaveState() // TODO rename to PushState
 	canvas.ClipToRectangle(c.Geometry())
 	if c.child != nil { // TODO call child draw from window method directly
 		c.child.Draw(canvas, region)
 	}
-	canvas.PopTransform() // TODO rename to PopState
+	canvas.RestoreState() // TODO rename to PopState
 }
 
 func (c *Scroll) FocusCandidate(reverse bool, current Control) Control {

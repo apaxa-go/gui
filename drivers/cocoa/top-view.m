@@ -25,21 +25,11 @@
 }
 
 - (void)drawRect:(NSRect)frame {
-	//[[NSColor redColor] set];
-	//[NSBezierPath fillRect:frame];
-
-	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort]; // TODO
-
-	/*
-NSSize sizeInPoints = [self bounds].size;
-NSSize sizeInPixels = [self convertSizeToBacking:sizeInPoints];
-
-CGFloat scale = sizeInPixels.width/sizeInPoints.width;
-*/
+	CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
 
 	// TODO do we need to set color space each drawRect?
 	// Set color spaces to RGB(A)
-	CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB); // TODO may return NULL
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
 	CGContextSetFillColorSpace(context, colorSpace);
 	CGContextSetStrokeColorSpace(context, colorSpace);
 	CFRelease(colorSpace);
@@ -123,7 +113,7 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 	if (self.mouseTimer.valid) { [[self mouseTimer] invalidate]; }
 	self.mouseTimer = [NSTimer scheduledTimerWithTimeInterval:0.15 // TODO move 0.15 to constant and tune
 	                                                   target:self
-	                                                 selector:@selector(mouseButtonDelayedPop:) // TODO does ":" required here?
+	                                                 selector:@selector(mouseButtonDelayedPop:)
 	                                                 userInfo:nil
 	                                                  repeats:NO];
 }
@@ -173,8 +163,7 @@ CGFloat scale = sizeInPixels.width/sizeInPoints.width;
 
 - (void)mouseMoved:(NSEvent*)event {
 	pointerMoveEventCallback(self.windowP, [self mouseLocation]);
-	// TODO There is no move events between press & release. May be send move event on release and/or
-	// in dragging event?
+	// TODO There is no move events between press & release. May be send move event on release and/or in dragging event?
 }
 
 //

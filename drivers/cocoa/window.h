@@ -13,7 +13,7 @@ void        SetWindowAcceptMouseMoved(void* self, bool accept);
 void        MakeWindowKeyAndOrderFront(void* self);
 void        SetWindowTopView(void* self, void* topView);
 const char* GetWindowTitle(void* self);
-void        SetWindowTitle(void* self, char* title);
+void        SetWindowTitle(void* self, CFStringRef title);
 
 NSRect GetWindowGeometry(void* self);
 void   SetWindowPos(void* self, NSPoint pos);

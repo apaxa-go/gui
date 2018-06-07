@@ -17,16 +17,8 @@ func (w *Window) SetFocus(newFocus Control) (ok bool) {
 }
 
 func (w *Window) ShiftFocus(reverse bool) {
-	/*
-		if w.focusedControl == nil { // TODO remove this case?
-			w.SetFocus(w)
-			return
-		}
-	*/
-
 	current := w.focusedControl
 	where := current
-
 	for {
 		candidate := where.FocusCandidate(reverse, current)
 		switch candidate {

@@ -2,10 +2,7 @@
 // This file is part of the AGui.
 // License information can be found in the LICENSE file.
 
-#include "common.h"
-
 CFAttributedStringRef makeAttrStringRef(CFStringRef str, CTFontRef font) {
-	// TODO check functions results for nil???
 	CFStringRef keys[]   = {kCTFontAttributeName};
 	CFTypeRef   values[] = {font};
 
@@ -22,23 +19,7 @@ CFAttributedStringRef makeAttrStringRef(CFStringRef str, CTFontRef font) {
 	return attrString;
 }
 
-/*
-void drawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGPoint pos){
-    // TODO check functions results for nil???
-    CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
-    CTLineRef line = CTLineCreateWithAttributedString(attrStr);
-
-    CGContextSetTextPosition(context, pos.x, pos.y);
-    CTLineDraw(line, context);
-
-    CFRelease(line);
-    CFRelease(attrStr);
-}
-*/
-
-void DrawTextLine(CGContextRef context, const UInt8* strBytes, CFIndex strLen, CTFontRef font, CGPoint pos) {
-	// TODO check functions results for nil???
-	CFStringRef           str     = CreateStringRef(strBytes, strLen);
+void DrawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGPoint pos) {
 	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
 	CFRelease(str);
 	CTLineRef line = CTLineCreateWithAttributedString(attrStr);
@@ -50,18 +31,7 @@ void DrawTextLine(CGContextRef context, const UInt8* strBytes, CFIndex strLen, C
 	CGContextRestoreGState(context);
 }
 
-/*
-CGRect getTextLineGeometry(CGContextRef context, CFStringRef str, CTFontRef font){
-    // TODO check functions results for nil???
-    CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
-    CTLineRef line = CTLineCreateWithAttributedString(attrStr);
-    return CTLineGetImageBounds(line, context);
-}
-*/
-
-CGRect GetTextLineGeometry(CGContextRef context, const UInt8* strBytes, CFIndex strLen, CTFontRef font) {
-	// TODO check functions results for nil???
-	CFStringRef           str     = CreateStringRef(strBytes, strLen);
+CGRect GetTextLineGeometry(CGContextRef context, CFStringRef str, CTFontRef font) {
 	CFAttributedStringRef attrStr = makeAttrStringRef(str, font);
 	CFRelease(str);
 	CTLineRef line = CTLineCreateWithAttributedString(attrStr);

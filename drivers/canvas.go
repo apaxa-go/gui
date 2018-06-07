@@ -12,8 +12,8 @@ type Canvas interface {
 	OfflineCanvas
 
 	//ResetTransform()
-	PushTransform()
-	PopTransform()
+	SaveState()
+	RestoreState()
 	GetTransform() TransformF64
 	//SetTransform(TransformF64)
 	Rotate(angle float64) // In radians. Positive values rotate clockwise and negative values rotate counter-clockwise.

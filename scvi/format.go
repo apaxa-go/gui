@@ -29,10 +29,10 @@ func (image SCVI) Equal(image2 SCVI) bool {
 }
 
 func (image SCVI) Draw(canvas Canvas, rect RectangleF64, color ColorF64) {
-	canvas.PushTransform()
-	defer canvas.PopTransform()
+	canvas.SaveState()
+	defer canvas.RestoreState()
 
-	// TODO simplify coordinate translation via geometry types methods
+	// TODO simplify coordinate translation via geometry types methods (align)
 
 	if !image.KeepAspect {
 		canvas.Translate(rect.LT())

@@ -6,8 +6,8 @@ package scvi
 
 // drivers.Canvas implements this Canvas.
 type Canvas interface {
-	PushTransform()
-	PopTransform()
+	SaveState()
+	RestoreState()
 	Translate(pos PointF64)
 	ScaleXY(x, y float64)
 

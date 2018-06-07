@@ -116,5 +116,16 @@ func (k PointerButtonEventKind) String() string {
 	}
 }
 func (k PointerButtonEventKind) ShortString() string {
-	return k.String() // TODO
+	switch k {
+	case PointerButtonEventPress:
+		return "↧"
+	case PointerButtonEventRelease:
+		return "↥"
+	case PointerButtonEventClick:
+		return "↕"
+	case PointerButtonEventDoubleClick:
+		return "⇕"
+	default:
+		return strconvh.FormatUint8(uint8(k)) + "↕"
+	}
 }

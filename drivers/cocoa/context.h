@@ -6,12 +6,6 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreText/CoreText.h>
 
-void resetTransform(CGContextRef context) {
-	// TODO is this valid?
-	// TODO this implementation vs TopView implementation
-	CGContextConcatCTM(context, CGContextGetUserSpaceToDeviceSpaceTransform(context));
-}
-
 void fillRoundedRectangle(CGContextRef context, CGRect rect, CGFloat radiusX, CGFloat radiusY, CGFloat* color) {
 	CGContextSetFillColor(context, color);
 	CGPathRef path = CGPathCreateWithRoundedRect(rect, radiusX, radiusY, NULL);
@@ -36,15 +30,12 @@ void CGPathEllipseTo(CGMutablePathRef path, CGFloat x, CGFloat y) {
 
 	CGPoint p0 = CGPathGetCurrentPoint(path);
 
-	//CGFloat tmpx = (x - p0.x) * (1 - magic);
-	//CGFloat tmpy = (y - p0.y) * (1 - magic);
-
 	CGFloat cp1x;
 	CGFloat cp1y;
 	CGFloat cp2x;
 	CGFloat cp2y;
 
-	if ((x >= p0.x && y >= p0.y) || (x <= p0.x && y <= p0.y)) { // TODO avoid "if"?
+	if ((x >= p0.x && y >= p0.y) || (x <= p0.x && y <= p0.y)) {
 		cp1x = p0.x + (x - p0.x) * magic;
 		cp1y = p0.y;
 		cp2x = x;

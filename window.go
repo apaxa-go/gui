@@ -96,9 +96,8 @@ func (w *Window) setPossibleVerGeometry(minHeight, maxHeight float64) (changed b
 	return
 }
 
-func (w *Window) SetParent(parent Control) {
-	panic("set parent for Window") // TODO may be less panic?
-}
+// SetParent method does nothing for Window.
+func (w *Window) SetParent(parent Control) {}
 
 //
 // Control interface implementation
@@ -138,7 +137,6 @@ func (w *Window) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	return []float64{0}, []float64{w.Geometry().Height()}
 }
 
-// TODO may remove this method?
 func (w *Window) Draw(canvas Canvas, region RectangleF64) {
 	if w.child != nil {
 		w.child.Draw(canvas, region)

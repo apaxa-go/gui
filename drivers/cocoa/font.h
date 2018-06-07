@@ -3,9 +3,22 @@
 // License information can be found in the LICENSE file.
 
 #import <CoreText/CoreText.h>
-#include "common.h"
 
 //const CGAffineTransform flipped = (CGAffineTransform){1,0,0,1,0,0};//{1,0,0,-1,0,0};
+
+struct FontSpec {
+	CGFloat size;
+	bool    reqMonospace;
+	bool    monospace;
+	bool    reqItalic;
+	CGFloat italic;
+	bool    reqSlant;
+	CGFloat slant;
+	bool    reqWidth;
+	CGFloat width;
+	bool    reqWeight;
+	CGFloat weight;
+};
 
 // Translate font-spec italic ([0;1], non-italic 0, italic 1) to core text boolean italic flag.
 bool translateItalic(CGFloat i) { return i >= 0.5; }
@@ -38,69 +51,44 @@ CGFloat translateWeight(CGFloat w) {
 	}
 }
 
-CTFontDescriptorRef makeFontDescriptor(
-    bool    reqName,
-    UInt8*  name,
-    CFIndex nameLen,
-    bool    reqFamily,
-    UInt8*  family,
-    CFIndex familyLen,
-    CGFloat size,
-    bool    reqMonospace,
-    bool    monospace,
-    bool    reqItalic,
-    CGFloat italic,
-    bool    reqSlant,
-    CGFloat slant,
-    bool    reqWidth,
-    CGFloat width,
-    bool    reqWeight,
-    CGFloat weight //
-) {
-	CFMutableDictionaryRef a  = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // attributes // TODO may return NULL
-	CFMutableDictionaryRef t  = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // traits // TODO may return NULL
+// name & family may be NULL.
+CTFontDescriptorRef CreateFontDescriptor(CFStringRef name, CFStringRef family, struct FontSpec spec) {
+	CFMutableDictionaryRef a = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // attributes, in some cases may returns NULL
+	CFMutableDictionaryRef t = CFDictionaryCreateMutable(NULL, 0, NULL, NULL); // traits, in some cases may returns NULL
 	uint32_t               st = 0; // symbolic traits // TODO may be set kCTFontUIOptimizedTrait ?
 
-	if (reqName) {
-		CFStringRef tmp = CreateStringRef(name, nameLen);
-		CFDictionarySetValue(a, kCTFontNameAttribute, tmp);
-		CFRelease(tmp);
-	}
-	if (reqFamily) {
-		CFStringRef tmp = CreateStringRef(family, familyLen);
-		CFDictionarySetValue(a, kCTFontFamilyNameAttribute, tmp);
-		CFRelease(tmp);
-	}
+	if (name != nil) { CFDictionarySetValue(a, kCTFontNameAttribute, name); }
+	if (family != nil) { CFDictionarySetValue(a, kCTFontFamilyNameAttribute, family); }
 	{
-		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &size);
+		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &spec.size);
 		CFDictionarySetValue(a, kCTFontSizeAttribute, tmp);
 		CFRelease(tmp);
 	}
-	if (reqMonospace) {
-		if (monospace) { st |= kCTFontMonoSpaceTrait; }
+	if (spec.reqMonospace) {
+		if (spec.monospace) { st |= kCTFontMonoSpaceTrait; }
 	}
-	if (reqItalic) {
-		if (translateItalic(italic)) {
+	if (spec.reqItalic) {
+		if (translateItalic(spec.italic)) {
 			st |= kCTFontItalicTrait;
 		} else {
 			// TODO how to announce what we require non-italic font?
 		}
 	}
-	if (reqSlant) {
-		slant           = translateSlant(slant);
-		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &slant);
+	if (spec.reqSlant) {
+		spec.slant      = translateSlant(spec.slant);
+		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &spec.slant);
 		CFDictionarySetValue(t, kCTFontSlantTrait, tmp);
 		CFRelease(tmp);
 	}
-	if (reqWidth) {
-		width           = translateWidth(width);
-		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &width);
+	if (spec.reqWidth) {
+		spec.width      = translateWidth(spec.width);
+		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &spec.width);
 		CFDictionarySetValue(t, kCTFontWidthTrait, tmp);
 		CFRelease(tmp);
 	}
-	if (reqWeight) {
-		weight          = translateWeight(weight);
-		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &weight);
+	if (spec.reqWeight) {
+		spec.weight     = translateWeight(spec.weight);
+		CFNumberRef tmp = CFNumberCreate(NULL, kCFNumberFloat64Type, &spec.weight);
 		CFDictionarySetValue(t, kCTFontWeightTrait, tmp);
 		CFRelease(tmp);
 	}
@@ -117,144 +105,41 @@ CTFontDescriptorRef makeFontDescriptor(
 	return r;
 }
 
-CTFontRef CreateDefaultFont(
-    CGFloat size,
-    bool    reqMonospace,
-    bool    monospace,
-    bool    reqItalic,
-    CGFloat italic,
-    bool    reqSlant,
-    CGFloat slant,
-    bool    reqWidth,
-    CGFloat width,
-    bool    reqWeight,
-    CGFloat weight //
-) {
-	CTFontRef           tmp        = CTFontCreateUIFontForLanguage(kCTFontUIFontUser, size, NULL);
-	CTFontDescriptorRef descriptor = makeFontDescriptor(
-	    false,
-	    NULL,
-	    0,
-	    false,
-	    NULL,
-	    0,
-	    size,
-	    reqMonospace,
-	    monospace,
-	    reqItalic,
-	    italic,
-	    reqSlant,
-	    slant,
-	    reqWidth,
-	    width,
-	    reqWeight,
-	    weight //
-	);
-	CTFontRef f = CTFontCreateCopyWithAttributes(tmp, size, NULL, descriptor);
+CTFontRef CreateDefaultFont(struct FontSpec spec) {
+	CTFontRef           tmp        = CTFontCreateUIFontForLanguage(kCTFontUIFontUser, spec.size, NULL);
+	CTFontDescriptorRef descriptor = CreateFontDescriptor(NULL, NULL, spec);
+	CTFontRef           f          = CTFontCreateCopyWithAttributes(tmp, spec.size, NULL, descriptor);
 	CFRelease(descriptor);
 	CFRelease(tmp);
 	return f;
 }
 
-CTFontRef makeFont(
-    bool    reqName,
-    UInt8*  name,
-    CFIndex nameLen,
-    bool    reqFamily,
-    UInt8*  family,
-    CFIndex familyLen,
-    CGFloat size,
-    bool    reqMonospace,
-    bool    monospace,
-    bool    reqItalic,
-    CGFloat italic,
-    bool    reqSlant,
-    CGFloat slant,
-    bool    reqWidth,
-    CGFloat width,
-    bool    reqWeight,
-    CGFloat weight //
-) {
-	CTFontDescriptorRef descriptor = makeFontDescriptor(
-	    reqName, //
-	    name,
-	    nameLen,
-	    reqFamily,
-	    family,
-	    familyLen,
-	    size,
-	    reqMonospace,
-	    monospace,
-	    reqItalic,
-	    italic,
-	    reqSlant,
-	    slant,
-	    reqWidth,
-	    width,
-	    reqWeight,
-	    weight //
-	);
-
+// name & family may be NULL.
+CTFontRef CreateFont(CFStringRef name, CFStringRef family, struct FontSpec spec) {
+	CTFontDescriptorRef descriptor = CreateFontDescriptor(name, family, spec);
 	if (descriptor == NULL) { return NULL; }
-
-	CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, size, NULL);
+	CTFontRef font = CTFontCreateWithFontDescriptor(descriptor, spec.size, NULL);
 	CFRelease(descriptor);
-
 	return font;
 }
 
-CTFontRef makeFontFromFile(
-    UInt8*  path,
-    CFIndex pathLen,
-    CGFloat size,
-    bool    reqMonospace,
-    bool    monospace,
-    bool    reqItalic,
-    CGFloat italic,
-    bool    reqSlant,
-    CGFloat slant,
-    bool    reqWidth,
-    CGFloat width,
-    bool    reqWeight,
-    CGFloat weight //
-) {
+CTFontRef CreateFontFromFile(CFStringRef path, struct FontSpec spec) {
 	// TODO implement index access for collection
 	CTFontRef         CTFont       = nil;
-	CFStringRef       pathRef      = CreateStringRef(path, pathLen);
-	CFURLRef          url          = CFURLCreateWithFileSystemPath(NULL, pathRef, kCFURLPOSIXPathStyle, false);
+	CFURLRef          url          = CFURLCreateWithFileSystemPath(NULL, path, kCFURLPOSIXPathStyle, false);
 	CGDataProviderRef dataProvider = CGDataProviderCreateWithURL(url);
 
 	if (dataProvider != NULL) {
 		CGFontRef CGFont = CGFontCreateWithDataProvider(dataProvider);
 		if (CGFont != NULL) {
-			CTFontDescriptorRef descriptor = makeFontDescriptor(
-			    false, //
-			    NULL,
-			    0,
-			    false,
-			    NULL,
-			    0,
-			    size,
-			    reqMonospace,
-			    monospace,
-			    reqItalic,
-			    italic,
-			    reqSlant,
-			    slant,
-			    reqWidth,
-			    width,
-			    reqWeight,
-			    weight);
-			CTFont = CTFontCreateWithGraphicsFont(CGFont, size, NULL, descriptor);
+			CTFontDescriptorRef descriptor = CreateFontDescriptor(NULL, NULL, spec);
+			CTFont                         = CTFontCreateWithGraphicsFont(CGFont, spec.size, NULL, descriptor);
 			CFRelease(descriptor);
 			CFRelease(CGFont);
 		}
 		CFRelease(dataProvider);
 	}
 	CFRelease(url);
-	CFRelease(pathRef);
 
 	return CTFont;
 }
-
-void releaseFont(CTFontRef font) { CFRelease(font); }

@@ -7,7 +7,16 @@ package cocoa
 /*
 #cgo CFLAGS: -x objective-c
 #cgo LDFLAGS: -framework Cocoa
+
 #include "window.h"
+
+CFStringRef CFStringCreateFromGoString(_GoString_ str);
+
+void _SetWindowTitle(void* self, _GoString_ title){
+	CFStringRef _title = CFStringCreateFromGoString(title);
+	SetWindowTitle(self, _title);
+	CFRelease(_title);
+}
 */
 import "C"
 import (
@@ -48,12 +57,18 @@ func CreateWindow() (window *Window, err error) {
 	return
 }
 
+func CToGoString(cString unsafe.Pointer) string { // TODO move to other package
+	r := C.GoString((*C.char)(cString)) // TODO is it possible to share C types between packages and pass *C.char to this function directly?
+	C.free(cString)
+	return r
+}
+
 func (w *Window) Title() string {
-	return C.GoString(C.GetWindowTitle(w.pointer))
+	return CToGoString(unsafe.Pointer(C.GetWindowTitle(w.pointer)))
 }
 
 func (w *Window) SetTitle(title string) {
-	C.SetWindowTitle(w.pointer, C.CString(title)) // TODO do not use CString if possible in any place!!!
+	C._SetWindowTitle(w.pointer, title)
 }
 
 func (w *Window) Destroy() {
@@ -95,7 +110,7 @@ func (w *Window) Invalidate() {
 }
 
 func (w *Window) OfflineCanvas() OfflineCanvasI {
-	return newContext(uintptr(C.GetWindowContext(w.pointer)))
+	return &Context{uintptr(C.GetWindowContext(w.pointer))}
 }
 
 func (w *Window) ScaleFactor() float64 {

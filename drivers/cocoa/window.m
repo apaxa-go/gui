@@ -45,11 +45,10 @@ const char* GetWindowTitle(void* self) {
 	return [nsTitle UTF8String];
 }
 
-void SetWindowTitle(void* self, char* title) {
-	NSWindow* window  = self;
-	NSString* nsTitle = [NSString stringWithUTF8String:title];
-	[window setTitle:nsTitle];
-	free(title);
+void SetWindowTitle(void* self, CFStringRef title) {
+	NSWindow* window = self;
+	[window setTitle:(__bridge NSString*)title];
+	CFRelease(title);
 }
 
 NSRect GetWindowGeometry(void* self) {

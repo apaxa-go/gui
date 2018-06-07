@@ -10,11 +10,6 @@ import (
 )
 
 type FontSpec struct {
-	/*
-		If index == -2 then "name" has no meaning and should be nil. In this case returns default font.
-		If index == -1 then "name" is name of font family.
-		If index >= 0 then "name" in a file name of font and "index" is index of font in font collection. If file is not collection then "index" should be 0.
-	*/
 	Index FontIndex
 	Name  string  // Name of font file of name of font family (depending on "index" field).
 	Size  float64 // Size of font in device independent points.

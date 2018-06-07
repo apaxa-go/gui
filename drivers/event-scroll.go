@@ -7,7 +7,7 @@ package drivers
 import "github.com/apaxa-go/helper/strconvh"
 
 type ScrollEvent struct {
-	Delta     PointF64 // TODO if only one direction per event may changed then may be use float64 Delta and flag for coordinate (X or Y)?
+	Delta     PointF64
 	Modifiers KeyModifiers
 	Point     PointF64
 }
@@ -24,6 +24,19 @@ func (e ScrollEvent) String() string {
 }
 
 func (e ScrollEvent) ShortString() string {
-	// TODO
-	return e.String()
+	r := ""
+	if e.Delta.X < 0 {
+		r += "↞" + strconvh.FormatFloat64Prec(-e.Delta.X, -1)
+	} else if e.Delta.X > 0 {
+		r += "↠" + strconvh.FormatFloat64Prec(e.Delta.X, -1)
+	}
+	if len(r) != 0 && e.Delta.Y != 0 {
+		r += ";"
+	}
+	if e.Delta.Y < 0 {
+		r += "↡" + strconvh.FormatFloat64Prec(-e.Delta.Y, -1)
+	} else if e.Delta.Y > 0 {
+		r += "↟" + strconvh.FormatFloat64Prec(e.Delta.Y, -1)
+	}
+	return r
 }

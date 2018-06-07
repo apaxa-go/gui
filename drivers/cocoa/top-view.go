@@ -23,9 +23,6 @@ func createTopView(window *Window) (view unsafe.Pointer, ok bool) {
 
 //export drawCallback
 func drawCallback(window unsafe.Pointer, context C.CGContextRef, rect C.CGRect) {
-	if window == nil {
-		panic("NIL window") // TODO
-	}
 	if context == 0 {
 		panic("Unable to retrieve context for drawing")
 	}
@@ -33,15 +30,12 @@ func drawCallback(window unsafe.Pointer, context C.CGContextRef, rect C.CGRect) 
 	if w.drawCallback == nil {
 		return
 	}
-	c := newContext(uintptr(context))
+	c := &Context{uintptr(context)}
 	w.drawCallback(c, (*RectangleF64S)(unsafe.Pointer(&rect)).ToF64())
 }
 
 //export keyboardEventCallback
 func keyboardEventCallback(window unsafe.Pointer, event uint8, key uint16, modifiers uint64) {
-	if window == nil {
-		panic("NIL window") // TODO
-	}
 	w := (*Window)(window)
 	if w.keyboardEventCallback == nil {
 		return
@@ -55,9 +49,6 @@ func keyboardEventCallback(window unsafe.Pointer, event uint8, key uint16, modif
 
 //export pointerKeyEventCallback
 func pointerKeyEventCallback(window unsafe.Pointer, event uint8, button uint8, point C.NSPoint, modifiers uint64) {
-	if window == nil {
-		panic("NIL window") // TODO
-	}
 	w := (*Window)(window)
 	if w.pointerKeyEventCallback == nil {
 		return
@@ -70,9 +61,6 @@ func pointerKeyEventCallback(window unsafe.Pointer, event uint8, button uint8, p
 
 //export pointerMoveEventCallback
 func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
-	if window == nil {
-		panic("NIL window") // TODO
-	}
 	w := (*Window)(window)
 	if w.pointerMoveEventCallback == nil {
 		return
@@ -84,9 +72,6 @@ func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
 
 //export scrollEventCallback
 func scrollEventCallback(window unsafe.Pointer, delta C.NSPoint, point C.NSPoint, modifiers uint64) {
-	if window == nil {
-		panic("NIL window") // TODO
-	}
 	w := (*Window)(window)
 	if w.scrollEventCallback == nil {
 		return

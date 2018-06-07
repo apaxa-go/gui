@@ -4,6 +4,8 @@
 
 package drivers
 
+import "github.com/apaxa-go/helper/strconvh"
+
 type PointerMoveEvent struct {
 	Point PointF64
 }
@@ -13,6 +15,5 @@ func (e PointerMoveEvent) String() string {
 }
 
 func (e PointerMoveEvent) ShortString() string {
-	//TODO
-	return e.String()
+	return "↝(" + strconvh.FormatFloat64Prec(e.Point.X, 0) + ";" + strconvh.FormatFloat64Prec(e.Point.Y, 0) + ")"
 }
