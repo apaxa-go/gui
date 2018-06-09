@@ -13,6 +13,10 @@ type Layers struct {
 	layers []Control
 }
 
+func (c *Layers) NumLayers() int { return len(c.layers) }
+
+func (c *Layers) Children() []Control { return c.layers }
+
 func (c *Layers) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	// There are multiple ways to calculate bestWidth.
 	// Here we use average from children's bestWidths.
@@ -51,6 +55,32 @@ func (c *Layers) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight 
 	return
 }
 
+func (c *Layers) ComputeChildHorGeometry() (lefts, rights []float64) {
+	l := len(c.layers)
+	lefts = make([]float64, l)
+	rights = make([]float64, l)
+	left := c.Geometry().Left
+	right := c.Geometry().Right
+	for i := 0; i < l; i++ {
+		lefts[i] = left
+		rights[i] = right
+	}
+	return
+}
+
+func (c *Layers) ComputeChildVerGeometry() (tops, bottoms []float64) {
+	l := len(c.layers)
+	tops = make([]float64, l)
+	bottoms = make([]float64, l)
+	top := c.Geometry().Top
+	bottom := c.Geometry().Bottom
+	for i := 0; i < l; i++ {
+		tops[i] = top
+		bottoms[i] = bottom
+	}
+	return
+}
+
 func (c *Layers) Draw(canvas Canvas, region RectangleF64) {
 	for _, child := range c.layers {
 		child.Draw(canvas, region)
@@ -83,32 +113,6 @@ func (c *Layers) FocusCandidate(reverse bool, current Control) Control {
 		}
 		return c.layers[i]
 	}
-}
-
-func (c *Layers) ComputeChildHorGeometry() (lefts, rights []float64) {
-	l := len(c.layers)
-	lefts = make([]float64, l)
-	rights = make([]float64, l)
-	left := c.Geometry().Left
-	right := c.Geometry().Right
-	for i := 0; i < l; i++ {
-		lefts[i] = left
-		rights[i] = right
-	}
-	return
-}
-
-func (c *Layers) ComputeChildVerGeometry() (tops, bottoms []float64) {
-	l := len(c.layers)
-	tops = make([]float64, l)
-	bottoms = make([]float64, l)
-	top := c.Geometry().Top
-	bottom := c.Geometry().Bottom
-	for i := 0; i < l; i++ {
-		tops[i] = top
-		bottoms[i] = bottom
-	}
-	return
 }
 
 func (c *Layers) Insert(control Control, at int) {
@@ -152,10 +156,6 @@ func (c *Layers) Remove(i int) Control {
 	c.SetUPGIR(false)
 	return control
 }
-
-func (c *Layers) NumLayers() int { return len(c.layers) }
-
-func (c *Layers) Children() []Control { return c.layers }
 
 func NewLayers(layers ...Control) *Layers {
 	r := &Layers{

@@ -13,6 +13,10 @@ type HTable struct {
 	children []Control
 }
 
+func (c *HTable) NumColumns() int { return len(c.children) }
+
+func (c *HTable) Children() []Control { return c.children }
+
 func (c *HTable) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	for _, child := range c.children {
 		minWidth += child.MinWidth()
@@ -39,42 +43,6 @@ func (c *HTable) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight 
 		bestHeight = mathh.Min2Float64(maxHeight, bestHeight)
 	}
 	return
-}
-
-func (c *HTable) Draw(canvas Canvas, region RectangleF64) {
-	for _, child := range c.children {
-		// TODO draw only required children
-		child.Draw(canvas, region)
-	}
-}
-
-func (c *HTable) FocusCandidate(reverse bool, current Control) Control {
-	l := len(c.children)
-	if l == 0 {
-		return nil
-	}
-	switch {
-	case current == nil && !reverse: // first
-		return c.children[0]
-	case current == nil && reverse: // last
-		return c.children[l-1]
-	default:
-		i := 0
-		for ; i < l && c.children[i] != current; i++ {
-		}
-		if i == l { // not found
-			return c.children[0]
-		}
-		if reverse {
-			i--
-		} else {
-			i++
-		}
-		if i < 0 || i >= l { // out of current control
-			return nil
-		}
-		return c.children[i]
-	}
 }
 
 func (c *HTable) ComputeChildHorGeometry() (lefts, rights []float64) {
@@ -144,14 +112,47 @@ func (c *HTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	return
 }
 
+func (c *HTable) Draw(canvas Canvas, region RectangleF64) {
+	for _, child := range c.children {
+		// TODO draw only required children
+		child.Draw(canvas, region)
+	}
+}
+
+func (c *HTable) FocusCandidate(reverse bool, current Control) Control {
+	l := len(c.children)
+	if l == 0 {
+		return nil
+	}
+	switch {
+	case current == nil && !reverse: // first
+		return c.children[0]
+	case current == nil && reverse: // last
+		return c.children[l-1]
+	default:
+		i := 0
+		for ; i < l && c.children[i] != current; i++ {
+		}
+		if i == l { // not found
+			return c.children[0]
+		}
+		if reverse {
+			i--
+		} else {
+			i++
+		}
+		if i < 0 || i >= l { // out of current control
+			return nil
+		}
+		return c.children[i]
+	}
+}
+
 func (c *HTable) Insert(control Control, at int) {
 	// TODO what if control already assigned to some other/the same parent ?
 	// TODO control.geometry must be ={0,0,-1,-1} & min/maxSize must be ={0,-1} (for simplify Hypervisor calling)
-	if at < 0 {
-		at = 0
-	} else if at > len(c.children) {
-		at = len(c.children)
-	}
+	at = mathh.Max2Int(at, 0)
+	at = mathh.Min2Int(at, c.NumColumns())
 	c.BaseControl.SetParent(control, c)
 	c.children = append(append(c.children[:at], control), c.children[at:]...)
 	c.SetUPG(false)
@@ -166,10 +167,8 @@ func (c *HTable) Append(control Control) {
 }
 
 func (c *HTable) Remove(i int) Control {
-	if i < 0 {
-		i = 0
-	} else if i >= len(c.children) {
-		i = len(c.children) - 1
+	if i < 0 || i >= c.NumColumns() {
+		return nil
 	}
 	control := c.children[i]
 	c.BaseControl.SetParent(control, nil)
@@ -177,10 +176,6 @@ func (c *HTable) Remove(i int) Control {
 	c.SetUPG(false)
 	return control
 }
-
-func (c *HTable) NumColumns() int { return len(c.children) }
-
-func (c *HTable) Children() []Control { return c.children }
 
 func NewHTable(children ...Control) *HTable {
 	r := &HTable{

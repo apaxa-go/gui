@@ -19,14 +19,14 @@ type Button struct {
 func (c *Button) Children() []Control { return []Control{c.label} }
 
 func (c *Button) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
-	minWidth = c.label.MinWidth() + 2*(BorderWidth+HorPadding)
+	minWidth = c.label.BestWidth() + 2*(BorderWidth+HorPadding)
 	bestWidth = mathh.Max2Float64(ButtonBestWidth, minWidth)
 	maxWidth = mathh.PositiveInfFloat64()
 	return
 }
 
 func (c *Button) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
-	height := c.label.MinHeight() + 2*(BorderWidth+VerPadding)
+	height := c.label.BestHeight() + 2*(BorderWidth+VerPadding)
 	return height, height, height
 }
 

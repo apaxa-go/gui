@@ -13,6 +13,10 @@ type VTable struct {
 	children []Control
 }
 
+func (c *VTable) NumRows() int { return len(c.children) }
+
+func (c *VTable) Children() []Control { return c.children }
+
 func (c *VTable) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	// There are multiple ways to calculate bestWidth.
 	// Here we use average from children's bestWidths.
@@ -39,41 +43,6 @@ func (c *VTable) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight 
 		maxHeight += child.MaxHeight()
 	}
 	return
-}
-
-func (c *VTable) Draw(canvas Canvas, region RectangleF64) {
-	for _, child := range c.children {
-		// TODO draw only required children
-		child.Draw(canvas, region)
-	}
-}
-func (c *VTable) FocusCandidate(reverse bool, current Control) Control {
-	l := len(c.children)
-	if l == 0 {
-		return nil
-	}
-	switch {
-	case current == nil && !reverse: // first
-		return c.children[0]
-	case current == nil && reverse: // last
-		return c.children[l-1]
-	default:
-		i := 0
-		for ; i < l && c.children[i] != current; i++ {
-		}
-		if i == l { // not found
-			return c.children[0]
-		}
-		if reverse {
-			i--
-		} else {
-			i++
-		}
-		if i < 0 || i >= l { // out of current control
-			return nil
-		}
-		return c.children[i]
-	}
 }
 
 func (c *VTable) ComputeChildHorGeometry() (lefts, rights []float64) {
@@ -143,14 +112,46 @@ func (c *VTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	return
 }
 
+func (c *VTable) Draw(canvas Canvas, region RectangleF64) {
+	for _, child := range c.children {
+		// TODO draw only required children
+		child.Draw(canvas, region)
+	}
+}
+func (c *VTable) FocusCandidate(reverse bool, current Control) Control {
+	l := len(c.children)
+	if l == 0 {
+		return nil
+	}
+	switch {
+	case current == nil && !reverse: // first
+		return c.children[0]
+	case current == nil && reverse: // last
+		return c.children[l-1]
+	default:
+		i := 0
+		for ; i < l && c.children[i] != current; i++ {
+		}
+		if i == l { // not found
+			return c.children[0]
+		}
+		if reverse {
+			i--
+		} else {
+			i++
+		}
+		if i < 0 || i >= l { // out of current control
+			return nil
+		}
+		return c.children[i]
+	}
+}
+
 func (c *VTable) Insert(control Control, at int) {
 	// TODO what if control already assigned to some other/the same parent ?
 	// TODO control.geometry must be ={0,0,-1,-1} & min/maxSize must be ={0,-1} (for simplify Hypervisor calling)
-	if at < 0 {
-		at = 0
-	} else if at > len(c.children) {
-		at = len(c.children)
-	}
+	at = mathh.Max2Int(at, 0)
+	at = mathh.Min2Int(at, c.NumRows())
 	c.BaseControl.SetParent(control, c)
 	c.children = append(append(c.children[:at], control), c.children[at:]...)
 	c.SetUPG(false) // TODO why not recursive?
@@ -165,10 +166,8 @@ func (c *VTable) Append(control Control) {
 }
 
 func (c *VTable) Remove(i int) Control {
-	if i < 0 {
-		i = 0
-	} else if i >= len(c.children) {
-		i = len(c.children) - 1
+	if i < 0 || i >= c.NumRows() {
+		return nil
 	}
 	control := c.children[i]
 	c.BaseControl.SetParent(control, nil)
@@ -176,10 +175,6 @@ func (c *VTable) Remove(i int) Control {
 	c.SetUPG(false)
 	return control
 }
-
-func (c *VTable) NumRows() int { return len(c.children) }
-
-func (c *VTable) Children() []Control { return c.children }
 
 func NewVTable(children ...Control) *VTable {
 	r := &VTable{
