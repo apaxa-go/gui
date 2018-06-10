@@ -27,6 +27,8 @@ type TableSpanDirectionState struct {
 	After  uint8
 }
 
+const TableSpanMaxSize = mathh.MaxUint8 + 1
+
 func (s TableSpanDirectionState) IsMaster() bool  { return s.Before == 0 }
 func (s TableSpanDirectionState) IsSlave() bool   { return !s.IsMaster() }
 func (s TableSpanDirectionState) IsSingle() bool  { return s.Before == 0 && s.After == 0 }
@@ -51,11 +53,15 @@ func (s TableSpanState) IsSlave() bool   { return !s.IsMaster() }
 func (s TableSpanState) IsSingle() bool  { return s.Hor.IsSingle() && s.Ver.IsSingle() }
 func (s TableSpanState) IsSpanned() bool { return !s.IsSingle() }
 
-func (s TableSpanState) Master(origin PointI) PointI {
-	return PointI{s.Hor.Master(origin.X), s.Ver.Master(origin.Y)}
+func (s TableSpanState) Master(iRow, iColumn int) (mRow, mColumn int) {
+	return s.Ver.Master(iRow), s.Hor.Master(iColumn)
 }
-func (s TableSpanState) Size() PointI                             { return PointI{s.Hor.Size(), s.Ver.Size()} }
-func (s TableSpanState) Span(origin PointI) (master, size PointI) { return s.Master(origin), s.Size() }
+func (s TableSpanState) Size() (sizeRow, sizeColumn int) { return s.Ver.Size(), s.Hor.Size() }
+func (s TableSpanState) Span(iRow, iColumn int) (mRow, mColumn, sizeRow, sizeColumn int) {
+	mRow, mColumn = s.Master(iRow, iColumn)
+	sizeRow, sizeColumn = s.Size()
+	return
+}
 
 type Table struct {
 	BaseControl
@@ -69,58 +75,34 @@ type Table struct {
 func (c *Table) ColumnsCount() int { return len(c.columnsGeometry) }
 func (c *Table) RowsCount() int    { return len(c.rowsGeometry) }
 
+// ChildrenCount() returns number or children.
 // Spanned cells N*M counts as 1 non-nil child and (N*M-1) nil children.
-func (c *Table) NonNilChildrenCount() int { return c.childrenCount }
+func (c *Table) ChildrenCount() int { return c.childrenCount }
 
-// ChildrenCount() returns number or children including nil children.
-// For table of size N*M results is exactly (N*M) even if there are some spanned children.
-func (c *Table) ChildrenCount() int { return c.RowsCount() * c.ColumnsCount() }
-
-func (c *Table) HasNilOrSpannedChild() bool { return c.NonNilChildrenCount() != c.ChildrenCount() }
+func (c *Table) HasNilOrSpannedChild() bool {
+	return c.ChildrenCount() != c.RowsCount()*c.ColumnsCount()
+}
 
 func (c *Table) Children() []Control {
-	children := make([]Control, 0, c.ChildrenCount())
-	for _, row := range c.children {
-		children = append(children, row...)
-	}
-	return children
-	/*
-		if !c.HasNilOrSpannedChild() { // fast path for all non-nil
-			for _, row := range c.children {
-				children = append(children, row...)
-			}
-			return children
-		}
+	children := make([]Control, c.ChildrenCount())
 
+	if !c.HasNilOrSpannedChild() { // fast path for all non-nil
 		for _, row := range c.children {
-			for _, child := range row {
-				if child != nil {
-					children = append(children, child)
-				}
-			}
+			children = append(children, row...)
 		}
 		return children
-	*/
-}
+	}
 
-func (c *Table) horSpan(y, x int) int {
-	// TODO
-	return 1
-}
-
-// is spanned and is not span base
-func (c *Table) isHorSpanned(y, x int) bool {
-	return false
-}
-
-func (c *Table) verSpan(y, x int) int {
-	// TODO
-	return 1
-}
-
-// is spanned and is not span base
-func (c *Table) isVerSpanned(y, x int) bool {
-	return false
+	i := 0
+	for _, row := range c.children {
+		for _, child := range row {
+			if child != nil {
+				children[i] = child
+				i++
+			}
+		}
+	}
+	return children
 }
 
 type buttonSpannedGeometry struct {
@@ -218,17 +200,15 @@ func (c *Table) rowColumnToIndex(rowIndex, columnIndex int) (childIndex int) {
 }
 
 //replacer:replace
-//replacer:old Hor	left	Left	right	Right	width	Width	rowColumn	column	"(iRow, iColumn)"	Column	Row
-//replacer:new Ver	top		Top		bottom	Bottom	height	Height	rowColumn	row		"(iRow, iColumn)"	Row		Column
+//replacer:old Hor	left	Left	right	Right	width	Width	rowColumn	row		column	"(iRow, iColumn)"	Column	Row
+//replacer:new Ver	top		Top		bottom	Bottom	height	Height	rowColumn	column	row		"(iRow, iColumn)"	Row		Column
 
-func (c *Table) ComputeChildHorGeometry() (lefts, rights []float64) {
-	lRow, lColumn := c.RowsCount(), c.ColumnsCount()
-	if lRow == 0 || lColumn == 0 {
-		return nil, nil
-	}
+// computeChildHorGeometry computes lefts and right for single row as if there are no spanned cells.
+func (c *Table) computeChildHorGeometry() (lefts, rights []float64) {
+	lColumn := c.ColumnsCount()
 
-	lefts = make([]float64, lRow*lColumn)
-	rights = make([]float64, lRow*lColumn)
+	lefts = make([]float64, lColumn)
+	rights = make([]float64, lColumn)
 
 	left := c.Geometry().Left
 	width := c.Geometry().Width()
@@ -240,11 +220,8 @@ func (c *Table) ComputeChildHorGeometry() (lefts, rights []float64) {
 			curWidth := width * scalePart / scale
 			right := left + curWidth
 
-			for iRow := 0; iRow < lRow; iRow++ {
-				i := c.rowColumnToIndex(iRow, iColumn)
-				lefts[i] = left
-				rights[i] = right
-			}
+			lefts[iColumn] = left
+			rights[iColumn] = right
 
 			left = right
 			width -= curWidth
@@ -257,11 +234,8 @@ func (c *Table) ComputeChildHorGeometry() (lefts, rights []float64) {
 			curWidth := width * scalePart / scale
 			right := left + curWidth
 
-			for iRow := 0; iRow < lRow; iRow++ {
-				i := c.rowColumnToIndex(iRow, iColumn)
-				lefts[i] = left
-				rights[i] = right
-			}
+			lefts[iColumn] = left
+			rights[iColumn] = right
 
 			left = right
 			width -= curWidth
@@ -274,11 +248,8 @@ func (c *Table) ComputeChildHorGeometry() (lefts, rights []float64) {
 			curWidth := width * scalePart / scale
 			right := left + curWidth
 
-			for iRow := 0; iRow < lRow; iRow++ {
-				i := c.rowColumnToIndex(iRow, iColumn)
-				lefts[i] = left
-				rights[i] = right
-			}
+			lefts[iColumn] = left
+			rights[iColumn] = right
 
 			left = right
 			width -= curWidth
@@ -290,11 +261,121 @@ func (c *Table) ComputeChildHorGeometry() (lefts, rights []float64) {
 
 //replacer:ignore
 
+func (c *Table) ComputeChildHorGeometry() (lefts, rights []float64) {
+	lRow, lColumn := c.RowsCount(), c.ColumnsCount()
+	if lRow == 0 || lColumn == 0 {
+		return nil, nil
+	}
+
+	lefts = make([]float64, c.ChildrenCount())
+	rights = make([]float64, c.ChildrenCount())
+
+	rowLefts, rowRights := c.computeChildHorGeometry()
+	i := 0
+	for iRow := 0; iRow < lRow; iRow++ {
+		for iColumn := 0; iColumn < lColumn; iColumn++ {
+			span := c.span[iRow][iColumn].Hor
+			if c.children[iRow][iColumn] == nil || span.IsSlave() {
+				continue
+			}
+			lefts[i] = rowLefts[iColumn]
+			rights[i] = rowRights[iColumn+span.AfterInt()]
+			i++
+		}
+	}
+	return
+	/*
+		left := c.Geometry().Left
+		width := c.Geometry().Width()
+		switch {
+		case width >= c.MaxWidth(): // scale according to MaxWidth
+			scale := c.MaxWidth()
+			for iColumn, geometry := range c.columnsGeometry {
+				scalePart := geometry.max
+				curWidth := width * scalePart / scale
+				right := left + curWidth
+
+				for iRow := 0; iRow < lRow; iRow++ {
+					i := c.rowColumnToIndex(iRow, iColumn)
+					lefts[i] = left
+					rights[i] = right
+				}
+
+				left = right
+				width -= curWidth
+				scale -= scalePart
+			}
+		case width >= c.BestWidth(): // scale according to BestWidth
+			scale := c.BestWidth()
+			for iColumn, geometry := range c.columnsGeometry {
+				scalePart := geometry.best
+				curWidth := width * scalePart / scale
+				right := left + curWidth
+
+				for iRow := 0; iRow < lRow; iRow++ {
+					i := c.rowColumnToIndex(iRow, iColumn)
+					lefts[i] = left
+					rights[i] = right
+				}
+
+				left = right
+				width -= curWidth
+				scale -= scalePart
+			}
+		default: // scale according to MinWidth
+			scale := c.MinWidth()
+			for iColumn, geometry := range c.columnsGeometry {
+				scalePart := geometry.min
+				curWidth := width * scalePart / scale
+				right := left + curWidth
+
+				for iRow := 0; iRow < lRow; iRow++ {
+					i := c.rowColumnToIndex(iRow, iColumn)
+					lefts[i] = left
+					rights[i] = right
+				}
+
+				left = right
+				width -= curWidth
+				scale -= scalePart
+			}
+		}
+		return
+	*/
+}
+
+func (c *Table) ComputeChildVerGeometry() (tops, bottoms []float64) {
+	lColumn, lRow := c.ColumnsCount(), c.RowsCount()
+	if lColumn == 0 || lRow == 0 {
+		return nil, nil
+	}
+
+	tops = make([]float64, c.ChildrenCount())
+	bottoms = make([]float64, c.ChildrenCount())
+
+	columnTops, columnBottoms := c.computeChildVerGeometry()
+	i := 0
+	for iRow := 0; iRow < lRow; iRow++ {
+		for iColumn := 0; iColumn < lColumn; iColumn++ {
+			span := c.span[iRow][iColumn].Ver
+			if c.children[iRow][iColumn] == nil || span.IsSlave() {
+				continue
+			}
+			tops[i] = columnTops[iRow]
+			bottoms[i] = columnBottoms[iRow+span.AfterInt()]
+			i++
+		}
+	}
+	return
+}
+
 func (c *Table) Draw(canvas Canvas, region RectangleF64) {
 	// TODO draw only required children
 	for _, row := range c.children {
 		for _, child := range row {
-			child.Draw(canvas, region)
+			if child != nil {
+				child.Draw(canvas, region)
+			}
 		}
 	}
 }
@@ -351,7 +432,7 @@ func (c *Table) FocusCandidate(reverse bool, current Control) Control {
 	}
 }
 
-// For non nil control returns false if target cell is span slave or if iRow or iColumn is invalid.
+// For non nil control returns false if target cell is span's slave or if iRow or iColumn is invalid.
 // If control is nil then Detach is performed and its "ok" result will be returned.
 func (c *Table) Set(control Control, iRow, iColumn int) (ok bool) {
 	// TODO what if control already assigned to some other/the same parent ?
@@ -379,7 +460,21 @@ func (c *Table) Set(control Control, iRow, iColumn int) (ok bool) {
 	return
 }
 
-// Returns "ok" == false if target cell is span slave or if iRow or iColumn is invalid.
+func (c *Table) detach(iRow, iColumn int, setNil bool) (control Control) {
+	control = c.children[iRow][iColumn]
+	if control == nil {
+		return
+	}
+	c.BaseControl.SetParent(control, nil)
+	if setNil {
+		c.children[iRow][iColumn] = nil
+	}
+	c.childrenCount--
+	c.SetUPG(false)
+	return
+}
+
+// Returns false if target cell is span's slave or if iRow or iColumn is invalid.
 // Returns (nil, true) if target cell is already nil.
 func (c *Table) Detach(iRow, iColumn int) (control Control, ok bool) {
 	lRow, lColumn := c.RowsCount(), c.ColumnsCount()
@@ -388,14 +483,7 @@ func (c *Table) Detach(iRow, iColumn int) (control Control, ok bool) {
 	if !ok {
 		return
 	}
-	control = c.children[iRow][iColumn]
-	if control == nil {
-		return
-	}
-	c.BaseControl.SetParent(control, nil)
-	c.children[iRow][iColumn] = nil
-	c.childrenCount--
-	c.SetUPG(false)
+	control = c.detach(iRow, iColumn, true)
 	return
 }
 
@@ -436,6 +524,9 @@ func (c *Table) fixNewRowSpan(iRow int, stretchSpan, bindSpanToBottom bool) {
 			}
 
 			ciRow := iRow - span.BeforeInt()
+			if c.span[ciRow][iColumn].IsMaster() { // move master's child if required
+				c.children[ciRow+1][iColumn] = c.children[ciRow][iColumn]
+			}
 			c.span[ciRow][iColumn] = TableSpanState{}
 		}
 	default: // bind span to top
@@ -459,13 +550,28 @@ func (c *Table) fixNewRowSpan(iRow int, stretchSpan, bindSpanToBottom bool) {
 
 // bindSpanToBottom is ignored id stretchSpan is true.
 func (c *Table) InsertRowExtended(at int, stretchSpan, bindSpanToBottom bool) {
-	lColumn := c.ColumnsCount()
+	lRow, lColumn := c.RowsCount(), c.ColumnsCount()
 	at = mathh.Max2Int(at, 0)
-	at = mathh.Min2Int(at, c.RowsCount())
+	at = mathh.Min2Int(at, lRow)
 	c.children = append(append(c.children[:at], make([]Control, lColumn)), c.children[at:]...)
 	c.span = append(append(c.span[:at], make([]TableSpanState, lColumn)), c.span[at:]...)
+	c.rowsGeometry = append(append(c.rowsGeometry[:at], tableBandGeometry{}), c.rowsGeometry[at:]...)
 	c.fixNewRowSpan(at, stretchSpan, bindSpanToBottom)
 	c.SetUPG(false) // Because inserted row may have intersection with spanned cell.
+}
+
+// bindSpanToRight is ignored id stretchSpan is true.
+func (c *Table) InsertColumnExtended(at int, stretchSpan, bindSpanToRight bool) {
+	lRow, lColumn := c.RowsCount(), c.ColumnsCount()
+	at = mathh.Max2Int(at, 0)
+	at = mathh.Min2Int(at, lColumn)
+	for iRow := 0; iRow < lRow; iRow++ {
+		c.children[iRow] = append(append(c.children[iRow][:at], nil), c.children[iRow][at:]...)
+		c.span[iRow] = append(append(c.span[iRow][:at], TableSpanState{}), c.span[iRow][at:]...)
+	}
+	c.columnsGeometry = append(append(c.columnsGeometry[:at], tableBandGeometry{}), c.columnsGeometry[at:]...)
+	c.fixNewColumnSpan(at, stretchSpan, bindSpanToRight)
+	c.SetUPG(false) // Because inserted column may have intersection with spanned cell.
 }
 
 //replacer:replace
@@ -484,24 +590,198 @@ func (c *Table) AppendRow() {
 	c.InsertRow(c.RowsCount())
 }
 
+//replacer:replace
+//replacer:old Ver	[iRow+1][iColumn]	[ciRow][iColumn]	[iRow	[iColumn	Row		Column
+//replacer:new Hor	[iRow][iColumn+1]	[iRow][ciColumn]	[iRow	[iColumn	Column	Row
+
+func (c *Table) fixRemoveRowSpan(iRow int, keepSpanMaster bool) {
+	lColumn := c.ColumnsCount()
+
+	for iColumn := 0; iColumn < lColumn; iColumn++ {
+		span := c.span[iRow][iColumn].Ver
+		if span.IsSingle() {
+			continue
+		}
+
+		for ciRow := iRow - span.BeforeInt(); ciRow < iRow; ciRow++ {
+			c.span[ciRow][iColumn].Ver.After--
+		}
+		for ciRow := iRow + 1; ciRow <= iRow+span.AfterInt(); ciRow++ {
+			c.span[ciRow][iColumn].Ver.Before--
+		}
+
+		if keepSpanMaster && span.IsMaster() {
+			c.children[iRow+1][iColumn] = c.children[iRow][iColumn]
+		}
+	}
+}
+
 //replacer:ignore
 
-func (c *Table) RemoveRow(iRow int) []Control {
+func (c *Table) RemoveRowExtended(iRow int, keepSpanMaster bool) []Control {
 	lRow, lColumn := c.RowsCount(), c.ColumnsCount()
 	if iRow < 0 || iRow >= lRow {
 		return nil
 	}
+
+	c.GeometryHypervisorPause()
+	defer c.GeometryHypervisorResume()
+
+	c.fixRemoveRowSpan(iRow, keepSpanMaster)
 	r := c.children[iRow]
-	// TODO
+	for iColumn := 0; iColumn < lColumn; iColumn++ {
+		c.detach(iRow, iColumn, false)
+	}
+	c.children = append(c.children[:iRow], c.children[iRow+1:]...)
+	c.span = append(c.span[:iRow], c.span[iRow+1:]...)
+	c.rowsGeometry = append(c.rowsGeometry[:iRow], c.rowsGeometry[iRow+1:]...)
 	return r
 }
 
-func NewTable(children ...Control) *Table { // TODO
-	r := &Table{
-		children: children,
+func (c *Table) RemoveColumnExtended(iColumn int, keepSpanMaster bool) []Control {
+	lRow, lColumn := c.RowsCount(), c.ColumnsCount()
+	if iColumn < 0 || iColumn >= lColumn {
+		return nil
 	}
-	for _, child := range children {
-		r.BaseControl.SetParent(child, r)
+
+	c.GeometryHypervisorPause()
+	defer c.GeometryHypervisorResume()
+
+	c.fixRemoveColumnSpan(iColumn, keepSpanMaster)
+	r := make([]Control, lRow)
+	for iRow := 0; iRow < lRow; iRow++ {
+		r[iRow] = c.children[iRow][iColumn]
+		c.detach(iRow, iColumn, false)
+		c.children[iRow] = append(c.children[iRow][:iColumn], c.children[iRow][iColumn+1:]...)
+		c.span[iRow] = append(c.span[iRow][:iColumn], c.span[iRow][iColumn+1:]...)
+	}
+	c.columnsGeometry = append(c.columnsGeometry[:iColumn], c.columnsGeometry[iColumn+1:]...)
+	return r
+}
+
+//replacer:replace
+//replacer:old Row
+//replacer:new Column
+
+func (c *Table) RemoveRow(iRow int) []Control {
+	return c.RemoveRowExtended(iRow, true)
+}
+
+func (c *Table) RemoveFirstRow() []Control {
+	return c.RemoveRow(0)
+}
+
+func (c *Table) RemoveLastRow() []Control {
+	return c.RemoveRow(c.RowsCount() - 1)
+}
+
+//replacer:ignore
+
+func (c *Table) allSlavesAreSingleNil(iRow, iColumn, sizeRow, sizeColumn int) bool {
+	// First row
+	for ciColumn := iColumn + 1; ciColumn <= iColumn+sizeColumn; ciColumn++ {
+		if !c.span[iRow][ciColumn].IsSingle() || c.children[iRow][ciColumn] != nil {
+			return false
+		}
+	}
+	// Other rows
+	for ciRow := iRow + 1; ciRow < iRow+sizeRow; ciRow++ {
+		for ciColumn := iColumn; ciColumn < iColumn+sizeColumn; ciColumn++ {
+			if !c.span[ciRow][ciColumn].IsSingle() || c.children[ciRow][ciColumn] != nil {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// iRow & iColumn are indexes of new span master.
+// sizeRow & sizeColumn are size of new span (including master, so both must be >0).
+func (c *Table) addNewSpan(iRow, iColumn, sizeRow, sizeColumn int) {
+	top := uint8(0)
+	bottom := uint8(sizeRow - 1)
+	for ciRow := iRow; ciRow < iRow+sizeRow; ciRow++ {
+		left := uint8(0)
+		right := uint8(sizeColumn - 1)
+		for ciColumn := iColumn; ciColumn < iColumn+sizeColumn; ciColumn++ {
+			c.span[ciRow][ciColumn].Hor.Before = left
+			c.span[ciRow][ciColumn].Hor.After = right
+			c.span[ciRow][ciColumn].Ver.Before = top
+			c.span[ciRow][ciColumn].Ver.After = bottom
+			left++
+			right--
+		}
+		top++
+		bottom--
+	}
+}
+
+// AddSpan create new span in table.
+// iRow & iColumn are indexes of new span master (left-most top-most element).
+// sizeRow & sizeColumn are size of new span in cells (including master).
+// Requirements:
+//  size* must be from [1;TableSpanMaxSize] (both sizes == 1 is valid and function performs nothing),
+//  created span must fit in the table,
+//  created span must not overflow existing one,
+//  only child at master place may be non-nil (this child will be associated with span), all other children covered by created span must be nil.
+// If not all requirements are met then function returns false.
+func (c *Table) AddSpan(iRow, iColumn, sizeRow, sizeColumn int) (ok bool) {
+	ok = sizeColumn > 0 && sizeColumn <= TableSpanMaxSize && sizeRow > 0 && sizeRow <= TableSpanMaxSize
+	ok = ok && iColumn >= 0 && iColumn+sizeColumn <= c.ColumnsCount() && iRow >= 0 && iRow+sizeRow <= c.RowsCount()
+	ok = ok && c.span[iRow][iColumn].IsSingle() && c.allSlavesAreSingleNil(iRow, iColumn, sizeRow, sizeColumn)
+	if !ok {
+		return
+	}
+	c.addNewSpan(iRow, iColumn, sizeRow, sizeColumn)
+	return
+}
+
+// iRow & iColumn are indexes of span master.
+func (c *Table) removeSpan(iRow, iColumn int) {
+	lRow, lColumn := c.span[iRow][iColumn].Size()
+	for ciRow := iRow; ciRow < iRow+lRow; ciRow++ {
+		for ciColumn := iColumn; ciColumn < iColumn+lColumn; ciColumn++ {
+			c.span[ciRow][ciColumn].Hor.Before = 0
+			c.span[ciRow][ciColumn].Hor.After = 0
+			c.span[ciRow][ciColumn].Ver.Before = 0
+			c.span[ciRow][ciColumn].Ver.After = 0
+		}
+	}
+}
+
+// RemoveSpanExtended removes span from table.
+// If indirect is false then iRow & iColumn must point to span's master, otherwise they may point to any place of span.
+// iRow & iColumn must fit in table.
+// It is valid to point to cells which is not under span (single cell), in this case function does nothing and returns true.
+// If some requirements aren't met then function returns false.
+// After span removing associated control (if any) will be at span's master cell.
+func (c *Table) RemoveSpanExtended(iRow, iColumn int, indirect bool) (ok bool) {
+	ok = iRow >= 0 && iRow < c.RowsCount() && iColumn >= 0 && iColumn < c.ColumnsCount()
+	ok = ok && (indirect || c.span[iRow][iColumn].IsMaster())
+	if !ok {
+		return
+	}
+	if indirect {
+		iRow, iColumn = c.span[iRow][iColumn].Master(iRow, iColumn)
+	}
+	c.removeSpan(iRow, iColumn)
+	return
+}
+
+func (c *Table) RemoveSpan(iRow, iColumn int) (ok bool) {
+	return c.RemoveSpanExtended(iRow, iColumn, true)
+}
+
+func NewTable(rowsCount, columnsCount int) *Table {
+	r := &Table{
+		children:        make([][]Control, rowsCount),
+		span:            make([][]TableSpanState, rowsCount),
+		rowsGeometry:    make([]tableBandGeometry, rowsCount),
+		columnsGeometry: make([]tableBandGeometry, columnsCount),
+	}
+	for iRow := 0; iRow < rowsCount; iRow++ {
+		r.children[iRow] = make([]Control, columnsCount)
+		r.span[iRow] = make([]TableSpanState, columnsCount)
 	}
 	return r
 }

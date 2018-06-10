@@ -6,7 +6,9 @@
 
 package controls
 
-import "github.com/apaxa-go/helper/mathh"
+import (
+	"github.com/apaxa-go/helper/mathh"
+)
 
 func (c *Table) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
 	lColumn, lRow := c.ColumnsCount(), c.RowsCount()
@@ -87,14 +89,12 @@ func (c *Table) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight f
 	return
 }
 
-func (c *Table) ComputeChildVerGeometry() (tops, bottoms []float64) {
-	lColumn, lRow := c.ColumnsCount(), c.RowsCount()
-	if lColumn == 0 || lRow == 0 {
-		return nil, nil
-	}
+// computeChildVerGeometry computes tops and bottom for single column as if there are no spanned cells.
+func (c *Table) computeChildVerGeometry() (tops, bottoms []float64) {
+	lRow := c.RowsCount()
 
-	tops = make([]float64, lColumn*lRow)
-	bottoms = make([]float64, lColumn*lRow)
+	tops = make([]float64, lRow)
+	bottoms = make([]float64, lRow)
 
 	top := c.Geometry().Top
 	height := c.Geometry().Height()
@@ -106,11 +106,8 @@ func (c *Table) ComputeChildVerGeometry() (tops, bottoms []float64) {
 			curHeight := height * scalePart / scale
 			bottom := top + curHeight
 
-			for iColumn := 0; iColumn < lColumn; iColumn++ {
-				i := c.rowColumnToIndex(iRow, iColumn)
-				tops[i] = top
-				bottoms[i] = bottom
-			}
+			tops[iRow] = top
+			bottoms[iRow] = bottom
 
 			top = bottom
 			height -= curHeight
@@ -123,11 +120,8 @@ func (c *Table) ComputeChildVerGeometry() (tops, bottoms []float64) {
 			curHeight := height * scalePart / scale
 			bottom := top + curHeight
 
-			for iColumn := 0; iColumn < lColumn; iColumn++ {
-				i := c.rowColumnToIndex(iRow, iColumn)
-				tops[i] = top
-				bottoms[i] = bottom
-			}
+			tops[iRow] = top
+			bottoms[iRow] = bottom
 
 			top = bottom
 			height -= curHeight
@@ -140,11 +134,8 @@ func (c *Table) ComputeChildVerGeometry() (tops, bottoms []float64) {
 			curHeight := height * scalePart / scale
 			bottom := top + curHeight
 
-			for iColumn := 0; iColumn < lColumn; iColumn++ {
-				i := c.rowColumnToIndex(iRow, iColumn)
-				tops[i] = top
-				bottoms[i] = bottom
-			}
+			tops[iRow] = top
+			bottoms[iRow] = bottom
 
 			top = bottom
 			height -= curHeight
@@ -187,6 +178,9 @@ func (c *Table) fixNewColumnSpan(iColumn int, stretchSpan, bindSpanToRight bool)
 			}
 
 			ciColumn := iColumn - span.BeforeInt()
+			if c.span[iRow][ciColumn].IsMaster() { // move master's child if required
+				c.children[iRow][ciColumn+1] = c.children[iRow][ciColumn]
+			}
 			c.span[iRow][ciColumn] = TableSpanState{}
 		}
 	default: // bind span to top
@@ -216,4 +210,38 @@ func (c *Table) PrependColumn() {
 
 func (c *Table) AppendColumn() {
 	c.InsertColumn(c.ColumnsCount())
+}
+
+func (c *Table) fixRemoveColumnSpan(iColumn int, keepSpanMaster bool) {
+	lRow := c.RowsCount()
+
+	for iRow := 0; iRow < lRow; iRow++ {
+		span := c.span[iRow][iColumn].Hor
+		if span.IsSingle() {
+			continue
+		}
+
+		for ciColumn := iColumn - span.BeforeInt(); ciColumn < iColumn; ciColumn++ {
+			c.span[iRow][ciColumn].Hor.After--
+		}
+		for ciColumn := iColumn + 1; ciColumn <= iColumn+span.AfterInt(); ciColumn++ {
+			c.span[iRow][ciColumn].Hor.Before--
+		}
+
+		if keepSpanMaster && span.IsMaster() {
+			c.children[iRow][iColumn+1] = c.children[iRow][iColumn]
+		}
+	}
+}
+
+func (c *Table) RemoveColumn(iColumn int) []Control {
+	return c.RemoveColumnExtended(iColumn, true)
+}
+
+func (c *Table) RemoveFirstColumn() []Control {
+	return c.RemoveColumn(0)
+}
+
+func (c *Table) RemoveLastColumn() []Control {
+	return c.RemoveColumn(c.ColumnsCount() - 1)
 }
