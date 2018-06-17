@@ -20,6 +20,7 @@ type windowButtonMacOS struct {
 	backgroundColor         ColorF64
 	inactiveBackgroundColor ColorF64
 	action                  WindowButtonAction
+	hover                   bool
 }
 
 func (c *windowButtonMacOS) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
@@ -34,9 +35,11 @@ func (c windowButtonMacOS) Draw(canvas Canvas, _ RectangleF64) {
 	// TODO use region
 	place := Align(0).MakeCenter().ApplyF64(c.Geometry(), PointF64{windowButtonMacOSSize, windowButtonMacOSSize})
 	circle := CircleF64{place.Center(), windowButtonMacOSSize / 2}.Inner(windowButtonMacOSBorderWidth)
-	if c.Window().IsMain() {
+	if c.Window().IsMain() || c.hover {
 		canvas.FillCircle(circle, c.backgroundColor)
-		c.image.Draw(canvas, place, c.imageColor)
+		if c.hover {
+			c.image.Draw(canvas, place, c.imageColor)
+		}
 	} else {
 		canvas.FillCircle(circle, c.inactiveBackgroundColor)
 	}

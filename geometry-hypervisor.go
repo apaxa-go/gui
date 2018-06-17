@@ -27,6 +27,7 @@ func (w *Window) geometryHypervisorDo() {
 	w.geometryHypervisorDoUCVG(w)
 	w.adjustSize()
 	w.geometryHypervisorDoIR(w)
+	w.geometryHypervisorDoIG(w)
 	w.invalidate()
 }
 
@@ -83,6 +84,7 @@ func (w *Window) geometryHypervisorDoUCHG(control Control) {
 				child.setUCHG()
 				child.setUPVG(false)
 				child.setIR()
+				child.setIG()
 			}
 		}
 		control.unsetUCHG()
@@ -148,6 +150,7 @@ func (w *Window) geometryHypervisorDoUCVG(control Control) {
 			if changed {
 				child.setUCVG()
 				child.setIR()
+				child.setIG()
 			}
 		}
 		control.unsetUCVG()
@@ -190,4 +193,22 @@ func (w *Window) geometryHypervisorDoIRUnsetRecursive(control Control) {
 		control.unsetCIR()
 	}
 	control.unsetIR()
+}
+
+//
+// Invalidate Geometry (from up to down).
+//
+
+func (w *Window) geometryHypervisorDoIG(control Control) { // TODO may be merge with DoIR?
+	if control.getIG() {
+		control.OnGeometryChangeEvent()
+		control.unsetIG()
+	}
+	if control.getCIG() {
+		children := control.Children()
+		for _, child := range children {
+			w.geometryHypervisorDoIG(child)
+		}
+		control.unsetCIG()
+	}
 }

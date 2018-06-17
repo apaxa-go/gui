@@ -199,7 +199,7 @@
 }
 
 - (void)mouseExited:(NSEvent*)event {
-	mouseEnterLeave(self.windowP, [event trackingArea], true);
+	mouseEnterLeave(self.windowP, [event trackingArea], false);
 }
 
 void mouseEnterLeave(void* windowP, NSTrackingArea* area, bool enter) {
@@ -208,7 +208,7 @@ void mouseEnterLeave(void* windowP, NSTrackingArea* area, bool enter) {
 	CFNumberGetValue(idRef, kCFNumberIntType, &id); // and here ...
 	CFRelease(idRef);
 
-	pointerEnterLeaveEventCallback(windowP, id, true);
+	pointerEnterLeaveEventCallback(windowP, id, enter);
 }
 
 //

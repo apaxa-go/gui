@@ -24,6 +24,8 @@ const (
 	HypervisorDataCUCVG         HypervisorData = 1 << iota // Children (some of them) have Upgrade Children Vertical Geometry
 	HypervisorDataIR            HypervisorData = 1 << iota // Invalidate Rectangle
 	HypervisorDataCIR           HypervisorData = 1 << iota // Children (some of them) have Invalidate Rectangle
+	HypervisorDataIG            HypervisorData = 1 << iota // Invalidate Geometry (must call OnGeometryChange)
+	HypervisorDataCIG           HypervisorData = 1 << iota // Children (some of them) have Invalidate Geometry
 )
 const HypervisorDataNil HypervisorData = 0
 
@@ -51,8 +53,8 @@ func setParent(control, parent Control) {
 
 	control.setParent(parent)
 
-	if newWindow != control.Window() {
-		setWindow(control, newWindow)
+	if newWindow != oldWindow {
+		setWindow(control, oldWindow, newWindow)
 
 		// Validate focus
 		if oldWindow != nil && oldWindow.focusedControl.Window() != oldWindow {
@@ -64,10 +66,16 @@ func setParent(control, parent Control) {
 		}
 	}
 }
-func setWindow(control Control, window *Window) {
-	control.setWindow(window)
+func setWindow(control Control, oldWindow, newWindow *Window) {
+	if oldWindow != nil {
+		control.BeforeDetachFromWindowEvent()
+	}
+	control.setWindow(newWindow)
+	if newWindow != nil {
+		control.AfterAttachToWindowEvent()
+	}
 	for _, child := range control.Children() {
-		setWindow(child, window)
+		setWindow(child, oldWindow, newWindow)
 	}
 }
 
@@ -303,6 +311,27 @@ func (c *BaseControl) setCIR()      { c.hypervisorData |= HypervisorDataCIR }
 func (c *BaseControl) unsetCIR()    { c.hypervisorData &= ^HypervisorDataCIR }
 
 //
+// Invalidate Geometry
+//
+
+func (c *BaseControl) getIG() bool { return c.hypervisorData&HypervisorDataIG > 0 }
+func (c *BaseControl) setIG() {
+	c.hypervisorData |= HypervisorDataIG
+	for control := c.Parent(); control != nil && !control.getCIG(); control = control.Parent() {
+		control.setCIG()
+	}
+}
+func (c *BaseControl) unsetIG() { c.hypervisorData &= ^HypervisorDataIG }
+
+//
+// Cache for Invalidate Geometry
+//
+
+func (c *BaseControl) getCIG() bool { return c.hypervisorData&HypervisorDataCIG > 0 }
+func (c *BaseControl) setCIG()      { c.hypervisorData |= HypervisorDataCIG }
+func (c *BaseControl) unsetCIG()    { c.hypervisorData &= ^HypervisorDataCIG }
+
+//
 // Shortcuts
 //
 
@@ -354,6 +383,9 @@ func (BaseControl) ComputeChildVerGeometry() (tops, bottoms []float64) { return 
 // Default event handlers & related methods - controls may reimplement them.
 //
 
+func (BaseControl) AfterAttachToWindowEvent()                                  {}
+func (BaseControl) BeforeDetachFromWindowEvent()                               {}
+func (BaseControl) OnGeometryChangeEvent()                                     {}
 func (BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool)                { return false }
 func (BaseControl) OnPointerButtonEvent(_ PointerButtonEvent) (processed bool) { return false }
 func (BaseControl) OnPointerDragEvent(_ PointerDragEvent)                      {}

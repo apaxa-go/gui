@@ -86,6 +86,14 @@ type BaseControlI interface {
 	setCIR()
 	unsetCIR()
 
+	getIG() bool
+	setIG()
+	unsetIG()
+
+	getCIG() bool
+	setCIG()
+	unsetCIG()
+
 	SetUPG(recursive bool)
 	SetUPGIR(recursive bool)
 }
@@ -104,6 +112,9 @@ type Control interface {
 
 	Draw(canvas Canvas, region RectangleF64)
 
+	AfterAttachToWindowEvent()
+	BeforeDetachFromWindowEvent()
+	OnGeometryChangeEvent()
 	OnKeyboardEvent(event KeyboardEvent) (done bool)
 	OnPointerButtonEvent(event PointerButtonEvent) (processed bool)
 	OnPointerDragEvent(event PointerDragEvent)

@@ -11,3 +11,7 @@ type TrackingArea struct {
 	EnterLeave bool
 	Move       bool
 }
+
+func (a TrackingArea) Valid() bool {
+	return a.EnterLeave || a.Move
+}

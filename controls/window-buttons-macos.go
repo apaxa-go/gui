@@ -19,12 +19,13 @@ const (
 type windowButtonsMacOS struct {
 	BaseControl
 	closeButton    *windowButtonMacOS
-	hideButton     *windowButtonMacOS
+	minimizeButton *windowButtonMacOS
 	maximizeButton *windowButtonMacOS
+	trackingAreaID TrackingAreaID
 }
 
 func (c *windowButtonsMacOS) Children() []Control {
-	return []Control{c.closeButton, c.hideButton, c.maximizeButton}
+	return []Control{c.closeButton, c.minimizeButton, c.maximizeButton}
 }
 
 func (c *windowButtonsMacOS) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
@@ -58,11 +59,35 @@ func (c *windowButtonsMacOS) ComputeChildVerGeometry() (tops, bottoms []float64)
 
 func (c windowButtonsMacOS) Draw(canvas Canvas, region RectangleF64) {
 	c.closeButton.Draw(canvas, region)
-	c.hideButton.Draw(canvas, region)
+	c.minimizeButton.Draw(canvas, region)
 	c.maximizeButton.Draw(canvas, region)
 }
 
-func (c *windowButtonMacOS) OnWindowMainEvent(become bool) {
+func (c *windowButtonsMacOS) AfterAttachToWindowEvent() {
+	// Reserve TrackingAreaID.
+	c.trackingAreaID = c.Window().AddTrackingArea(c, TrackingArea{RectangleF64{}, false, false})
+}
+
+func (c *windowButtonsMacOS) BeforeDetachFromWindowEvent() {
+	// Free TrackingArea.
+	c.Window().RemoveTrackingArea(c.trackingAreaID, false)
+}
+
+func (c *windowButtonsMacOS) OnGeometryChangeEvent() {
+	// Update TrackingArea.
+	origin := c.Geometry().LT()
+	rect := RectangleF64{origin.X, origin.Y, origin.X + windowButtonsMacOSWidth, origin.Y + windowButtonsMacOSHeight}
+	c.Window().ReplaceTrackingArea(c.trackingAreaID, TrackingArea{rect, true, false})
+}
+
+func (c *windowButtonsMacOS) OnPointerEnterLeaveEvent(event PointerEnterLeaveEvent) {
+	c.closeButton.hover = event.Enter
+	c.minimizeButton.hover = event.Enter
+	c.maximizeButton.hover = event.Enter
+	c.SetIR()
+}
+
+func (c *windowButtonsMacOS) OnWindowMainEvent(become bool) {
 	c.SetIR()
 }
 
@@ -78,7 +103,7 @@ func newWindowButtonsMacOS() *windowButtonsMacOS {
 	r.BaseControl.SetParent(maximizeButton, r)
 
 	r.closeButton = closeButton
-	r.hideButton = minimizeButton
+	r.minimizeButton = minimizeButton
 	r.maximizeButton = maximizeButton
 
 	return r

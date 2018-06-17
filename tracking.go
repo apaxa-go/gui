@@ -21,28 +21,33 @@ func (w *Window) generateTrackingAreaID() TrackingAreaID {
 func (w *Window) AddTrackingArea(receiver Control, area TrackingArea) TrackingAreaID {
 	id := w.generateTrackingAreaID()
 	w.trackingAreas[id] = receiver
-	w.driverWindow.AddTrackingArea(id, area)
+	if area.Valid() { // it is valid to call this method just for reserve ID
+		w.driverWindow.AddTrackingArea(id, area)
+	}
 	return id
 }
 
 func (w *Window) ReplaceTrackingArea(id TrackingAreaID, area TrackingArea) (ok bool) {
 	_, ok = w.trackingAreas[id]
-	if ok {
+	if ok && area.Valid() {
 		w.driverWindow.ReplaceTrackingArea(id, area)
 	}
 	return
 }
 
-func (w *Window) RemoveTrackingArea(id TrackingAreaID) (ok bool) {
+func (w *Window) RemoveTrackingArea(id TrackingAreaID, keepID bool) (ok bool) {
 	_, ok = w.trackingAreas[id]
 	if ok {
 		w.driverWindow.RemoveTrackingArea(id)
+		if !keepID {
+			delete(w.trackingAreas, id)
+		}
 	}
 	return
 }
 
 func (w *Window) onPointerEnterLeave(e PointerEnterLeaveEvent) {
-	receiver, ok := w.trackingAreas[e.Id]
+	receiver, ok := w.trackingAreas[e.ID]
 	if !ok {
 		return
 	}

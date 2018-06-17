@@ -41,7 +41,7 @@ void Invalidate(void* self);
 void windowMainEventCallback(void* window, unsigned char become);
 
 void addTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move);
-bool replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move);
-bool removeTrackingArea(void* self, int id);
+void replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move);
+void removeTrackingArea(void* self, int id);
 
 #endif

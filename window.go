@@ -307,6 +307,7 @@ func (w *Window) IfControlFocused(c Control) bool { return w.focusedControl == c
 //
 
 func (w *Window) baseInit() {
+	w.trackingAreas = make(map[TrackingAreaID]Control)
 	w.focusedControl = w
 	w.driverWindow.RegisterDrawCallback(w.Draw)
 	w.driverWindow.RegisterResizeCallback(w.onExternalResize)

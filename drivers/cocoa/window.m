@@ -156,7 +156,8 @@ void Invalidate(void* self) {
 //
 
 NSTrackingAreaOptions makeTrackingAreaOptions(bool enterLeave, bool move) {
-	NSTrackingAreaOptions r = enterLeave ? NSTrackingMouseEnteredAndExited : 0;
+	NSTrackingAreaOptions r = NSTrackingActiveAlways; // TODO allow to change Always to other values.
+	r |= enterLeave ? NSTrackingMouseEnteredAndExited : 0;
 	r |= move ? NSTrackingMouseMoved : 0;
 	return r;
 }
@@ -198,16 +199,14 @@ void addTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move
 	CFRelease(area);
 }
 
-bool removeTrackingArea(void* self, int id) {
+void removeTrackingArea(void* self, int id) {
 	NSWindow*       window = self;
 	NSView*         view   = [window contentView];
 	NSTrackingArea* area   = getTrackingAreaByID(view, id);
 	if (area != nil) { [view removeTrackingArea:area]; }
-	return area != nil;
 }
 
-bool replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move) {
-	bool exists = removeTrackingArea(self, id);
-	if (exists) { addTrackingArea(self, id, rect, enterLeave, move); }
-	return exists;
+void replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move) {
+	removeTrackingArea(self, id);
+	addTrackingArea(self, id, rect, enterLeave, move);
 }

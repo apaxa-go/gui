@@ -7,7 +7,7 @@ package drivers
 import "github.com/apaxa-go/helper/strconvh"
 
 type PointerEnterLeaveEvent struct {
-	Id    TrackingAreaID
+	ID    TrackingAreaID
 	Enter bool
 }
 
@@ -16,7 +16,7 @@ func (e PointerEnterLeaveEvent) String() string {
 	if e.Enter {
 		action = "enter"
 	}
-	return "pointer " + action + " area " + strconvh.FormatInt(int(e.Id))
+	return "pointer " + action + " area " + strconvh.FormatInt(int(e.ID))
 }
 
 func (e PointerEnterLeaveEvent) ShortString() string {
@@ -24,5 +24,5 @@ func (e PointerEnterLeaveEvent) ShortString() string {
 	if e.Enter {
 		action = "⍆"
 	}
-	return action + strconvh.FormatInt(int(e.Id))
+	return action + strconvh.FormatInt(int(e.ID))
 }
