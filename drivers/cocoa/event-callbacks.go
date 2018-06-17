@@ -87,6 +87,16 @@ func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
 	w.pointerMoveEventCallback(e)
 }
 
+//export pointerEnterLeaveEventCallback
+func pointerEnterLeaveEventCallback(window unsafe.Pointer, trackingAreaID C.int, enter C.bool) {
+	w := (*Window)(window)
+	if w.pointerEnterLeaveEventCallback == nil {
+		return
+	}
+	e := PointerEnterLeaveEvent{TrackingAreaID(trackingAreaID), bool(enter)}
+	w.pointerEnterLeaveEventCallback(e)
+}
+
 //export scrollEventCallback
 func scrollEventCallback(window unsafe.Pointer, delta C.NSPoint, point C.NSPoint, modifiers uint64) {
 	w := (*Window)(window)

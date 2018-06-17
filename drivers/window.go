@@ -35,6 +35,11 @@ type Window interface {
 	RegisterPointerKeyCallback(f func(PointerButtonEvent))
 	RegisterPointerDragCallback(f func(PointerDragEvent))
 	RegisterPointerMoveCallback(f func(PointerMoveEvent))
+	RegisterPointerEnterLeaveCallback(f func(event PointerEnterLeaveEvent))
 	RegisterScrollCallback(f func(ScrollEvent))
 	RegisterWindowMainCallback(f func(become bool))
+
+	AddTrackingArea(id TrackingAreaID, area TrackingArea)
+	ReplaceTrackingArea(id TrackingAreaID, area TrackingArea)
+	RemoveTrackingArea(id TrackingAreaID)
 }

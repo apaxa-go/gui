@@ -19,6 +19,8 @@ type Window struct {
 	focusedControl          Control
 	pointerPressControl     Control
 	isMain                  bool
+	trackingAreas           map[TrackingAreaID]Control // Lookup map to identify receiver by area id.
+	nextTrackingAreaID      TrackingAreaID             // Candidate for next id.
 }
 
 //
@@ -312,6 +314,7 @@ func (w *Window) baseInit() {
 	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
 	w.driverWindow.RegisterPointerKeyCallback(w.onPointerKey)
 	w.driverWindow.RegisterPointerDragCallback(w.onPointerDrag)
+	w.driverWindow.RegisterPointerEnterLeaveCallback(w.onPointerEnterLeave)
 	w.driverWindow.RegisterScrollCallback(w.onScroll)
 	w.driverWindow.RegisterWindowMainCallback(w.onWindowMainEvent)
 	w.BaseControl.window = w

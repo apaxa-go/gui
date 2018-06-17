@@ -30,12 +30,13 @@ type Window struct {
 	resizeCallback        func()
 	offlineCanvasCallback func()
 
-	keyboardEventCallback    func(KeyboardEvent)
-	pointerKeyEventCallback  func(PointerButtonEvent)
-	pointerDragEventCallback func(PointerDragEvent)
-	pointerMoveEventCallback func(PointerMoveEvent)
-	scrollEventCallback      func(ScrollEvent)
-	windowMainEventCallback  func(become bool)
+	keyboardEventCallback          func(KeyboardEvent)
+	pointerKeyEventCallback        func(PointerButtonEvent)
+	pointerDragEventCallback       func(PointerDragEvent)
+	pointerMoveEventCallback       func(PointerMoveEvent)
+	pointerEnterLeaveEventCallback func(event PointerEnterLeaveEvent)
+	scrollEventCallback            func(ScrollEvent)
+	windowMainEventCallback        func(become bool)
 }
 
 func CreateWindow(title string) (window *Window, err error) {
@@ -142,5 +143,23 @@ func (w *Window) RegisterPointerMoveCallback(f func(PointerMoveEvent)) {
 	}
 	w.pointerMoveEventCallback = f
 }
+func (w *Window) RegisterPointerEnterLeaveCallback(f func(PointerEnterLeaveEvent)) {
+	w.pointerEnterLeaveEventCallback = f
+}
+
 func (w *Window) RegisterScrollCallback(f func(ScrollEvent))     { w.scrollEventCallback = f }
 func (w *Window) RegisterWindowMainCallback(f func(become bool)) { w.windowMainEventCallback = f }
+
+func (w *Window) AddTrackingArea(id TrackingAreaID, area TrackingArea) {
+	rectS := area.Area.ToF64S()
+	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
+	C.addTrackingArea(w.pointer, C.int(id), rect, C.bool(area.EnterLeave), C.bool(area.Move))
+}
+func (w *Window) ReplaceTrackingArea(id TrackingAreaID, area TrackingArea) {
+	rectS := area.Area.ToF64S()
+	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
+	C.replaceTrackingArea(w.pointer, C.int(id), rect, C.bool(area.EnterLeave), C.bool(area.Move))
+}
+func (w *Window) RemoveTrackingArea(id TrackingAreaID) {
+	C.removeTrackingArea(w.pointer, C.int(id))
+}

@@ -183,49 +183,32 @@
 // Mouse move events
 //
 
-/*
-- (void)startWindowDragging{
-	self.windowDragging=true;
-}
-*/
-
 - (void)mouseDragged:(NSEvent*)event {
-	/*
-	if (self.windowDragging){
-		[self windowDragged:event];
-		return;
-	}
-	*/
 	NSPoint location = [self mouseLocation];
 	CGFloat x        = location.x - self.mouseDragBase.x;
 	CGFloat y        = location.y - self.mouseDragBase.y;
 	pointerDragEventCallback(self.windowP, NSMakePoint(x, y));
 }
 
-/*
-- (void)windowDragged:(NSEvent *)event {
-    NSRect screenVisibleFrame = [[NSScreen mainScreen] visibleFrame];
-    NSRect windowFrame = [self.window frame];
-    NSPoint newOrigin = windowFrame.origin;
-
-    // Get the mouse location in window coordinates.
-    NSPoint currentLocation = [event locationInWindow];
-    // Update the origin with the difference between the new mouse location and the old mouse location.
-    newOrigin.x += (currentLocation.x - self.initialWindowLocation.x);
-    newOrigin.y += (currentLocation.y - self.initialWindowLocation.y);
-
-    // Don't let window get dragged up under the menu bar
-    if ((newOrigin.y + windowFrame.size.height) > (screenVisibleFrame.origin.y + screenVisibleFrame.size.height)) {
-        newOrigin.y = screenVisibleFrame.origin.y + (screenVisibleFrame.size.height - windowFrame.size.height);
-    }
-
-    // Move the window to the new location
-    [self.window setFrameOrigin:newOrigin];
-}
-*/
-
 - (void)mouseMoved:(NSEvent*)event {
 	pointerMoveEventCallback(self.windowP, [self mouseLocation]);
+}
+
+- (void)mouseEntered:(NSEvent*)event {
+	mouseEnterLeave(self.windowP, [event trackingArea], true);
+}
+
+- (void)mouseExited:(NSEvent*)event {
+	mouseEnterLeave(self.windowP, [event trackingArea], true);
+}
+
+void mouseEnterLeave(void* windowP, NSTrackingArea* area, bool enter) {
+	CFNumberRef idRef = (CFNumberRef)area.userInfo[@"id"]; // here we trust ...
+	int         id;
+	CFNumberGetValue(idRef, kCFNumberIntType, &id); // and here ...
+	CFRelease(idRef);
+
+	pointerEnterLeaveEventCallback(windowP, id, true);
 }
 
 //

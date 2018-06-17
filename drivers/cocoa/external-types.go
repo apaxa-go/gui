@@ -40,5 +40,9 @@ type PointerButtonEventKind = drivers.PointerButtonEventKind
 type PointerButton = drivers.PointerButton
 type PointerDragEvent = drivers.PointerDragEvent
 type PointerMoveEvent = drivers.PointerMoveEvent
+type PointerEnterLeaveEvent = drivers.PointerEnterLeaveEvent
 
 type ScrollEvent = drivers.ScrollEvent
+
+type TrackingAreaID = drivers.TrackingAreaID
+type TrackingArea = drivers.TrackingArea

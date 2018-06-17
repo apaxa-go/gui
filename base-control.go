@@ -359,8 +359,9 @@ func (BaseControl) OnPointerButtonEvent(_ PointerButtonEvent) (processed bool) {
 func (BaseControl) OnPointerDragEvent(_ PointerDragEvent)                      {}
 func (BaseControl) OnPointerMoveEvent(_ PointerMoveEvent) (processed bool)     { return false }
 func (BaseControl) OnScrollEvent(_ ScrollEvent) (processed bool)               { return false }
+func (BaseControl) OnPointerEnterLeaveEvent(_ PointerEnterLeaveEvent)          {}
 func (BaseControl) OnFocus(_ FocusEvent)                                       {}
-func (BaseControl) OnWindowMainEvent(become bool)                              {}
+func (BaseControl) OnWindowMainEvent(_ bool)                                   {}
 
 //
 // Related to event handlers

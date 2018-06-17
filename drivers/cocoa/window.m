@@ -150,3 +150,64 @@ void Invalidate(void* self) {
 	NSView*   view   = [window contentView];
 	[view setNeedsDisplay:YES];
 }
+
+//
+// Tracking area related
+//
+
+NSTrackingAreaOptions makeTrackingAreaOptions(bool enterLeave, bool move) {
+	NSTrackingAreaOptions r = enterLeave ? NSTrackingMouseEnteredAndExited : 0;
+	r |= move ? NSTrackingMouseMoved : 0;
+	return r;
+}
+
+CFMutableDictionaryRef createTrackingAreaUserInfo(int id) {
+	CFMutableDictionaryRef r = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
+
+	CFNumberRef idRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &id);
+	CFDictionarySetValue(r, @"id", idRef);
+	CFRelease(idRef);
+
+	return r;
+}
+
+NSTrackingArea* getTrackingAreaByID(NSView* self, int id) {
+	CFNumberRef idRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &id);
+	for (NSTrackingArea* area in [self trackingAreas]) {
+		if ((CFNumberRef)area.userInfo[@"id"] == idRef) {
+			CFRelease(idRef);
+			return area;
+		}
+	}
+	CFRelease(idRef);
+	return nil;
+}
+
+void addTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move) {
+	NSWindow* window = self;
+	NSView*   view   = [window contentView];
+
+	CFMutableDictionaryRef userInfo = createTrackingAreaUserInfo(id);
+	NSTrackingArea*        area     = [[NSTrackingArea alloc] initWithRect:rect //
+                                                        options:makeTrackingAreaOptions(enterLeave, move)
+                                                          owner:view
+                                                       userInfo:(__bridge NSDictionary*)userInfo];
+	CFRelease(userInfo);
+
+	[view addTrackingArea:area];
+	CFRelease(area);
+}
+
+bool removeTrackingArea(void* self, int id) {
+	NSWindow*       window = self;
+	NSView*         view   = [window contentView];
+	NSTrackingArea* area   = getTrackingAreaByID(view, id);
+	if (area != nil) { [view removeTrackingArea:area]; }
+	return area != nil;
+}
+
+bool replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move) {
+	bool exists = removeTrackingArea(self, id);
+	if (exists) { addTrackingArea(self, id, rect, enterLeave, move); }
+	return exists;
+}

@@ -50,6 +50,7 @@ void keyboardEventCallback(void* window, uint8 event, uint16_t key, uint64_t mod
 void pointerKeyEventCallback(void* window, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
 void pointerDragEventCallback(void* window, NSPoint delta);
 void pointerMoveEventCallback(void* window, NSPoint point);
+void pointerEnterLeaveEventCallback(void* window, int, bool);
 void scrollEventCallback(void* window, NSPoint delta, NSPoint point, uint64 modifiers);
 
 #endif

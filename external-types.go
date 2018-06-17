@@ -41,6 +41,9 @@ type PointerButtonEvent = drivers.PointerButtonEvent
 type PointerDragEvent = drivers.PointerDragEvent
 type PointerMoveEvent = drivers.PointerMoveEvent
 type ScrollEvent = drivers.ScrollEvent
+type TrackingAreaID = drivers.TrackingAreaID
+type TrackingArea = drivers.TrackingArea
+type PointerEnterLeaveEvent = drivers.PointerEnterLeaveEvent
 
 //
 // This is only to allow controls to not import basetypes

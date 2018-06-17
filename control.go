@@ -108,6 +108,7 @@ type Control interface {
 	OnPointerButtonEvent(event PointerButtonEvent) (processed bool)
 	OnPointerDragEvent(event PointerDragEvent)
 	OnPointerMoveEvent(event PointerMoveEvent) (processed bool)
+	OnPointerEnterLeaveEvent(event PointerEnterLeaveEvent)
 	OnScrollEvent(event ScrollEvent) (processed bool)
 	OnWindowMainEvent(become bool)
 

@@ -7,6 +7,8 @@
 
 #include "top-view.h"
 
+//static const CFStringRef kTrackingAreaID = CFSTR("id");
+
 @interface      PrimaryWindow: NSWindow
 @property void* windowP;
 - (BOOL)canBecomeKeyWindow; // Allow create key window without title and resize bars.
@@ -37,5 +39,9 @@ void InvalidateRegion(void* self, NSRect rect);
 void Invalidate(void* self);
 
 void windowMainEventCallback(void* window, unsigned char become);
+
+void addTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move);
+bool replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move);
+bool removeTrackingArea(void* self, int id);
 
 #endif
