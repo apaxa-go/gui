@@ -6,12 +6,8 @@ package cocoa
 
 import "github.com/apaxa-go/gui"
 
-func initApplication() (ApplicationI, error) {
-	return InitApplication()
-}
-
-func mustCreateWindowI() WindowI {
-	w, err := CreateWindow()
+func mustCreateWindowI(title string) WindowI {
+	w, err := CreateWindow(title)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -23,5 +19,5 @@ func newFontI(spec FontSpec) (FontI, error) {
 }
 
 func init() {
-	gui.RegisterDriver(initApplication, mustCreateWindowI, newFontI)
+	gui.RegisterDriver(Run, Stop, mustCreateWindowI, newFontI)
 }

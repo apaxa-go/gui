@@ -20,7 +20,6 @@ type RoundedRectangleF64 = basetypes.RoundedRectangleF64
 
 type TransformF64 = basetypes.TransformF64
 
-type ApplicationI = drivers.Application
 type WindowI = drivers.Window
 type CanvasI = drivers.Canvas
 type FontI = drivers.Font
@@ -39,7 +38,7 @@ type KeyModifiers = drivers.KeyModifiers
 type PointerButtonEvent = drivers.PointerButtonEvent
 type PointerButtonEventKind = drivers.PointerButtonEventKind
 type PointerButton = drivers.PointerButton
-
+type PointerDragEvent = drivers.PointerDragEvent
 type PointerMoveEvent = drivers.PointerMoveEvent
 
 type ScrollEvent = drivers.ScrollEvent

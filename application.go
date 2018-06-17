@@ -4,9 +4,6 @@
 
 package gui
 
-import "runtime"
+func Run() error { return driverRunApplication() }
 
-func InitApplication() (Application, error) {
-	runtime.LockOSThread()
-	return driverApplicationConstructor()
-}
+func Stop() { driverStopApplication() }

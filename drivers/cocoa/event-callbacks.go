@@ -4,22 +4,28 @@
 
 package cocoa
 
+//#import <Cocoa/Cocoa.h>
+import "C"
 import (
 	"unsafe"
 )
 
-/*
-#cgo CFLAGS: -x objective-c
-#cgo LDFLAGS: -framework Cocoa
-#include "top-view.h"
-*/
-import "C"
+//
+// For window.h/m
+//
 
-func createTopView(window *Window) (view unsafe.Pointer, ok bool) {
-	view = C.CreateTopView(unsafe.Pointer(window))
-	ok = view != nil
-	return
+//export windowMainEventCallback
+func windowMainEventCallback(window unsafe.Pointer, become bool) {
+	w := (*Window)(window)
+	if w.windowMainEventCallback == nil {
+		return
+	}
+	w.windowMainEventCallback(become)
 }
+
+//
+// For top-view.h/m
+//
 
 //export drawCallback
 func drawCallback(window unsafe.Pointer, context C.CGContextRef, rect C.CGRect) {
@@ -57,6 +63,17 @@ func pointerKeyEventCallback(window unsafe.Pointer, event uint8, button uint8, p
 	tPoint := *(*PointF64)(unsafe.Pointer(&point))
 	e := PointerButtonEvent{PointerButtonEventKind(event), PointerButton(button), tModifiers, tPoint}
 	w.pointerKeyEventCallback(e)
+}
+
+//export pointerDragEventCallback
+func pointerDragEventCallback(window unsafe.Pointer, delta C.NSPoint) {
+	w := (*Window)(window)
+	if w.pointerDragEventCallback == nil {
+		return
+	}
+	tDelta := *(*PointF64)(unsafe.Pointer(&delta))
+	e := PointerDragEvent{tDelta}
+	w.pointerDragEventCallback(e)
 }
 
 //export pointerMoveEventCallback

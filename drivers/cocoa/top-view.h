@@ -2,6 +2,9 @@
 // This file is part of the AGui.
 // License information can be found in the LICENSE file.
 
+#ifndef TOP_VIEW_H
+#define TOP_VIEW_H
+
 #import <Cocoa/Cocoa.h>
 
 @interface      TopView: NSView
@@ -20,6 +23,7 @@
 @property uint8 mouseLastButton;
 @property NSPoint mouseFirstPoint;
 @property uint64 mouseFirstModifiers;
+- (BOOL)acceptsFirstMouse:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
 - (void)mouseUp:(NSEvent*)event;
 - (void)rightMouseDown:(NSEvent*)event;
@@ -27,17 +31,25 @@
 - (void)otherMouseDown:(NSEvent*)event;
 - (void)otherMouseUp:(NSEvent*)event;
 - (void)mouseMoved:(NSEvent*)event;
+//@property bool windowDragging;
+//@property NSPoint initialWindowLocation; // only for window dragging
+@property NSPoint mouseDragBase;
+//@property NSPoint mouseDragLast;
+- (void)mouseDragged:(NSEvent*)event;
 
 - (void)scrollWheel:(NSEvent*)event;
 
 - (void)dealloc;
 @end
 
-double distance(NSPoint p0, NSPoint p1);
-void*  CreateTopView(void* window);
+double  distance(NSPoint p0, NSPoint p1);
+NSView* CreateTopView(void* goWindow);
 
 void drawCallback(void* window, CGContextRef context, NSRect);
 void keyboardEventCallback(void* window, uint8 event, uint16_t key, uint64_t modifiers);
 void pointerKeyEventCallback(void* window, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
+void pointerDragEventCallback(void* window, NSPoint delta);
 void pointerMoveEventCallback(void* window, NSPoint point);
 void scrollEventCallback(void* window, NSPoint delta, NSPoint point, uint64 modifiers);
+
+#endif

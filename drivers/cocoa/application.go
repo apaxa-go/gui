@@ -10,17 +10,16 @@ package cocoa
 #include "application.h"
 */
 import "C"
-import "unsafe"
 
-type Application struct {
-	pointer unsafe.Pointer // may be uintptr better here?
+func init() {
+	C.InitApplication()
 }
 
-func InitApplication() (app *Application, err error) {
-	return &Application{C.InitApplication()}, nil
-}
-
-func (a *Application) Run() (err error) {
-	C.ApplicationRun(a.pointer)
+func Run() (err error) {
+	C.RunApplication()
 	return nil
+}
+
+func Stop() {
+	C.StopApplication()
 }

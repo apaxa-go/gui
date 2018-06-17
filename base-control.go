@@ -356,9 +356,11 @@ func (BaseControl) ComputeChildVerGeometry() (tops, bottoms []float64) { return 
 
 func (BaseControl) OnKeyboardEvent(_ KeyboardEvent) (done bool)                { return false }
 func (BaseControl) OnPointerButtonEvent(_ PointerButtonEvent) (processed bool) { return false }
-func (BaseControl) OnPointerMoveEvent(_ PointerMoveEvent)                      {}
+func (BaseControl) OnPointerDragEvent(_ PointerDragEvent)                      {}
+func (BaseControl) OnPointerMoveEvent(_ PointerMoveEvent) (processed bool)     { return false }
 func (BaseControl) OnScrollEvent(_ ScrollEvent) (processed bool)               { return false }
 func (BaseControl) OnFocus(_ FocusEvent)                                       {}
+func (BaseControl) OnWindowMainEvent(become bool)                              {}
 
 //
 // Related to event handlers

@@ -37,6 +37,10 @@ const (
 	MouseButtonNamedCount = 3
 )
 
+func (b PointerButton) IsLeft() bool   { return b == MouseButtonLeft }
+func (b PointerButton) IsRight() bool  { return b == MouseButtonRight }
+func (b PointerButton) IsMiddle() bool { return b == MouseButtonMiddle }
+
 var pointerButtonNames = [MouseButtonNamedCount]string{
 	"left mouse button",
 	"right mouse button",
@@ -93,6 +97,12 @@ const (
 func (k PointerButtonEventKind) IsBasic() bool {
 	return k == PointerButtonEventPress || k == PointerButtonEventRelease
 }
+func (k PointerButtonEventKind) IsPress() bool       { return k == PointerButtonEventPress }
+func (k PointerButtonEventKind) IsRelease() bool     { return k == PointerButtonEventRelease }
+func (k PointerButtonEventKind) IsClick() bool       { return k == PointerButtonEventClick }
+func (k PointerButtonEventKind) IsDoubleClick() bool { return k == PointerButtonEventDoubleClick }
+func (k PointerButtonEventKind) IsTripleClick() bool { return k == PointerButtonEventTripleClick }
+
 func (k PointerButtonEventKind) ClickCount() uint8 {
 	if k.IsBasic() {
 		return 0

@@ -4,7 +4,10 @@
 
 package gui
 
-import "github.com/apaxa-go/gui/drivers"
+import "C"
+import (
+	"github.com/apaxa-go/gui/drivers"
+)
 
 // TODO implement best size logic for window.
 
@@ -14,6 +17,8 @@ type Window struct {
 	child                   Control
 	geometryHypervisorState uint // 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
 	focusedControl          Control
+	pointerPressControl     Control
+	isMain                  bool
 }
 
 //
@@ -24,10 +29,38 @@ type Window struct {
 	w.driverWindow.Run()
 }*/
 
+func (w *Window) IsMain() bool {
+	return w.isMain
+}
+
 func (w *Window) Title() string { return w.driverWindow.Title() }
 func (w *Window) SetTitle(title string) {
 	w.driverWindow.SetTitle(title)
 }
+
+// TODO be sure what *Pos/Size/Geometry* does not intersect with BaseControl.
+
+func (w *Window) Pos() PointF64 {
+	return w.driverWindow.Pos()
+}
+
+func (w *Window) Size() PointF64 {
+	return w.driverWindow.Size()
+}
+
+func (w *Window) SetGeometry(geometry RectangleF64) {
+	w.driverWindow.SetGeometry(geometry)
+}
+
+func (w *Window) SetPos(pos PointF64) {
+	w.driverWindow.SetPos(pos)
+}
+func (w *Window) SetSize(size PointF64) {
+	w.driverWindow.SetSize(size)
+}
+
+func (w *Window) Minimize() { w.driverWindow.Minimize() }
+func (w *Window) Maximize() { w.driverWindow.Maximize() }
 
 func (w *Window) Child() Control { return w.child }
 func (w *Window) SetChild(child Control) {
@@ -35,7 +68,9 @@ func (w *Window) SetChild(child Control) {
 		w.BaseControl.SetParent(w.child, nil)
 	}
 	w.child = child
-	w.BaseControl.SetParent(w.child, w)
+	if w.child != nil {
+		w.BaseControl.SetParent(w.child, w)
+	}
 	w.SetUPG(true)
 }
 
@@ -178,11 +213,24 @@ func processPointerButtonEvent(c Control, e PointerButtonEvent) (processed bool)
 			return
 		}
 	}
-	return c.OnPointerButtonEvent(e)
+	processed = c.OnPointerButtonEvent(e)
+	if processed && e.Kind.IsPress() {
+		// TODO not accurate - what if multiple buttons is pressed?
+		c.Window().pointerPressControl = c
+	}
+	return
 }
 
 func (w *Window) onPointerKey(e PointerButtonEvent) {
-	processPointerButtonEvent(w, e)
+	if e.Kind.IsRelease() {
+		w.pointerPressControl.OnPointerButtonEvent(e)
+		return
+	}
+	processed := processPointerButtonEvent(w, e)
+	if !processed && e.Kind.IsPress() {
+		// TODO not accurate - what if multiple buttons is pressed?
+		w.pointerPressControl = w
+	}
 }
 
 func processScrollEvent(c Control, e ScrollEvent) (processed bool) {
@@ -200,6 +248,49 @@ func processScrollEvent(c Control, e ScrollEvent) (processed bool) {
 
 func (w *Window) onScroll(e ScrollEvent) {
 	processScrollEvent(w, e)
+}
+
+func processPointerMoveEvent(c Control, e PointerMoveEvent) (processed bool) {
+	if !c.Geometry().Contains(e.Point) {
+		return false
+	}
+	for _, candidate := range c.Children() {
+		processed = processPointerMoveEvent(candidate, e)
+		if processed {
+			return
+		}
+	}
+	return c.OnPointerMoveEvent(e)
+}
+
+func (w *Window) onPointerMove(e PointerMoveEvent) {
+	if w.pointerPressControl != nil {
+		w.pointerPressControl.OnPointerMoveEvent(e)
+	}
+	processPointerMoveEvent(w, e)
+}
+
+func (w *Window) onPointerDrag(e PointerDragEvent) {
+	w.pointerPressControl.OnPointerDragEvent(e)
+}
+
+func (w *Window) StartTrackPointer() {
+	w.driverWindow.RegisterPointerMoveCallback(w.onPointerMove)
+}
+func (w *Window) StopTrackPointer() {
+	w.driverWindow.RegisterPointerMoveCallback(nil)
+}
+
+func processWindowMainEvent(c Control, become bool) {
+	c.OnWindowMainEvent(become)
+	for _, child := range c.Children() {
+		processWindowMainEvent(child, become)
+	}
+}
+
+func (w *Window) onWindowMainEvent(become bool) {
+	w.isMain = become
+	processWindowMainEvent(w, become)
 }
 
 //
@@ -220,14 +311,16 @@ func (w *Window) baseInit() {
 	w.driverWindow.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
 	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
 	w.driverWindow.RegisterPointerKeyCallback(w.onPointerKey)
+	w.driverWindow.RegisterPointerDragCallback(w.onPointerDrag)
 	w.driverWindow.RegisterScrollCallback(w.onScroll)
+	w.driverWindow.RegisterWindowMainCallback(w.onWindowMainEvent)
 	w.BaseControl.window = w
 	w.SetUPGIR(false)
 }
 
-func NewWindow() *Window {
+func NewWindow(title string) *Window {
 	var w Window
-	w.driverWindow = driverWindowConstructor()
+	w.driverWindow = driverWindowConstructor(title)
 	w.baseInit()
 	return &w
 }
@@ -241,8 +334,9 @@ func NewWindowAdvanced(dw DriverWindow) *Window {
 	return &w
 }
 
-func (w *Window) Destroy() {
+func (w *Window) Close() {
 	w.GeometryHypervisorPause()
 	w.SetChild(nil)
-	w.driverWindow.Destroy()
+	w.driverWindow.Close()
+	Stop() // TODO What if there are more than 1 window?
 }

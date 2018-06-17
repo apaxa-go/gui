@@ -6,13 +6,13 @@ package controls
 
 const (
 	windowButtonsMacOSNumButtons   = 3
-	windowButtonsMacOSLeftPadding  = 7
-	windowButtonsMacOSHorSpace     = 5
-	windowButtonsMacOSRightPadding = 7
+	windowButtonsMacOSLeftPadding  = 8
+	windowButtonsMacOSHorSpace     = 8
+	windowButtonsMacOSRightPadding = 8
 	windowButtonsMacOSWidth        = windowButtonsMacOSLeftPadding + windowButtonsMacOSNumButtons*windowButtonMacOSSize + (windowButtonsMacOSNumButtons-1)*windowButtonsMacOSHorSpace + windowButtonsMacOSRightPadding
 
-	windowButtonsMacOSTopPadding    = 4
-	windowButtonsMacOSBottomPadding = 4
+	windowButtonsMacOSTopPadding    = 5
+	windowButtonsMacOSBottomPadding = 5
 	windowButtonsMacOSHeight        = windowButtonsMacOSTopPadding + windowButtonMacOSSize + windowButtonsMacOSBottomPadding
 )
 
@@ -62,19 +62,23 @@ func (c windowButtonsMacOS) Draw(canvas Canvas, region RectangleF64) {
 	c.maximizeButton.Draw(canvas, region)
 }
 
+func (c *windowButtonMacOS) OnWindowMainEvent(become bool) {
+	c.SetIR()
+}
+
 func newWindowButtonsMacOS() *windowButtonsMacOS {
 	r := &windowButtonsMacOS{}
 
-	closeButton := newWindowButtonMacOS(windowButtonMacOSCloseImage, windowButtonMacOSImageColor, windowButtonMacOSCloseBackgroundColor)
-	hideButton := newWindowButtonMacOS(windowButtonMacOSHideImage, windowButtonMacOSImageColor, windowButtonMacOSHideBackgroundColor)
-	maximizeButton := newWindowButtonMacOS(windowButtonMacOSMaximizeImage, windowButtonMacOSImageColor, windowButtonMacOSMaximizeBackgroundColor)
+	closeButton := newWindowButtonMacOSClose()
+	minimizeButton := newWindowButtonMacOSMinimize()
+	maximizeButton := newWindowButtonMacOSMaximize()
 
 	r.BaseControl.SetParent(closeButton, r)
-	r.BaseControl.SetParent(hideButton, r)
+	r.BaseControl.SetParent(minimizeButton, r)
 	r.BaseControl.SetParent(maximizeButton, r)
 
 	r.closeButton = closeButton
-	r.hideButton = hideButton
+	r.hideButton = minimizeButton
 	r.maximizeButton = maximizeButton
 
 	return r

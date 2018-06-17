@@ -7,7 +7,7 @@ package drivers
 // Must be implemented by driver
 type Window interface {
 	//Run()
-	Destroy()
+	Close()
 
 	Geometry() RectangleF64
 	Pos() PointF64
@@ -20,6 +20,9 @@ type Window interface {
 	Title() string
 	SetTitle(string)
 
+	Minimize()
+	Maximize()
+
 	OfflineCanvas() OfflineCanvas
 	InvalidateRegion(region RectangleF64)
 	Invalidate()
@@ -30,6 +33,8 @@ type Window interface {
 
 	RegisterKeyboardCallback(f func(KeyboardEvent))
 	RegisterPointerKeyCallback(f func(PointerButtonEvent))
+	RegisterPointerDragCallback(f func(PointerDragEvent))
 	RegisterPointerMoveCallback(f func(PointerMoveEvent))
 	RegisterScrollCallback(f func(ScrollEvent))
+	RegisterWindowMainCallback(f func(become bool))
 }

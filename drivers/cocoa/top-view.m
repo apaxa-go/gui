@@ -6,7 +6,7 @@
 
 @implementation TopView
 
-- (id)initWithFrame:(NSRect)frame {
+- (id)initWithFrame:(NSRect)frame { // TODO remove this constructor?
 	return [super initWithFrame:frame];
 }
 
@@ -50,6 +50,7 @@
 	r         = [self convertPoint:r fromView:nil];
 	return r;
 }
+
 //
 // Keyboard events
 //
@@ -66,8 +67,13 @@
 //
 // Mouse button events
 //
+- (BOOL)acceptsFirstMouse:(NSEvent*)event {
+	return true;
+}
 
 - (void)mouseDown:(NSEvent*)event {
+	//self.initialWindowLocation = [event locationInWindow];
+	//self.windowDragging=true;
 	[self mouseButton:true //
 	           Button:0
 	            Point:[self mouseLocation]
@@ -75,6 +81,7 @@
 }
 
 - (void)mouseUp:(NSEvent*)event {
+	//self.windowDragging = false;
 	[self mouseButton:false //
 	           Button:0
 	            Point:[self mouseLocation]
@@ -148,12 +155,27 @@
 }
 
 - (void)mouseButton:(bool)down Button:(uint8)button Point:(NSPoint)point Modifiers:(uint64)modifiers {
+	//
+	// Related to drag
+	//
+	if (down) {                     // TODO multiple down
+		self.mouseDragBase = point; // TODO may we use mouseFirstPoint here?
+		                            //self.mouseDragLast = NAN;
+	}
+
+	//
+	// Related to clicks
+	//
 	if ([self mouseButtonDelayedCanPush:down Button:button Point:point]) {
 		[self mouseButtonDelayedPush];
 	} else {
 		if (self.mouseRepeatCount > 0) { [self mouseButtonDelayedPop:nil]; }
 		if (down) { [self mouseButtonDelayedInit:button Point:point Modifiers:modifiers]; }
 	}
+
+	//
+	//
+	//
 	pointerKeyEventCallback(self.windowP, down ? 0 : 255, button, point, modifiers);
 }
 
@@ -161,9 +183,49 @@
 // Mouse move events
 //
 
+/*
+- (void)startWindowDragging{
+	self.windowDragging=true;
+}
+*/
+
+- (void)mouseDragged:(NSEvent*)event {
+	/*
+	if (self.windowDragging){
+		[self windowDragged:event];
+		return;
+	}
+	*/
+	NSPoint location = [self mouseLocation];
+	CGFloat x        = location.x - self.mouseDragBase.x;
+	CGFloat y        = location.y - self.mouseDragBase.y;
+	pointerDragEventCallback(self.windowP, NSMakePoint(x, y));
+}
+
+/*
+- (void)windowDragged:(NSEvent *)event {
+    NSRect screenVisibleFrame = [[NSScreen mainScreen] visibleFrame];
+    NSRect windowFrame = [self.window frame];
+    NSPoint newOrigin = windowFrame.origin;
+
+    // Get the mouse location in window coordinates.
+    NSPoint currentLocation = [event locationInWindow];
+    // Update the origin with the difference between the new mouse location and the old mouse location.
+    newOrigin.x += (currentLocation.x - self.initialWindowLocation.x);
+    newOrigin.y += (currentLocation.y - self.initialWindowLocation.y);
+
+    // Don't let window get dragged up under the menu bar
+    if ((newOrigin.y + windowFrame.size.height) > (screenVisibleFrame.origin.y + screenVisibleFrame.size.height)) {
+        newOrigin.y = screenVisibleFrame.origin.y + (screenVisibleFrame.size.height - windowFrame.size.height);
+    }
+
+    // Move the window to the new location
+    [self.window setFrameOrigin:newOrigin];
+}
+*/
+
 - (void)mouseMoved:(NSEvent*)event {
 	pointerMoveEventCallback(self.windowP, [self mouseLocation]);
-	// TODO There is no move events between press & release. May be send move event on release and/or in dragging event?
 }
 
 //
@@ -177,8 +239,8 @@
 
 @end
 
-void* CreateTopView(void* window) {
-	NSView* view = [[TopView alloc] initWithFrame:NSMakeRect(0, 0, 100, 100) windowP:window]; // TODO 100?
+NSView* CreateTopView(void* goWindow) {
+	NSView* view = [[TopView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0) windowP:goWindow];
 	return view;
 }
 

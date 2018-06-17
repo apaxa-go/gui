@@ -24,4 +24,6 @@ type Font = gui.Font
 
 type ScrollEvent = gui.ScrollEvent
 type PointerButtonEvent = gui.PointerButtonEvent
+type PointerDragEvent = gui.PointerDragEvent
+type PointerMoveEvent = gui.PointerMoveEvent
 type FocusEvent = gui.FocusEvent

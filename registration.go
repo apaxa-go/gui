@@ -4,16 +4,19 @@
 
 package gui
 
-var driverWindowConstructor func() DriverWindow
+var driverRunApplication func() error
+var driverStopApplication func()
+var driverWindowConstructor func(title string) DriverWindow
 var driverFontConstructor func(FontSpec) (Font, error)
-var driverApplicationConstructor func() (Application, error)
 
 func RegisterDriver(
-	applicationConstructor func() (Application, error),
-	windowConstructor func() DriverWindow,
+	runApplication func() error,
+	stopApplication func(),
+	windowConstructor func(title string) DriverWindow,
 	fontConstructor func(FontSpec) (Font, error),
 ) {
-	driverApplicationConstructor = applicationConstructor
+	driverRunApplication = runApplication
+	driverStopApplication = stopApplication
 	driverWindowConstructor = windowConstructor
 	driverFontConstructor = fontConstructor
 }

@@ -106,8 +106,10 @@ type Control interface {
 
 	OnKeyboardEvent(event KeyboardEvent) (done bool)
 	OnPointerButtonEvent(event PointerButtonEvent) (processed bool)
-	OnPointerMoveEvent(event PointerMoveEvent)
+	OnPointerDragEvent(event PointerDragEvent)
+	OnPointerMoveEvent(event PointerMoveEvent) (processed bool)
 	OnScrollEvent(event ScrollEvent) (processed bool)
+	OnWindowMainEvent(become bool)
 
 	// FocusCandidate returns candidate for keyboard event focus. This method is called by Window on Tab and Shift-Tab shortcuts.
 	//

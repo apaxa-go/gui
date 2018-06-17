@@ -14,6 +14,7 @@ type PointI struct {
 }
 
 func (p PointI) Add(point PointI) PointI { return PointI{p.X + point.X, p.Y + point.Y} }
+func (p PointI) Sub(point PointI) PointI { return PointI{p.X - point.X, p.Y - point.Y} }
 func (p PointI) Mul(k int) PointI        { return PointI{p.X * k, p.Y * k} }
 func (p PointI) ToI() PointI             { return p }
 func (p PointI) String() string {
@@ -26,6 +27,7 @@ type PointI32 struct {
 }
 
 func (p PointI32) Add(point PointI32) PointI32 { return PointI32{p.X + point.X, p.Y + point.Y} }
+func (p PointI32) Sub(point PointI32) PointI32 { return PointI32{p.X - point.X, p.Y - point.Y} }
 func (p PointI32) Mul(k int32) PointI32        { return PointI32{p.X * k, p.Y * k} }
 func (p PointI32) ToI32() PointI32             { return p }
 func (p PointI32) String() string {
@@ -38,6 +40,7 @@ type PointF32 struct {
 }
 
 func (p PointF32) Add(point PointF32) PointF32 { return PointF32{p.X + point.X, p.Y + point.Y} }
+func (p PointF32) Sub(point PointF32) PointF32 { return PointF32{p.X - point.X, p.Y - point.Y} }
 func (p PointF32) Mul(k float32) PointF32      { return PointF32{p.X * k, p.Y * k} }
 func (p PointF32) ToF32() PointF32             { return p }
 func (p PointF32) String() string {
@@ -50,6 +53,7 @@ type PointF64 struct {
 }
 
 func (p PointF64) Add(point PointF64) PointF64 { return PointF64{p.X + point.X, p.Y + point.Y} }
+func (p PointF64) Sub(point PointF64) PointF64 { return PointF64{p.X - point.X, p.Y - point.Y} }
 func (p PointF64) Mul(k float64) PointF64      { return PointF64{p.X * k, p.Y * k} }
 func (p PointF64) ToF64() PointF64             { return p }
 func (p PointF64) String() string {

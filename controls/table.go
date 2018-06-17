@@ -284,64 +284,6 @@ func (c *Table) ComputeChildHorGeometry() (lefts, rights []float64) {
 		}
 	}
 	return
-	/*
-		left := c.Geometry().Left
-		width := c.Geometry().Width()
-		switch {
-		case width >= c.MaxWidth(): // scale according to MaxWidth
-			scale := c.MaxWidth()
-			for iColumn, geometry := range c.columnsGeometry {
-				scalePart := geometry.max
-				curWidth := width * scalePart / scale
-				right := left + curWidth
-
-				for iRow := 0; iRow < lRow; iRow++ {
-					i := c.rowColumnToIndex(iRow, iColumn)
-					lefts[i] = left
-					rights[i] = right
-				}
-
-				left = right
-				width -= curWidth
-				scale -= scalePart
-			}
-		case width >= c.BestWidth(): // scale according to BestWidth
-			scale := c.BestWidth()
-			for iColumn, geometry := range c.columnsGeometry {
-				scalePart := geometry.best
-				curWidth := width * scalePart / scale
-				right := left + curWidth
-
-				for iRow := 0; iRow < lRow; iRow++ {
-					i := c.rowColumnToIndex(iRow, iColumn)
-					lefts[i] = left
-					rights[i] = right
-				}
-
-				left = right
-				width -= curWidth
-				scale -= scalePart
-			}
-		default: // scale according to MinWidth
-			scale := c.MinWidth()
-			for iColumn, geometry := range c.columnsGeometry {
-				scalePart := geometry.min
-				curWidth := width * scalePart / scale
-				right := left + curWidth
-
-				for iRow := 0; iRow < lRow; iRow++ {
-					i := c.rowColumnToIndex(iRow, iColumn)
-					lefts[i] = left
-					rights[i] = right
-				}
-
-				left = right
-				width -= curWidth
-				scale -= scalePart
-			}
-		}
-		return
-	*/
 }
 
 func (c *Table) ComputeChildVerGeometry() (tops, bottoms []float64) {
@@ -771,6 +713,9 @@ func (c *Table) RemoveSpanExtended(iRow, iColumn int, indirect bool) (ok bool) {
 func (c *Table) RemoveSpan(iRow, iColumn int) (ok bool) {
 	return c.RemoveSpanExtended(iRow, iColumn, true)
 }
+
+// TODO get span
+// TODO get all spans
 
 func NewTable(rowsCount, columnsCount int) *Table {
 	r := &Table{

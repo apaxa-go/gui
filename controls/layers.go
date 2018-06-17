@@ -158,6 +158,10 @@ func (c *Layers) Remove(i int) Control {
 }
 
 func NewLayers(layers ...Control) *Layers {
+	/*for l,i:=len(layers),0; i<l/2; i++{
+		j:=l-1-i
+		layers[i],layers[j]=layers[j],layers[i]
+	}*/
 	r := &Layers{
 		layers: layers,
 	}

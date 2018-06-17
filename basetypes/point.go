@@ -21,6 +21,7 @@ type PointI64 struct {
 }
 
 func (p PointI64) Add(point PointI64) PointI64 { return PointI64{p.X + point.X, p.Y + point.Y} }
+func (p PointI64) Sub(point PointI64) PointI64 { return PointI64{p.X - point.X, p.Y - point.Y} }
 func (p PointI64) Mul(k int64) PointI64        { return PointI64{p.X * k, p.Y * k} }
 func (p PointI64) ToI64() PointI64             { return p }
 func (p PointI64) String() string {

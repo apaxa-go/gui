@@ -20,7 +20,6 @@ void _SetWindowTitle(void* self, _GoString_ title){
 */
 import "C"
 import (
-	"errors"
 	"unsafe"
 )
 
@@ -33,27 +32,23 @@ type Window struct {
 
 	keyboardEventCallback    func(KeyboardEvent)
 	pointerKeyEventCallback  func(PointerButtonEvent)
+	pointerDragEventCallback func(PointerDragEvent)
 	pointerMoveEventCallback func(PointerMoveEvent)
 	scrollEventCallback      func(ScrollEvent)
+	windowMainEventCallback  func(become bool)
 }
 
-func CreateWindow() (window *Window, err error) {
+func CreateWindow(title string) (window *Window, err error) {
 	// We need initialize Window "in C memory" because we pass pointer to Window to top view (for long live).
 	// If we do not do this Go GC can move Window to other location and applications crashes (at random moment).
 	window = (*Window)(C.calloc(1, C.size_t(unsafe.Sizeof(Window{}))))
 
-	window.pointer = C.CreateWindow(C.int(0), C.int(0), 0, 0)
+	window.pointer = C.CreateWindow(unsafe.Pointer(window))
 	if err != nil {
 		return
 	}
 
-	view, ok := createTopView(window)
-	if !ok {
-		return nil, errors.New("Unable to create top NSView")
-	}
-
-	C.SetWindowTopView(window.pointer, view)
-	C.MakeWindowKeyAndOrderFront(window.pointer)
+	window.SetTitle(title)
 	return
 }
 
@@ -71,13 +66,15 @@ func (w *Window) SetTitle(title string) {
 	C._SetWindowTitle(w.pointer, title)
 }
 
-func (w *Window) Destroy() {
-	// TODO
+func (w *Window) Close() {
+	C.CloseWindow(w.pointer)
 }
 
 func (w *Window) Geometry() RectangleF64 {
-	r := C.GetWindowGeometry(w.pointer)
-	return (*(*RectangleF64S)(unsafe.Pointer(&r))).ToF64()
+	gNative := C.GetWindowGeometry(w.pointer)
+	g := *(*RectangleF64S)(unsafe.Pointer(&gNative))
+	g.Origin.Y = -g.Origin.Y - g.Size.Y
+	return g.ToF64()
 }
 
 func (w *Window) Pos() PointF64 {
@@ -94,10 +91,19 @@ func (w *Window) SetGeometry(geometry RectangleF64) {
 }
 
 func (w *Window) SetPos(pos PointF64) {
+	pos.Y = -pos.Y
 	C.SetWindowPos(w.pointer, *(*C.CGPoint)(unsafe.Pointer(&pos)))
 }
 func (w *Window) SetSize(size PointF64) {
 	C.SetWindowSize(w.pointer, *(*C.CGSize)(unsafe.Pointer(&size)))
+}
+
+func (w *Window) Minimize() {
+	C.MinimizeWindow(w.pointer)
+}
+
+func (w *Window) Maximize() {
+	C.MaximizeWindow(w.pointer)
 }
 
 func (w *Window) InvalidateRegion(region RectangleF64) {
@@ -125,6 +131,9 @@ func (w *Window) RegisterKeyboardCallback(f func(KeyboardEvent)) { w.keyboardEve
 func (w *Window) RegisterPointerKeyCallback(f func(PointerButtonEvent)) {
 	w.pointerKeyEventCallback = f
 }
+func (w *Window) RegisterPointerDragCallback(f func(PointerDragEvent)) {
+	w.pointerDragEventCallback = f
+}
 func (w *Window) RegisterPointerMoveCallback(f func(PointerMoveEvent)) {
 	if w.pointerMoveEventCallback == nil && f != nil {
 		C.SetWindowAcceptMouseMoved(w.pointer, true)
@@ -133,4 +142,5 @@ func (w *Window) RegisterPointerMoveCallback(f func(PointerMoveEvent)) {
 	}
 	w.pointerMoveEventCallback = f
 }
-func (w *Window) RegisterScrollCallback(f func(ScrollEvent)) { w.scrollEventCallback = f }
+func (w *Window) RegisterScrollCallback(f func(ScrollEvent))     { w.scrollEventCallback = f }
+func (w *Window) RegisterWindowMainCallback(f func(become bool)) { w.windowMainEventCallback = f }

@@ -9,17 +9,10 @@ import (
 
 	"github.com/apaxa-go/gui"
 	"github.com/apaxa-go/gui/controls"
-	"log"
 )
 
 func main() {
-	app, err := gui.InitApplication()
-	if err != nil {
-		log.Fatalln(err.Error())
-	}
-
-	window := gui.NewWindow()
-	window.SetTitle("Hello world")
+	window := gui.NewWindow("Hello world")
 
 	b1 := controls.NewButton("Button 1")
 	b2 := controls.NewButton("Button 2")
@@ -41,7 +34,7 @@ func main() {
 
 	window.SetChild(l0)
 
-	err = app.Run()
+	err := gui.Run()
 	if err != nil {
 		panic(err.Error())
 	}

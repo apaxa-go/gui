@@ -4,12 +4,13 @@
 
 #import "application.h"
 
-void* InitApplication() { return [NSApplication sharedApplication]; }
+void InitApplication() { [NSApplication sharedApplication]; }
 
-void ApplicationRun(void* app) {
+void RunApplication() {
 	@autoreleasepool {
-		NSApplication* a = (NSApplication*)app;
-		[a setActivationPolicy:NSApplicationActivationPolicyRegular];
-		[a run];
+		[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+		[NSApp run];
 	}
 }
+
+void StopApplication() { [NSApp terminate:nil]; }
