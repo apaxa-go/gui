@@ -102,7 +102,7 @@ type BaseControlI interface {
 type Control interface {
 	BaseControlI
 
-	Children() []Control
+	Children() []Control // TODO may be use different methods for different purposes (mouse button press event; geometry hypervisor)?
 
 	ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64)
 	ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64)

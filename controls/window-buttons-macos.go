@@ -21,7 +21,7 @@ type windowButtonsMacOS struct {
 	closeButton    *windowButtonMacOS
 	minimizeButton *windowButtonMacOS
 	maximizeButton *windowButtonMacOS
-	trackingAreaID TrackingAreaID
+	areaID         EnterLeaveAreaID
 }
 
 func (c *windowButtonsMacOS) Children() []Control {
@@ -65,19 +65,19 @@ func (c windowButtonsMacOS) Draw(canvas Canvas, region RectangleF64) {
 
 func (c *windowButtonsMacOS) AfterAttachToWindowEvent() {
 	// Reserve TrackingAreaID.
-	c.trackingAreaID = c.Window().AddTrackingArea(c, TrackingArea{RectangleF64{}, false, false})
+	c.areaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
 }
 
 func (c *windowButtonsMacOS) BeforeDetachFromWindowEvent() {
 	// Free TrackingArea.
-	c.Window().RemoveTrackingArea(c.trackingAreaID, false)
+	c.Window().RemoveEnterLeaveArea(c.areaID, false)
 }
 
 func (c *windowButtonsMacOS) OnGeometryChangeEvent() {
 	// Update TrackingArea.
 	origin := c.Geometry().LT()
 	rect := RectangleF64{origin.X, origin.Y, origin.X + windowButtonsMacOSWidth, origin.Y + windowButtonsMacOSHeight}
-	c.Window().ReplaceTrackingArea(c.trackingAreaID, TrackingArea{rect, true, false})
+	c.Window().ReplaceEnterLeaveArea(c.areaID, rect)
 }
 
 func (c *windowButtonsMacOS) OnPointerEnterLeaveEvent(event PointerEnterLeaveEvent) {

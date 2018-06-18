@@ -82,9 +82,17 @@ func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
 	if w.pointerMoveEventCallback == nil {
 		return
 	}
-	tPoint := *(*PointF64)(unsafe.Pointer(&point))
-	e := PointerMoveEvent{tPoint}
-	w.pointerMoveEventCallback(e)
+	var e PointerMoveEvent
+	e.Point = *(*PointF64)(unsafe.Pointer(&point))
+
+	// Check all move areas for containing move point.
+	// For all containing areas event will be sent.
+	for _, area := range w.moveAreas {
+		if area.Area.Contains(e.Point) {
+			e.ID = area.ID
+			w.pointerMoveEventCallback(e)
+		}
+	}
 }
 
 //export pointerEnterLeaveEventCallback
@@ -93,7 +101,7 @@ func pointerEnterLeaveEventCallback(window unsafe.Pointer, trackingAreaID C.int,
 	if w.pointerEnterLeaveEventCallback == nil {
 		return
 	}
-	e := PointerEnterLeaveEvent{TrackingAreaID(trackingAreaID), bool(enter)}
+	e := PointerEnterLeaveEvent{EnterLeaveAreaID(trackingAreaID), bool(enter)}
 	w.pointerEnterLeaveEventCallback(e)
 }
 

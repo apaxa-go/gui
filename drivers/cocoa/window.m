@@ -78,10 +78,10 @@ void* CreateWindow(void* goWindow) {
 	return window;
 }
 
-void SetWindowAcceptMouseMoved(void* self, bool accept) {
+/*void SetWindowAcceptMouseMoved(void* self, bool accept) {
 	NSWindow* window = self;
 	[window setAcceptsMouseMovedEvents:accept];
-}
+}*/
 
 const char* GetWindowTitle(void* self) {
 	NSWindow* window  = self;
@@ -155,10 +155,9 @@ void Invalidate(void* self) {
 // Tracking area related
 //
 
-NSTrackingAreaOptions makeTrackingAreaOptions(bool enterLeave, bool move) {
+NSTrackingAreaOptions makeTrackingAreaOptions(bool move) {
 	NSTrackingAreaOptions r = NSTrackingActiveAlways; // TODO allow to change Always to other values.
-	r |= enterLeave ? NSTrackingMouseEnteredAndExited : 0;
-	r |= move ? NSTrackingMouseMoved : 0;
+	r |= move ? NSTrackingMouseMoved : NSTrackingMouseEnteredAndExited;
 	return r;
 }
 
@@ -172,10 +171,12 @@ CFMutableDictionaryRef createTrackingAreaUserInfo(int id) {
 	return r;
 }
 
-NSTrackingArea* getTrackingAreaByID(NSView* self, int id) {
+NSTrackingArea* getTrackingAreaByID(NSView* self, bool move, int id) {
 	CFNumberRef idRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &id);
 	for (NSTrackingArea* area in [self trackingAreas]) {
-		if ((CFNumberRef)area.userInfo[@"id"] == idRef) {
+		bool found = (CFNumberRef)area.userInfo[@"id"] == idRef &&
+		             (area.options & (move ? NSTrackingMouseMoved : NSTrackingMouseEnteredAndExited));
+		if (found) {
 			CFRelease(idRef);
 			return area;
 		}
@@ -184,13 +185,13 @@ NSTrackingArea* getTrackingAreaByID(NSView* self, int id) {
 	return nil;
 }
 
-void addTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move) {
+void addTrackingArea(void* self, bool move, int id, NSRect rect) {
 	NSWindow* window = self;
 	NSView*   view   = [window contentView];
 
 	CFMutableDictionaryRef userInfo = createTrackingAreaUserInfo(id);
 	NSTrackingArea*        area     = [[NSTrackingArea alloc] initWithRect:rect //
-                                                        options:makeTrackingAreaOptions(enterLeave, move)
+                                                        options:makeTrackingAreaOptions(move)
                                                           owner:view
                                                        userInfo:(__bridge NSDictionary*)userInfo];
 	CFRelease(userInfo);
@@ -199,14 +200,14 @@ void addTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move
 	CFRelease(area);
 }
 
-void removeTrackingArea(void* self, int id) {
+void removeTrackingArea(void* self, bool move, int id) {
 	NSWindow*       window = self;
 	NSView*         view   = [window contentView];
-	NSTrackingArea* area   = getTrackingAreaByID(view, id);
+	NSTrackingArea* area   = getTrackingAreaByID(view, move, id);
 	if (area != nil) { [view removeTrackingArea:area]; }
 }
 
-void replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move) {
-	removeTrackingArea(self, id);
-	addTrackingArea(self, id, rect, enterLeave, move);
+void replaceTrackingArea(void* self, bool move, int id, NSRect rect) {
+	removeTrackingArea(self, move, id);
+	addTrackingArea(self, move, id, rect);
 }

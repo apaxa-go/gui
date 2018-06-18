@@ -19,8 +19,10 @@ type Window struct {
 	focusedControl          Control
 	pointerPressControl     Control
 	isMain                  bool
-	trackingAreas           map[TrackingAreaID]Control // Lookup map to identify receiver by area id.
-	nextTrackingAreaID      TrackingAreaID             // Candidate for next id.
+	enterLeaveAreas         map[EnterLeaveAreaID]Control // Lookup map to identify receiver by area id.
+	nextEnterLeaveAreaID    EnterLeaveAreaID
+	moveAreas               map[MoveAreaID]Control // Lookup map to identify receiver by area id.
+	nextMoveAreaID          MoveAreaID             // Candidate for next id.
 }
 
 //
@@ -209,8 +211,11 @@ func processPointerButtonEvent(c Control, e PointerButtonEvent) (processed bool)
 	if !c.Geometry().Contains(e.Point) {
 		return false
 	}
-	for _, candidate := range c.Children() {
-		processed = processPointerButtonEvent(candidate, e)
+	//for _, candidate := range c.Children() {
+	children := c.Children()
+	for i := len(children) - 1; i >= 0; i-- { // we reverse order because of Layer Control
+		child := children[i]
+		processed = processPointerButtonEvent(child, e)
 		if processed {
 			return
 		}
@@ -239,8 +244,11 @@ func processScrollEvent(c Control, e ScrollEvent) (processed bool) {
 	if !c.Geometry().Contains(e.Point) {
 		return false
 	}
-	for _, candidate := range c.Children() {
-		processed = processScrollEvent(candidate, e)
+	//for _, candidate := range c.Children() {
+	children := c.Children()
+	for i := len(children) - 1; i >= 0; i-- { // we reverse order because of Layer Control
+		child := children[i]
+		processed = processScrollEvent(child, e)
 		if processed {
 			return
 		}
@@ -252,12 +260,15 @@ func (w *Window) onScroll(e ScrollEvent) {
 	processScrollEvent(w, e)
 }
 
-func processPointerMoveEvent(c Control, e PointerMoveEvent) (processed bool) {
+/*func processPointerMoveEvent(c Control, e PointerMoveEvent) (processed bool) {
 	if !c.Geometry().Contains(e.Point) {
 		return false
 	}
-	for _, candidate := range c.Children() {
-		processed = processPointerMoveEvent(candidate, e)
+	//for _, candidate := range c.Children() {
+	children := c.Children()
+	for i := len(children) - 1; i >= 0; i-- { // we reverse order because of Layer Control
+		child := children[i]
+		processed = processPointerMoveEvent(child, e)
 		if processed {
 			return
 		}
@@ -270,18 +281,18 @@ func (w *Window) onPointerMove(e PointerMoveEvent) {
 		w.pointerPressControl.OnPointerMoveEvent(e)
 	}
 	processPointerMoveEvent(w, e)
-}
+}*/
 
 func (w *Window) onPointerDrag(e PointerDragEvent) {
 	w.pointerPressControl.OnPointerDragEvent(e)
 }
 
-func (w *Window) StartTrackPointer() {
+/*func (w *Window) StartTrackPointer() {
 	w.driverWindow.RegisterPointerMoveCallback(w.onPointerMove)
 }
 func (w *Window) StopTrackPointer() {
 	w.driverWindow.RegisterPointerMoveCallback(nil)
-}
+}*/
 
 func processWindowMainEvent(c Control, become bool) {
 	c.OnWindowMainEvent(become)
@@ -307,7 +318,8 @@ func (w *Window) IfControlFocused(c Control) bool { return w.focusedControl == c
 //
 
 func (w *Window) baseInit() {
-	w.trackingAreas = make(map[TrackingAreaID]Control)
+	w.enterLeaveAreas = make(map[EnterLeaveAreaID]Control)
+	w.moveAreas = make(map[MoveAreaID]Control)
 	w.focusedControl = w
 	w.driverWindow.RegisterDrawCallback(w.Draw)
 	w.driverWindow.RegisterResizeCallback(w.onExternalResize)
@@ -315,6 +327,7 @@ func (w *Window) baseInit() {
 	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
 	w.driverWindow.RegisterPointerKeyCallback(w.onPointerKey)
 	w.driverWindow.RegisterPointerDragCallback(w.onPointerDrag)
+	w.driverWindow.RegisterPointerMoveCallback(w.onPointerMove)
 	w.driverWindow.RegisterPointerEnterLeaveCallback(w.onPointerEnterLeave)
 	w.driverWindow.RegisterScrollCallback(w.onScroll)
 	w.driverWindow.RegisterWindowMainCallback(w.onWindowMainEvent)

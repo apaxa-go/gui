@@ -39,7 +39,11 @@ type Window interface {
 	RegisterScrollCallback(f func(ScrollEvent))
 	RegisterWindowMainCallback(f func(become bool))
 
-	AddTrackingArea(id TrackingAreaID, area TrackingArea)
-	ReplaceTrackingArea(id TrackingAreaID, area TrackingArea)
-	RemoveTrackingArea(id TrackingAreaID)
+	AddEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64)
+	ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64)
+	RemoveEnterLeaveArea(id EnterLeaveAreaID)
+
+	AddMoveArea(id MoveAreaID, area RectangleF64)
+	ReplaceMoveArea(id MoveAreaID, area RectangleF64)
+	RemoveMoveArea(id MoveAreaID)
 }

@@ -23,6 +23,11 @@ import (
 	"unsafe"
 )
 
+type moveArea struct {
+	ID   MoveAreaID
+	Area RectangleF64
+}
+
 type Window struct {
 	pointer unsafe.Pointer
 
@@ -37,6 +42,8 @@ type Window struct {
 	pointerEnterLeaveEventCallback func(event PointerEnterLeaveEvent)
 	scrollEventCallback            func(ScrollEvent)
 	windowMainEventCallback        func(become bool)
+
+	moveAreas []moveArea // AppKit does not internally assign pointer move events to corresponding tracking areas, so we do it here.
 }
 
 func CreateWindow(title string) (window *Window, err error) {
@@ -136,11 +143,11 @@ func (w *Window) RegisterPointerDragCallback(f func(PointerDragEvent)) {
 	w.pointerDragEventCallback = f
 }
 func (w *Window) RegisterPointerMoveCallback(f func(PointerMoveEvent)) {
-	if w.pointerMoveEventCallback == nil && f != nil {
+	/*if w.pointerMoveEventCallback == nil && f != nil {
 		C.SetWindowAcceptMouseMoved(w.pointer, true)
 	} else if w.pointerMoveEventCallback != nil && f == nil {
 		C.SetWindowAcceptMouseMoved(w.pointer, false)
-	}
+	}*/
 	w.pointerMoveEventCallback = f
 }
 func (w *Window) RegisterPointerEnterLeaveCallback(f func(PointerEnterLeaveEvent)) {
@@ -150,16 +157,47 @@ func (w *Window) RegisterPointerEnterLeaveCallback(f func(PointerEnterLeaveEvent
 func (w *Window) RegisterScrollCallback(f func(ScrollEvent))     { w.scrollEventCallback = f }
 func (w *Window) RegisterWindowMainCallback(f func(become bool)) { w.windowMainEventCallback = f }
 
-func (w *Window) AddTrackingArea(id TrackingAreaID, area TrackingArea) {
-	rectS := area.Area.ToF64S()
+func (w *Window) AddEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) {
+	rectS := area.ToF64S()
 	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
-	C.addTrackingArea(w.pointer, C.int(id), rect, C.bool(area.EnterLeave), C.bool(area.Move))
+	C.addTrackingArea(w.pointer, false, C.int(id), rect)
 }
-func (w *Window) ReplaceTrackingArea(id TrackingAreaID, area TrackingArea) {
-	rectS := area.Area.ToF64S()
+func (w *Window) ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) {
+	rectS := area.ToF64S()
 	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
-	C.replaceTrackingArea(w.pointer, C.int(id), rect, C.bool(area.EnterLeave), C.bool(area.Move))
+	C.replaceTrackingArea(w.pointer, false, C.int(id), rect)
 }
-func (w *Window) RemoveTrackingArea(id TrackingAreaID) {
-	C.removeTrackingArea(w.pointer, C.int(id))
+func (w *Window) RemoveEnterLeaveArea(id EnterLeaveAreaID) {
+	C.removeTrackingArea(w.pointer, false, C.int(id))
+}
+
+func (w *Window) AddMoveArea(id MoveAreaID, area RectangleF64) {
+	w.moveAreas = append(w.moveAreas, moveArea{id, area})
+	rectS := area.ToF64S()
+	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
+	C.addTrackingArea(w.pointer, true, C.int(id), rect)
+}
+func (w *Window) moveAreaByID(id MoveAreaID) (index int) {
+	for index = range w.moveAreas {
+		if w.moveAreas[index].ID == id {
+			return
+		}
+	}
+	return -1
+}
+func (w *Window) ReplaceMoveArea(id MoveAreaID, area RectangleF64) {
+	if index := w.moveAreaByID(id); index >= 0 {
+		w.moveAreas[index].Area = area
+	} else {
+		w.moveAreas = append(w.moveAreas, moveArea{id, area})
+	}
+	rectS := area.ToF64S()
+	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
+	C.replaceTrackingArea(w.pointer, true, C.int(id), rect)
+}
+func (w *Window) RemoveMoveArea(id MoveAreaID) {
+	C.removeTrackingArea(w.pointer, true, C.int(id))
+	if index := w.moveAreaByID(id); index >= 0 {
+		w.moveAreas = append(w.moveAreas[:index], w.moveAreas[index+1:]...)
+	}
 }

@@ -32,6 +32,7 @@ const HypervisorDataNil HypervisorData = 0
 type BaseControl struct {
 	window         *Window
 	parent         Control
+	zIndex         uint
 	minSize        PointF64
 	bestSize       PointF64
 	maxSize        PointF64
@@ -84,6 +85,11 @@ func (c *BaseControl) Window() *Window { return c.window }
 // Do not call this method directly - use SetParent function.
 func (c *BaseControl) setWindow(window *Window) {
 	c.window = window
+}
+
+func (c *BaseControl) ZIndex() uint { return c.zIndex }
+func (c *BaseControl) setZIndex(index uint) {
+	c.zIndex = index
 }
 
 func (c *BaseControl) GeometryHypervisorPause() {

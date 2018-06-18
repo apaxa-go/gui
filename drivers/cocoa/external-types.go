@@ -44,5 +44,5 @@ type PointerEnterLeaveEvent = drivers.PointerEnterLeaveEvent
 
 type ScrollEvent = drivers.ScrollEvent
 
-type TrackingAreaID = drivers.TrackingAreaID
-type TrackingArea = drivers.TrackingArea
+type EnterLeaveAreaID = drivers.EnterLeaveAreaID
+type MoveAreaID = drivers.MoveAreaID

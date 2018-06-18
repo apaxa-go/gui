@@ -19,8 +19,8 @@
 - (void)windowDidResignKey:(NSNotification*)notification;
 @end
 
-void*       CreateWindow(void* goWindow);
-void        SetWindowAcceptMouseMoved(void* self, bool accept);
+void* CreateWindow(void* goWindow);
+//void        SetWindowAcceptMouseMoved(void* self, bool accept);
 const char* GetWindowTitle(void* self);
 void        SetWindowTitle(void* self, CFStringRef title);
 
@@ -40,8 +40,8 @@ void Invalidate(void* self);
 
 void windowMainEventCallback(void* window, unsigned char become);
 
-void addTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move);
-void replaceTrackingArea(void* self, int id, NSRect rect, bool enterLeave, bool move);
-void removeTrackingArea(void* self, int id);
+void addTrackingArea(void* self, bool move, int id, NSRect rect);
+void replaceTrackingArea(void* self, bool move, int id, NSRect rect);
+void removeTrackingArea(void* self, bool move, int id);
 
 #endif

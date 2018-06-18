@@ -194,21 +194,20 @@
 	pointerMoveEventCallback(self.windowP, [self mouseLocation]);
 }
 
-- (void)mouseEntered:(NSEvent*)event {
-	mouseEnterLeave(self.windowP, [event trackingArea], true);
-}
-
-- (void)mouseExited:(NSEvent*)event {
-	mouseEnterLeave(self.windowP, [event trackingArea], false);
-}
-
-void mouseEnterLeave(void* windowP, NSTrackingArea* area, bool enter) {
+int getTrackingAreaID(NSTrackingArea* area) {
 	CFNumberRef idRef = (CFNumberRef)area.userInfo[@"id"]; // here we trust ...
 	int         id;
 	CFNumberGetValue(idRef, kCFNumberIntType, &id); // and here ...
 	CFRelease(idRef);
+	return id;
+}
 
-	pointerEnterLeaveEventCallback(windowP, id, enter);
+- (void)mouseEntered:(NSEvent*)event {
+	pointerEnterLeaveEventCallback(self.windowP, getTrackingAreaID([event trackingArea]), true);
+}
+
+- (void)mouseExited:(NSEvent*)event {
+	pointerEnterLeaveEventCallback(self.windowP, getTrackingAreaID([event trackingArea]), false);
 }
 
 //
