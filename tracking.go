@@ -8,6 +8,16 @@ package gui
 // Enter leave
 //
 
+type enterLeaveArea struct {
+	overlapping bool
+	receiver    Control
+}
+
+type overlappedEnterLeaveArea struct {
+	id       EnterLeaveAreaID
+	receiver Control // This field helps to avoid multiple search in enterLeaveArea map.
+}
+
 func (w *Window) generateEnterLeaveAreaID() EnterLeaveAreaID {
 	id := w.nextEnterLeaveAreaID
 	for _, exists := w.enterLeaveAreas[id]; exists; _, exists = w.enterLeaveAreas[id] {
@@ -17,11 +27,19 @@ func (w *Window) generateEnterLeaveAreaID() EnterLeaveAreaID {
 	return id
 }
 
-func (w *Window) AddEnterLeaveArea(receiver Control, area RectangleF64) EnterLeaveAreaID {
+func (w *Window) addEnterLeaveArea(receiver Control, area RectangleF64, overlapping bool) EnterLeaveAreaID {
 	id := w.generateEnterLeaveAreaID()
-	w.enterLeaveAreas[id] = receiver
+	w.enterLeaveAreas[id] = enterLeaveArea{overlapping, receiver}
 	w.driverWindow.AddEnterLeaveArea(id, area)
 	return id
+}
+
+func (w *Window) AddEnterLeaveArea(receiver Control, area RectangleF64) EnterLeaveAreaID {
+	return w.addEnterLeaveArea(receiver, area, false)
+}
+
+func (w *Window) AddEnterLeaveOverlappingArea(receiver Control, area RectangleF64) EnterLeaveAreaID {
+	return w.addEnterLeaveArea(receiver, area, true)
 }
 
 func (w *Window) ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) (ok bool) { // TODO may be implement replace in gui, not in driver?
@@ -43,15 +61,75 @@ func (w *Window) RemoveEnterLeaveArea(id EnterLeaveAreaID, keepID bool) (ok bool
 	return
 }
 
+// onPointerEnterLeave method processes PointerEnterLeaveEvent.
+// If event's area marked as non-overlapping then receiver unconditionally receive event.
+// Otherwise we consult overlappedEnterLeaveAreas.
 func (w *Window) onPointerEnterLeave(e PointerEnterLeaveEvent) {
-	receiver, ok := w.enterLeaveAreas[e.ID]
+	area, ok := w.enterLeaveAreas[e.ID]
 	if !ok {
 		return
 	}
-	receiver.OnPointerEnterLeaveEvent(e)
+	if !area.overlapping {
+		area.receiver.OnPointerEnterLeaveEvent(e)
+		return
+	}
+	if e.Enter {
+		w.onPointerEnterOverlapped(e.ID, area.receiver)
+	} else {
+		w.onPointerLeaveOverlapped(e.ID, area.receiver)
+	}
 }
 
-// generateMoveAreaID returns next free ID for TrackingArea.
+// If there is no yet overlapping element then send message and push self to overlappedEnterLeaveAreas.
+// If new receiver has equal or higher zIndex than active entered area (the last one in the overlappedEnterLeaveAreas) then new Enter event overlaps active.
+// Otherwise we add new event into overlappedEnterLeaveAreas (preserving zIndex ordering) as overlapped (no events will be sent to Controls).
+func (w *Window) onPointerEnterOverlapped(id EnterLeaveAreaID, receiver Control) {
+	l := len(w.overlappedEnterLeaveAreas)
+	if l == 0 {
+		receiver.OnPointerEnterLeaveEvent(PointerEnterLeaveEvent{id, true})
+		w.overlappedEnterLeaveAreas = append(w.overlappedEnterLeaveAreas, overlappedEnterLeaveArea{id, receiver})
+		return
+	}
+	zIndex := receiver.ZIndex()
+	lastArea := w.overlappedEnterLeaveAreas[l-1]
+	if zIndex >= lastArea.receiver.ZIndex() {
+		lastArea.receiver.OnPointerEnterLeaveEvent(PointerEnterLeaveEvent{lastArea.id, false})
+		receiver.OnPointerEnterLeaveEvent(PointerEnterLeaveEvent{id, true})
+	} else {
+		i := l - 1
+		for i > 0 && zIndex < w.overlappedEnterLeaveAreas[i-1].receiver.ZIndex() {
+			i--
+		}
+		w.overlappedEnterLeaveAreas = append(append(w.overlappedEnterLeaveAreas[:i], overlappedEnterLeaveArea{id, receiver}), w.overlappedEnterLeaveAreas[i:]...)
+	}
+}
+
+// If Leave event related to active entered area then Leave current and Enter previous will be sent.
+// In any case event will be removed from overlappedEnterLeaveAreas.
+func (w *Window) onPointerLeaveOverlapped(id EnterLeaveAreaID, receiver Control) {
+	l := len(w.overlappedEnterLeaveAreas)
+	if l == 0 {
+		return
+	}
+	if w.overlappedEnterLeaveAreas[l-1].id == id {
+		receiver.OnPointerEnterLeaveEvent(PointerEnterLeaveEvent{id, false})
+		l--
+		w.overlappedEnterLeaveAreas = w.overlappedEnterLeaveAreas[:l]
+		if l > 0 {
+			lastArea := w.overlappedEnterLeaveAreas[l-1]
+			lastArea.receiver.OnPointerEnterLeaveEvent(PointerEnterLeaveEvent{lastArea.id, true})
+		}
+	} else {
+		for i := l - 2; i >= 0; i-- {
+			if w.overlappedEnterLeaveAreas[i].id == id {
+				w.overlappedEnterLeaveAreas = append(w.overlappedEnterLeaveAreas[:i], w.overlappedEnterLeaveAreas[i+1:]...)
+				break
+			}
+		}
+	}
+}
+
+// generateMoveAreaID returns next free ID for MoveArea.
 // Window stores candidate for next ID, but it can be already assigned, so we never use it directly.
 // This function in loop checks if ID is used starting from nextMoveAreaID.
 // Theoretically this loop may be infinite, but in real world looks like OOM has been happened earlier (MaxInt objects in memory).

@@ -4,7 +4,10 @@
 
 package controls
 
-import "github.com/apaxa-go/helper/mathh"
+import (
+	"fmt"
+	"github.com/apaxa-go/helper/mathh"
+)
 
 const (
 	windowResizerWidth        = 3
@@ -94,14 +97,15 @@ func (c WindowResizer) Draw(canvas Canvas, region RectangleF64) {}
 
 func (c *WindowResizer) AfterAttachToWindowEvent() {
 	// Reserve EnterLeaveAreaIDs.
-	c.leftAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
-	c.rightAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
-	c.topAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
-	c.bottomAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
-	c.leftTopAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
-	c.rightTopAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
-	c.leftBottomAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
-	c.rightBottomAreaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
+	c.leftAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
+	c.rightAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
+	c.topAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
+	c.bottomAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
+
+	c.leftTopAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
+	c.rightTopAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
+	c.leftBottomAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
+	c.rightBottomAreaID = c.Window().AddEnterLeaveOverlappingArea(c, RectangleF64{})
 }
 
 func (c *WindowResizer) BeforeDetachFromWindowEvent() {
@@ -133,12 +137,12 @@ func (c WindowResizer) areas() (l, r, t, b, lt, rt, lb, rb RectangleF64) {
 	t.Left = origin.Left + windowResizerCornerWidth
 	t.Right = origin.Right - windowResizerCornerWidth
 	t.Top = origin.Top
-	t.Bottom = origin.Top - windowResizerHeight
+	t.Bottom = origin.Top + windowResizerHeight
 
-	t.Left = origin.Left + windowResizerCornerWidth
-	t.Right = origin.Right - windowResizerCornerWidth
-	t.Top = origin.Bottom - windowResizerHeight
-	t.Bottom = origin.Bottom
+	b.Left = origin.Left + windowResizerCornerWidth
+	b.Right = origin.Right - windowResizerCornerWidth
+	b.Top = origin.Bottom - windowResizerHeight
+	b.Bottom = origin.Bottom
 
 	lt.Left = origin.Left
 	lt.Right = origin.Left + windowResizerCornerWidth
@@ -175,4 +179,12 @@ func (c *WindowResizer) OnGeometryChangeEvent() {
 	c.Window().ReplaceEnterLeaveArea(c.rightTopAreaID, rt)
 	c.Window().ReplaceEnterLeaveArea(c.leftBottomAreaID, lb)
 	c.Window().ReplaceEnterLeaveArea(c.rightBottomAreaID, rb)
+}
+
+func (c *WindowResizer) OnPointerEnterLeaveEvent(e PointerEnterLeaveEvent) {
+	fmt.Println(e.String())
+}
+
+func NewWindowResizer() *WindowResizer {
+	return &WindowResizer{}
 }

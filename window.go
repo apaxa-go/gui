@@ -14,15 +14,16 @@ import (
 type Window struct {
 	driverWindow DriverWindow
 	BaseControl
-	child                   Control
-	geometryHypervisorState uint // 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
-	focusedControl          Control
-	pointerPressControl     Control
-	isMain                  bool
-	enterLeaveAreas         map[EnterLeaveAreaID]Control // Lookup map to identify receiver by area id.
-	nextEnterLeaveAreaID    EnterLeaveAreaID
-	moveAreas               map[MoveAreaID]Control // Lookup map to identify receiver by area id.
-	nextMoveAreaID          MoveAreaID             // Candidate for next id.
+	child                     Control
+	geometryHypervisorState   uint // 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
+	focusedControl            Control
+	pointerPressControl       Control
+	isMain                    bool
+	enterLeaveAreas           map[EnterLeaveAreaID]enterLeaveArea // Lookup map to identify receiver by area id.
+	overlappedEnterLeaveAreas []overlappedEnterLeaveArea
+	nextEnterLeaveAreaID      EnterLeaveAreaID
+	moveAreas                 map[MoveAreaID]Control // Lookup map to identify receiver by area id.
+	nextMoveAreaID            MoveAreaID             // Candidate for next id.
 }
 
 //
@@ -318,7 +319,7 @@ func (w *Window) IfControlFocused(c Control) bool { return w.focusedControl == c
 //
 
 func (w *Window) baseInit() {
-	w.enterLeaveAreas = make(map[EnterLeaveAreaID]Control)
+	w.enterLeaveAreas = make(map[EnterLeaveAreaID]enterLeaveArea)
 	w.moveAreas = make(map[MoveAreaID]Control)
 	w.focusedControl = w
 	w.driverWindow.RegisterDrawCallback(w.Draw)

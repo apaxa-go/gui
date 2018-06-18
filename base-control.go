@@ -32,7 +32,7 @@ const HypervisorDataNil HypervisorData = 0
 type BaseControl struct {
 	window         *Window
 	parent         Control
-	zIndex         uint
+	zIndex         uint // TODO implement this (currently always 0)
 	minSize        PointF64
 	bestSize       PointF64
 	maxSize        PointF64

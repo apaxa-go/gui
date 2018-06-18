@@ -13,6 +13,9 @@ type BaseControlI interface {
 	Parent() Control
 	setParent(Control)
 
+	ZIndex() uint
+	setZIndex(index uint)
+
 	MinSize() PointF64
 	BestSize() PointF64
 	MaxSize() PointF64
