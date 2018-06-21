@@ -7,6 +7,7 @@ package gui
 import "C"
 import (
 	"github.com/apaxa-go/gui/drivers"
+	"github.com/apaxa-go/helper/mathh"
 )
 
 // TODO implement best size logic for window.
@@ -15,7 +16,7 @@ type Window struct {
 	driverWindow DriverWindow
 	BaseControl
 	child                     Control
-	geometryHypervisorState   uint // 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
+	geometryHypervisorState   int // <0 means active, 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
 	focusedControl            Control
 	pointerPressControl       Control
 	isMain                    bool
@@ -79,6 +80,26 @@ func (w *Window) SetChild(child Control) {
 	w.SetUPG(true)
 }
 
+func updateZIndex(c Control, zIndex uint) (maxZIndex uint) {
+	c.setZIndex(zIndex)
+	if c.SequentialZIndex() {
+		for _, child := range c.Children() {
+			zIndex = updateZIndex(child, zIndex+1)
+		}
+		return zIndex
+	} else {
+		for _, child := range c.Children() {
+			tmp := updateZIndex(child, zIndex+1)
+			maxZIndex = mathh.Max2Uint(maxZIndex, tmp)
+		}
+		return
+	}
+}
+
+func (w *Window) updateZIndex() { // TODO update ZIndex on each element adding is inefficient
+	updateZIndex(w, 0)
+}
+
 func (w *Window) adjustSize() {
 	reqSize := w.Geometry().GetSize()
 	if w.driverWindow.Size() != reqSize {
@@ -94,8 +115,17 @@ func (w *Window) invalidate() {
 	w.driverWindow.Invalidate()
 }
 
-func (w *Window) onExternalResize() {
-	w.SetUCGIR() // TODO we need some method to avoid invalid (according to Min/MaxSize) external resize.
+func (w *Window) onResize(size PointF64) {
+	w.GeometryHypervisorPause()
+	if w.setHorGeometry(0, size.X) {
+		w.setUCHG()
+		w.setIR()
+	}
+	if w.setVerGeometry(0, size.Y) {
+		w.setUCVG()
+		w.setIR()
+	}
+	w.GeometryHypervisorResume()
 }
 
 func (w *Window) onOfflineCanvasChanged() {
@@ -104,36 +134,26 @@ func (w *Window) onOfflineCanvasChanged() {
 
 func (w *Window) OfflineCanvas() OfflineCanvas { return w.driverWindow.OfflineCanvas() }
 
+func (w *Window) SetCursor(cursor Cursor) {
+	w.driverWindow.SetCursor(cursor)
+}
+
 //
 // BaseControlI overrides
 //
 
 func (w *Window) setPossibleHorGeometry(minWidth, bestWidth, maxWidth float64) (changed bool) {
 	changed = w.BaseControl.setPossibleHorGeometry(minWidth, bestWidth, maxWidth)
-	if !changed {
-		return
-	}
-	if w.Geometry().Width() < w.MinWidth() {
-		w.setHorGeometry(0, w.MinWidth())
-		w.setUCHG()
-	} else if w.Geometry().Width() > w.MaxWidth() {
-		w.setHorGeometry(0, w.MaxWidth())
-		w.setUCHG()
+	if changed {
+		w.driverWindow.SetPossibleSize(w.minSize, w.maxSize)
 	}
 	return
 }
 
 func (w *Window) setPossibleVerGeometry(minHeight, bestHeight, maxHeight float64) (changed bool) {
 	changed = w.BaseControl.setPossibleVerGeometry(minHeight, bestHeight, maxHeight)
-	if !changed {
-		return
-	}
-	if w.Geometry().Height() < w.MinHeight() {
-		w.setVerGeometry(0, w.MinHeight())
-		w.setUCVG()
-	} else if w.Geometry().Width() > w.MaxHeight() {
-		w.setVerGeometry(0, w.MaxHeight())
-		w.setUCVG()
+	if changed {
+		w.driverWindow.SetPossibleSize(w.minSize, w.maxSize)
 	}
 	return
 }
@@ -261,39 +281,9 @@ func (w *Window) onScroll(e ScrollEvent) {
 	processScrollEvent(w, e)
 }
 
-/*func processPointerMoveEvent(c Control, e PointerMoveEvent) (processed bool) {
-	if !c.Geometry().Contains(e.Point) {
-		return false
-	}
-	//for _, candidate := range c.Children() {
-	children := c.Children()
-	for i := len(children) - 1; i >= 0; i-- { // we reverse order because of Layer Control
-		child := children[i]
-		processed = processPointerMoveEvent(child, e)
-		if processed {
-			return
-		}
-	}
-	return c.OnPointerMoveEvent(e)
-}
-
-func (w *Window) onPointerMove(e PointerMoveEvent) {
-	if w.pointerPressControl != nil {
-		w.pointerPressControl.OnPointerMoveEvent(e)
-	}
-	processPointerMoveEvent(w, e)
-}*/
-
 func (w *Window) onPointerDrag(e PointerDragEvent) {
 	w.pointerPressControl.OnPointerDragEvent(e)
 }
-
-/*func (w *Window) StartTrackPointer() {
-	w.driverWindow.RegisterPointerMoveCallback(w.onPointerMove)
-}
-func (w *Window) StopTrackPointer() {
-	w.driverWindow.RegisterPointerMoveCallback(nil)
-}*/
 
 func processWindowMainEvent(c Control, become bool) {
 	c.OnWindowMainEvent(become)
@@ -323,7 +313,7 @@ func (w *Window) baseInit() {
 	w.moveAreas = make(map[MoveAreaID]Control)
 	w.focusedControl = w
 	w.driverWindow.RegisterDrawCallback(w.Draw)
-	w.driverWindow.RegisterResizeCallback(w.onExternalResize)
+	w.driverWindow.RegisterResizeCallback(w.onResize)
 	w.driverWindow.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
 	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
 	w.driverWindow.RegisterPointerKeyCallback(w.onPointerKey)

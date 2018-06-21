@@ -9,6 +9,8 @@ type Window interface {
 	//Run()
 	Close()
 
+	SetPossibleSize(min, max PointF64)
+
 	Geometry() RectangleF64
 	Pos() PointF64
 	Size() PointF64
@@ -28,7 +30,7 @@ type Window interface {
 	Invalidate()
 
 	RegisterDrawCallback(func(Canvas, RectangleF64))
-	RegisterResizeCallback(func())
+	RegisterResizeCallback(func(PointF64))
 	RegisterOfflineCanvasCallback(func())
 
 	RegisterKeyboardCallback(f func(KeyboardEvent))
@@ -46,4 +48,6 @@ type Window interface {
 	AddMoveArea(id MoveAreaID, area RectangleF64)
 	ReplaceMoveArea(id MoveAreaID, area RectangleF64)
 	RemoveMoveArea(id MoveAreaID)
+
+	SetCursor(Cursor)
 }

@@ -17,6 +17,8 @@ func (c *Layers) NumLayers() int { return len(c.layers) }
 
 func (c *Layers) Children() []Control { return c.layers }
 
+func (c *Layers) SequentialZIndex() bool { return true }
+
 func (c *Layers) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	// There are multiple ways to calculate bestWidth.
 	// Here we use average from children's bestWidths.

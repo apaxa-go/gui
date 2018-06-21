@@ -106,6 +106,7 @@ type Control interface {
 	BaseControlI
 
 	Children() []Control // TODO may be use different methods for different purposes (mouse button press event; geometry hypervisor)?
+	SequentialZIndex() bool
 
 	ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64)
 	ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64)

@@ -32,7 +32,7 @@ type Window struct {
 	pointer unsafe.Pointer
 
 	drawCallback          func(CanvasI, RectangleF64) // TODO Rectangle is too simple
-	resizeCallback        func()
+	resizeCallback        func(size PointF64)
 	offlineCanvasCallback func()
 
 	keyboardEventCallback          func(KeyboardEvent)
@@ -76,6 +76,10 @@ func (w *Window) SetTitle(title string) {
 
 func (w *Window) Close() {
 	C.CloseWindow(w.pointer)
+}
+
+func (w *Window) SetPossibleSize(min, max PointF64) {
+	C.SetWindowPossibleSize(w.pointer, *(*C.CGSize)(unsafe.Pointer(&min)), *(*C.CGSize)(unsafe.Pointer(&max)))
 }
 
 func (w *Window) Geometry() RectangleF64 {
@@ -132,7 +136,7 @@ func (w *Window) ScaleFactor() float64 {
 }
 
 func (w *Window) RegisterDrawCallback(f func(CanvasI, RectangleF64)) { w.drawCallback = f }
-func (w *Window) RegisterResizeCallback(f func())                    { w.resizeCallback = f }
+func (w *Window) RegisterResizeCallback(f func(PointF64))            { w.resizeCallback = f }
 func (w *Window) RegisterOfflineCanvasCallback(f func())             { w.offlineCanvasCallback = f }
 
 func (w *Window) RegisterKeyboardCallback(f func(KeyboardEvent)) { w.keyboardEventCallback = f }
@@ -200,4 +204,8 @@ func (w *Window) RemoveMoveArea(id MoveAreaID) {
 	if index := w.moveAreaByID(id); index >= 0 {
 		w.moveAreas = append(w.moveAreas[:index], w.moveAreas[index+1:]...)
 	}
+}
+
+func (w *Window) SetCursor(cursor Cursor) {
+	C.setCursor(C.uint8(cursor))
 }

@@ -25,6 +25,7 @@ type CanvasI = drivers.Canvas
 type FontI = drivers.Font
 type OfflineCanvasI = drivers.OfflineCanvas
 type FontSpec = drivers.FontSpec
+type Cursor = drivers.Cursor
 
 //
 // Events

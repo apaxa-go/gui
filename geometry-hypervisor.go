@@ -4,23 +4,29 @@
 
 package gui
 
-func (w *Window) geometryHypervisorPause() { w.geometryHypervisorState++ }
-func (w *Window) geometryHypervisorResume() {
-	if w.geometryHypervisorState == 0 {
-		return
+func (w *Window) geometryHypervisorPause() {
+	if !w.geometryHypervisorIsActive() {
+		w.geometryHypervisorState++
 	}
-	w.geometryHypervisorState--
-	w.geometryHypervisorRunIfActive()
 }
-func (w *Window) geometryHypervisorIsActive() bool { return w.geometryHypervisorState == 0 }
+func (w *Window) geometryHypervisorResume() {
+	if w.geometryHypervisorIsPaused() {
+		w.geometryHypervisorState--
+		w.geometryHypervisorRunIfReady()
+	}
+}
+func (w *Window) geometryHypervisorIsActive() bool { return w.geometryHypervisorState < 0 }
+func (w *Window) geometryHypervisorIsReady() bool  { return w.geometryHypervisorState == 0 }
+func (w *Window) geometryHypervisorIsPaused() bool { return w.geometryHypervisorState > 0 }
 
-func (w *Window) geometryHypervisorRunIfActive() {
-	if w.geometryHypervisorIsActive() {
+func (w *Window) geometryHypervisorRunIfReady() {
+	if w.geometryHypervisorIsReady() {
 		w.geometryHypervisorDo()
 	}
 }
 
 func (w *Window) geometryHypervisorDo() {
+	w.geometryHypervisorState = -1
 	w.geometryHypervisorDoUPHG(w)
 	w.geometryHypervisorDoUCHG(w)
 	w.geometryHypervisorDoUPVG(w)
@@ -29,6 +35,7 @@ func (w *Window) geometryHypervisorDo() {
 	w.geometryHypervisorDoIR(w)
 	w.geometryHypervisorDoIG(w)
 	w.invalidate()
+	w.geometryHypervisorState = 0
 }
 
 //

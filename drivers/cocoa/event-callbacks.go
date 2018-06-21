@@ -117,3 +117,12 @@ func scrollEventCallback(window unsafe.Pointer, delta C.NSPoint, point C.NSPoint
 	e := ScrollEvent{tDelta, tModifiers, tPoint}
 	w.scrollEventCallback(e)
 }
+
+//export windowResizeCallback
+func windowResizeCallback(window unsafe.Pointer, size C.NSSize) {
+	w := (*Window)(window)
+	if w.resizeCallback == nil {
+		return
+	}
+	w.resizeCallback(*(*PointF64)(unsafe.Pointer(&size)))
+}

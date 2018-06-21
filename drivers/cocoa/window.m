@@ -33,6 +33,12 @@
 	windowMainEventCallback(window.windowP, false);
 }
 
+- (void)windowDidResize:(NSNotification*)notification {
+	PrimaryWindow* window = notification.object;
+	NSSize         size   = GetWindowGeometry(window).size;
+	windowResizeCallback(window.windowP, size);
+}
+
 @end
 
 void* CreateWindow(void* goWindow) {
@@ -93,6 +99,33 @@ void SetWindowTitle(void* self, CFStringRef title) {
 	NSWindow* window = self;
 	[window setTitle:(__bridge NSString*)title];
 	CFRelease(title);
+}
+
+void SetWindowPossibleSize(void* self, NSSize min, NSSize max) {
+	NSWindow* window      = self;
+	window.contentMinSize = min;
+	window.contentMaxSize = max;
+	//window.minSize = min;
+	//window.maxSize = max;
+	NSSize size   = GetWindowGeometry(self).size;
+	bool   resize = false;
+
+	if (size.width < min.width) {
+		resize     = true;
+		size.width = min.width;
+	} else if (size.width > max.width) {
+		resize     = true;
+		size.width = max.width;
+	}
+	if (size.height < min.height) {
+		resize      = true;
+		size.height = min.height;
+	} else if (size.height > max.height) {
+		resize      = true;
+		size.height = max.height;
+	}
+
+	if (resize) { SetWindowSize(self, size); }
 }
 
 NSRect GetWindowGeometry(void* self) {
@@ -210,4 +243,19 @@ void removeTrackingArea(void* self, bool move, int id) {
 void replaceTrackingArea(void* self, bool move, int id, NSRect rect) {
 	removeTrackingArea(self, move, id);
 	addTrackingArea(self, move, id, rect);
+}
+
+NSCursor* translateCursor(uint8 cursor) {
+	switch (cursor) {
+	case 1: return [[NSCursor class] performSelector:@selector(_windowResizeNorthSouthCursor)];
+	case 2: return [[NSCursor class] performSelector:@selector(_windowResizeEastWestCursor)];
+	case 3: return [[NSCursor class] performSelector:@selector(_windowResizeNorthWestSouthEastCursor)];
+	case 4: return [[NSCursor class] performSelector:@selector(_windowResizeNorthEastSouthWestCursor)];
+	default: return [NSCursor arrowCursor];
+	}
+}
+
+void setCursor(uint8 cursor) {
+	NSCursor* c = translateCursor(cursor);
+	[c set];
 }

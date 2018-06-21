@@ -5,7 +5,6 @@
 package controls
 
 import (
-	"fmt"
 	"github.com/apaxa-go/helper/mathh"
 )
 
@@ -57,6 +56,9 @@ type WindowResizer struct {
 	rightTopAreaID    EnterLeaveAreaID
 	leftBottomAreaID  EnterLeaveAreaID
 	rightBottomAreaID EnterLeaveAreaID
+
+	resizeHor bool // this is state, not setting
+	resizeVer bool // this is state, not setting
 }
 
 func (c *WindowResizer) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
@@ -182,7 +184,43 @@ func (c *WindowResizer) OnGeometryChangeEvent() {
 }
 
 func (c *WindowResizer) OnPointerEnterLeaveEvent(e PointerEnterLeaveEvent) {
-	fmt.Println(e.String())
+	if !e.Enter {
+		c.resizeHor = false
+		c.resizeVer = false
+		c.Window().SetCursor(Cursor(0).MakeDefault()) // TODO Parent Controls/areas must do this
+		return
+	}
+	switch e.ID {
+	case c.leftAreaID, c.rightAreaID:
+		c.resizeHor = true
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftRight())
+	case c.topAreaID, c.bottomAreaID:
+		c.resizeVer = true
+		c.Window().SetCursor(Cursor(0).MakeResizeTopBottom())
+	case c.leftTopAreaID, c.rightBottomAreaID:
+		c.resizeHor = true
+		c.resizeVer = true
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftTopRightBottom())
+	case c.leftBottomAreaID, c.rightTopAreaID:
+		c.resizeHor = true
+		c.resizeVer = true
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop())
+	}
+}
+
+func (c *WindowResizer) OnPointerButtonEvent(event PointerButtonEvent) (processed bool) {
+	return c.resizeVer || c.resizeHor
+}
+
+func (c *WindowResizer) OnPointerDragEvent(event PointerDragEvent) {
+	size := c.Window().Size()
+	if c.resizeHor {
+		size.X += event.Delta.X
+	}
+	if c.resizeVer {
+		size.Y += event.Delta.Y
+	}
+	c.Window().SetSize(size)
 }
 
 func NewWindowResizer() *WindowResizer {

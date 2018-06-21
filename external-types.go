@@ -36,6 +36,8 @@ type Font = drivers.Font
 type FontSpec = drivers.FontSpec
 type FontIndex = drivers.FontIndex
 
+type Cursor = drivers.Cursor
+
 type KeyboardEvent = drivers.KeyboardEvent
 type PointerButtonEvent = drivers.PointerButtonEvent
 type PointerDragEvent = drivers.PointerDragEvent

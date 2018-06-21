@@ -21,6 +21,7 @@ type Canvas = gui.Canvas
 type Control = gui.Control
 type BaseControl = gui.BaseControl
 type Font = gui.Font
+type Cursor = gui.Cursor
 
 type ScrollEvent = gui.ScrollEvent
 type PointerButtonEvent = gui.PointerButtonEvent
