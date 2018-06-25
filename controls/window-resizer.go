@@ -5,6 +5,7 @@
 package controls
 
 import (
+	"fmt"
 	"github.com/apaxa-go/helper/mathh"
 )
 
@@ -44,6 +45,17 @@ func (e WindowResizerEnable) RightTop() bool    { return e&WindowResizerRightTop
 func (e WindowResizerEnable) LeftBottom() bool  { return e&WindowResizerLeftBottom > 0 }
 func (e WindowResizerEnable) RightBottom() bool { return e&WindowResizerRightBottom > 0 }
 */
+
+type resizeState int8
+
+const (
+	resizePositive resizeState = 1
+	resizeNegative resizeState = -1
+	resizeNone     resizeState = 0
+)
+
+//func (s resizeState) isActive() bool { return s == resizePositive || s == resizeNegative }
+
 type WindowResizer struct {
 	BaseControl
 
@@ -57,8 +69,12 @@ type WindowResizer struct {
 	leftBottomAreaID  EnterLeaveAreaID
 	rightBottomAreaID EnterLeaveAreaID
 
-	resizeHor bool // this is state, not setting
-	resizeVer bool // this is state, not setting
+	ready bool // This is state.
+	//lastAreaID EnterLeaveAreaID // This is state.
+	resizeHor resizeState // This is state, not setting. -1 means resize left border, 1 means resize right border, no resize otherwise.
+	resizeVer resizeState // This is state, not setting. -1 means resize top border, 1 means resize bottom border, no resize otherwise.
+
+	baseGeometry RectangleF64
 }
 
 func (c *WindowResizer) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
@@ -184,43 +200,75 @@ func (c *WindowResizer) OnGeometryChangeEvent() {
 }
 
 func (c *WindowResizer) OnPointerEnterLeaveEvent(e PointerEnterLeaveEvent) {
+	c.ready = e.Enter
 	if !e.Enter {
-		c.resizeHor = false
-		c.resizeVer = false
 		c.Window().SetCursor(Cursor(0).MakeDefault()) // TODO Parent Controls/areas must do this
 		return
 	}
 	switch e.ID {
-	case c.leftAreaID, c.rightAreaID:
-		c.resizeHor = true
+	case c.leftAreaID:
+		c.resizeHor = resizeNegative
+		c.resizeVer = resizeNone
 		c.Window().SetCursor(Cursor(0).MakeResizeLeftRight())
-	case c.topAreaID, c.bottomAreaID:
-		c.resizeVer = true
+	case c.rightAreaID:
+		c.resizeHor = resizePositive
+		c.resizeVer = resizeNone
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftRight())
+	case c.topAreaID:
+		c.resizeHor = resizeNone
+		c.resizeVer = resizeNegative
 		c.Window().SetCursor(Cursor(0).MakeResizeTopBottom())
-	case c.leftTopAreaID, c.rightBottomAreaID:
-		c.resizeHor = true
-		c.resizeVer = true
+	case c.bottomAreaID:
+		c.resizeHor = resizeNone
+		c.resizeVer = resizePositive
+		c.Window().SetCursor(Cursor(0).MakeResizeTopBottom())
+	case c.leftTopAreaID:
+		c.resizeHor = resizeNegative
+		c.resizeVer = resizeNegative
 		c.Window().SetCursor(Cursor(0).MakeResizeLeftTopRightBottom())
-	case c.leftBottomAreaID, c.rightTopAreaID:
-		c.resizeHor = true
-		c.resizeVer = true
+	case c.rightBottomAreaID:
+		c.resizeHor = resizePositive
+		c.resizeVer = resizePositive
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftTopRightBottom())
+	case c.leftBottomAreaID:
+		c.resizeHor = resizeNegative
+		c.resizeVer = resizePositive
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop())
+	case c.rightTopAreaID:
+		c.resizeHor = resizePositive
+		c.resizeVer = resizeNegative
 		c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop())
 	}
 }
 
 func (c *WindowResizer) OnPointerButtonEvent(event PointerButtonEvent) (processed bool) {
-	return c.resizeVer || c.resizeHor
+	processed = c.ready
+	if !processed {
+		return
+	}
+	if event.Kind.IsPress() {
+		c.baseGeometry = c.Window().WindowGeometry()
+	}
+	return
 }
 
 func (c *WindowResizer) OnPointerDragEvent(event PointerDragEvent) {
-	size := c.Window().Size()
-	if c.resizeHor {
-		size.X += event.Delta.X
+	//fmt.Println(event)
+	geometry := c.baseGeometry
+	switch c.resizeHor {
+	case resizeNegative:
+		geometry.Left += event.Delta.X
+	case resizePositive:
+		geometry.Right += event.Delta.X
 	}
-	if c.resizeVer {
-		size.Y += event.Delta.Y
+	switch c.resizeVer {
+	case resizeNegative:
+		geometry.Top += event.Delta.Y
+	case resizePositive:
+		geometry.Bottom += event.Delta.Y
 	}
-	c.Window().SetSize(size)
+	fmt.Println(geometry)
+	c.Window().SetWindowGeometry(geometry)
 }
 
 func NewWindowResizer() *WindowResizer {

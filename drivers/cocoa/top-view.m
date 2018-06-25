@@ -198,7 +198,6 @@ int getTrackingAreaID(NSTrackingArea* area) {
 	CFNumberRef idRef = (CFNumberRef)area.userInfo[@"id"]; // here we trust ...
 	int         id;
 	CFNumberGetValue(idRef, kCFNumberIntType, &id); // and here ...
-	CFRelease(idRef);
 	return id;
 }
 

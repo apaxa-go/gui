@@ -8,6 +8,7 @@ import "C"
 import (
 	"github.com/apaxa-go/gui/drivers"
 	"github.com/apaxa-go/helper/mathh"
+	"log"
 )
 
 // TODO implement best size logic for window.
@@ -44,24 +45,26 @@ func (w *Window) SetTitle(title string) {
 	w.driverWindow.SetTitle(title)
 }
 
-// TODO be sure what *Pos/Size/Geometry* does not intersect with BaseControl.
-
-func (w *Window) Pos() PointF64 {
+func (w *Window) WindowPos() PointF64 { // TODO may be use BaseControl's geometry field for this? Not sure, but looks ugly.
 	return w.driverWindow.Pos()
 }
 
-func (w *Window) Size() PointF64 {
+func (w *Window) WindowSize() PointF64 { // TODO why not use BaseControl's geometry field for this?
 	return w.driverWindow.Size()
 }
 
-func (w *Window) SetGeometry(geometry RectangleF64) {
+func (w *Window) WindowGeometry() RectangleF64 {
+	return w.driverWindow.Geometry()
+}
+
+func (w *Window) SetWindowGeometry(geometry RectangleF64) {
 	w.driverWindow.SetGeometry(geometry)
 }
 
-func (w *Window) SetPos(pos PointF64) {
+func (w *Window) SetWindowPos(pos PointF64) {
 	w.driverWindow.SetPos(pos)
 }
-func (w *Window) SetSize(size PointF64) {
+func (w *Window) SetWindowSize(size PointF64) {
 	w.driverWindow.SetSize(size)
 }
 
@@ -87,13 +90,12 @@ func updateZIndex(c Control, zIndex uint) (maxZIndex uint) {
 			zIndex = updateZIndex(child, zIndex+1)
 		}
 		return zIndex
-	} else {
-		for _, child := range c.Children() {
-			tmp := updateZIndex(child, zIndex+1)
-			maxZIndex = mathh.Max2Uint(maxZIndex, tmp)
-		}
-		return
 	}
+	for _, child := range c.Children() {
+		tmp := updateZIndex(child, zIndex+1)
+		maxZIndex = mathh.Max2Uint(maxZIndex, tmp)
+	}
+	return
 }
 
 func (w *Window) updateZIndex() { // TODO update ZIndex on each element adding is inefficient
@@ -199,10 +201,23 @@ func (w *Window) ComputeChildVerGeometry() (tops, bottoms []float64) {
 	return []float64{0}, []float64{w.Geometry().Height()}
 }
 
+var count int
+
 func (w *Window) Draw(canvas Canvas, region RectangleF64) {
-	if w.child != nil {
-		w.child.Draw(canvas, region)
+	log.Println("X5.1")
+	if w.child == nil {
+		log.Println("X5.7")
+		return
 	}
+	if !w.geometryHypervisorIsReady() {
+		w.setIR()
+		log.Println("X5.8")
+		return
+	}
+	log.Println(count)
+	count++
+	w.child.Draw(canvas, region)
+	log.Println("X5.9")
 }
 
 //

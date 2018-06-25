@@ -9,6 +9,9 @@ import "C"
 import (
 	"unsafe"
 )
+import (
+	"log"
+)
 
 //
 // For window.h/m
@@ -29,15 +32,23 @@ func windowMainEventCallback(window unsafe.Pointer, become bool) {
 
 //export drawCallback
 func drawCallback(window unsafe.Pointer, context C.CGContextRef, rect C.CGRect) {
+	log.Println("X1")
 	if context == 0 {
+		log.Println("X1.5")
 		panic("Unable to retrieve context for drawing")
 	}
+	log.Println("X2")
 	w := (*Window)(window)
+	log.Println("X3")
 	if w.drawCallback == nil {
+		log.Println("X3.5")
 		return
 	}
+	log.Println("X4")
 	c := &Context{uintptr(context)}
-	w.drawCallback(c, (*RectangleF64S)(unsafe.Pointer(&rect)).ToF64())
+	log.Println("X5", window, unsafe.Offsetof(w.drawCallback), w.drawCallback, unsafe.Pointer(context))
+	w.drawCallback(c, RectangleF64{}) //(*RectangleF64S)(unsafe.Pointer(&rect)).ToF64())
+	log.Println("X6")
 }
 
 //export keyboardEventCallback
@@ -119,7 +130,7 @@ func scrollEventCallback(window unsafe.Pointer, delta C.NSPoint, point C.NSPoint
 }
 
 //export windowResizeCallback
-func windowResizeCallback(window unsafe.Pointer, size C.NSSize) {
+func windowResizeCallback(window unsafe.Pointer, size C.NSSize) { // nolint: deadcode
 	w := (*Window)(window)
 	if w.resizeCallback == nil {
 		return

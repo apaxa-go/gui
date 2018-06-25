@@ -31,6 +31,9 @@ func MakeSizedRectangleIS(origin PointI, size PointI) RectangleIS {
 	return RectangleIS{origin, size}
 }
 
+func (r RectangleI) String() string  { return "{" + r.LT().String() + "; " + r.RB().String() + "}" }
+func (r RectangleIS) String() string { return r.Origin.String() + " " + r.Size.String() }
+
 func (r RectangleI) ToIS() RectangleIS  { return MakeSizedRectangleIS(r.LT(), r.GetSize()) }
 func (r RectangleIS) ToI() RectangleI   { return MakeSizedRectangleI(r.Origin, r.Size) }
 func (r RectangleI) ToI() RectangleI    { return r }
@@ -104,6 +107,9 @@ func MakeSizedRectangleI32(origin PointI32, size PointI32) RectangleI32 {
 func MakeSizedRectangleI32S(origin PointI32, size PointI32) RectangleI32S {
 	return RectangleI32S{origin, size}
 }
+
+func (r RectangleI32) String() string  { return "{" + r.LT().String() + "; " + r.RB().String() + "}" }
+func (r RectangleI32S) String() string { return r.Origin.String() + " " + r.Size.String() }
 
 func (r RectangleI32) ToI32S() RectangleI32S  { return MakeSizedRectangleI32S(r.LT(), r.GetSize()) }
 func (r RectangleI32S) ToI32() RectangleI32   { return MakeSizedRectangleI32(r.Origin, r.Size) }
@@ -179,6 +185,9 @@ func MakeSizedRectangleF32S(origin PointF32, size PointF32) RectangleF32S {
 	return RectangleF32S{origin, size}
 }
 
+func (r RectangleF32) String() string  { return "{" + r.LT().String() + "; " + r.RB().String() + "}" }
+func (r RectangleF32S) String() string { return r.Origin.String() + " " + r.Size.String() }
+
 func (r RectangleF32) ToF32S() RectangleF32S  { return MakeSizedRectangleF32S(r.LT(), r.GetSize()) }
 func (r RectangleF32S) ToF32() RectangleF32   { return MakeSizedRectangleF32(r.Origin, r.Size) }
 func (r RectangleF32) ToF32() RectangleF32    { return r }
@@ -252,6 +261,9 @@ func MakeSizedRectangleF64(origin PointF64, size PointF64) RectangleF64 {
 func MakeSizedRectangleF64S(origin PointF64, size PointF64) RectangleF64S {
 	return RectangleF64S{origin, size}
 }
+
+func (r RectangleF64) String() string  { return "{" + r.LT().String() + "; " + r.RB().String() + "}" }
+func (r RectangleF64S) String() string { return r.Origin.String() + " " + r.Size.String() }
 
 func (r RectangleF64) ToF64S() RectangleF64S  { return MakeSizedRectangleF64S(r.LT(), r.GetSize()) }
 func (r RectangleF64S) ToF64() RectangleF64   { return MakeSizedRectangleF64(r.Origin, r.Size) }

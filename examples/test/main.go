@@ -16,16 +16,18 @@ func main() {
 
 	b1 := controls.NewButton("Button 1")
 	b2 := controls.NewButton("Button 2")
+	vt1 := controls.NewVTable(b1, b2)
+
 	cb1 := controls.NewCheckBox(true, controls.CheckBoxUnknown)
 	cb2 := controls.NewCheckBox(false, controls.CheckBoxChecked)
 	cb3 := controls.NewCheckBox(false, controls.CheckBoxUnchecked)
 	cb4 := controls.NewCheckBox(false, controls.CheckBoxChecked)
+	vt2 := controls.NewVTable(cb1, cb2, cb3, cb4)
+
 	f := gui.NewFontDefaultFont(40, true, false, false)
 	defer f.Release()
 	l1 := controls.NewLabel("Label 1", f, gui.ColorF64{0, 1, 0, 1})
 	l2 := controls.NewLabel("Label 2", f, gui.ColorF64{0, 0, 1, 1})
-	vt1 := controls.NewVTable(b1, b2)
-	vt2 := controls.NewVTable(cb1, cb2, cb3, cb4)
 	sc := controls.NewScroll(vt1, 20, 20)
 	ht := controls.NewHTable(sc, vt2, l1, l2)
 

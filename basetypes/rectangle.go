@@ -38,6 +38,9 @@ func MakeSizedRectangleI64S(origin PointI64, size PointI64) RectangleI64S {
 	return RectangleI64S{origin, size}
 }
 
+func (r RectangleI64) String() string  { return "{" + r.LT().String() + "; " + r.RB().String() + "}" }
+func (r RectangleI64S) String() string { return r.Origin.String() + " " + r.Size.String() }
+
 func (r RectangleI64) ToI64S() RectangleI64S  { return MakeSizedRectangleI64S(r.LT(), r.GetSize()) }
 func (r RectangleI64S) ToI64() RectangleI64   { return MakeSizedRectangleI64(r.Origin, r.Size) }
 func (r RectangleI64) ToI64() RectangleI64    { return r }

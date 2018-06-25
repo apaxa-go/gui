@@ -47,9 +47,12 @@ type Window struct {
 }
 
 func CreateWindow(title string) (window *Window, err error) {
-	// We need initialize Window "in C memory" because we pass pointer to Window to top view (for long live).
-	// If we do not do this Go GC can move Window to other location and applications crashes (at random moment).
-	window = (*Window)(C.calloc(1, C.size_t(unsafe.Sizeof(Window{}))))
+	// TODO We need initialize Window "in C memory" because we pass pointer to Window to top view (for long live).
+	// If we do not do this Go GC can move Window to other location and applications will crash (at random moment) - this is theory.
+	// But if we use C.{c/m}alloc then applications will crash (at random moment) - this is real world (gdb shows what normal Go function may overwrite such memory).
+
+	window = (*Window)(C.calloc(C.size_t(unsafe.Sizeof(Window{}))))
+	//window = &Window{}
 
 	window.pointer = C.CreateWindow(unsafe.Pointer(window))
 	if err != nil {

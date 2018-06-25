@@ -12,7 +12,7 @@ import (
 type FontSpec struct {
 	Index FontIndex
 	Name  string  // Name of font file of name of font family (depending on "index" field).
-	Size  float64 // Size of font in device independent points.
+	Size  float64 // WindowSize of font in device independent points.
 
 	Requirements FontRequirements
 	Monospace    bool

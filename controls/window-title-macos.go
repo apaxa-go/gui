@@ -57,8 +57,8 @@ func (c *windowTitleMacOS) OnPointerButtonEvent(event PointerButtonEvent) (proce
 }
 
 func (c *windowTitleMacOS) OnPointerDragEvent(event PointerDragEvent) {
-	pos := c.Window().Pos().Add(event.Delta)
-	c.Window().SetPos(pos)
+	pos := c.Window().WindowPos().Add(event.Delta)
+	c.Window().SetWindowPos(pos)
 }
 
 func newWindowTitleMacOS() *windowTitleMacOS {
