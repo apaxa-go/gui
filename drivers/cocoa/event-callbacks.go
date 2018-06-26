@@ -9,17 +9,14 @@ import "C"
 import (
 	"unsafe"
 )
-import (
-	"log"
-)
 
 //
 // For window.h/m
 //
 
 //export windowMainEventCallback
-func windowMainEventCallback(window unsafe.Pointer, become bool) {
-	w := (*Window)(window)
+func windowMainEventCallback(windowID int, become bool) {
+	w := windowByID(windowID)
 	if w.windowMainEventCallback == nil {
 		return
 	}
@@ -31,29 +28,21 @@ func windowMainEventCallback(window unsafe.Pointer, become bool) {
 //
 
 //export drawCallback
-func drawCallback(window unsafe.Pointer, context C.CGContextRef, rect C.CGRect) {
-	log.Println("X1")
+func drawCallback(windowID int, context C.CGContextRef, rect C.CGRect) {
 	if context == 0 {
-		log.Println("X1.5")
 		panic("Unable to retrieve context for drawing")
 	}
-	log.Println("X2")
-	w := (*Window)(window)
-	log.Println("X3")
+	w := windowByID(windowID)
 	if w.drawCallback == nil {
-		log.Println("X3.5")
 		return
 	}
-	log.Println("X4")
 	c := &Context{uintptr(context)}
-	log.Println("X5", window, unsafe.Offsetof(w.drawCallback), w.drawCallback, unsafe.Pointer(context))
 	w.drawCallback(c, RectangleF64{}) //(*RectangleF64S)(unsafe.Pointer(&rect)).ToF64())
-	log.Println("X6")
 }
 
 //export keyboardEventCallback
-func keyboardEventCallback(window unsafe.Pointer, event uint8, key uint16, modifiers uint64) {
-	w := (*Window)(window)
+func keyboardEventCallback(windowID int, event uint8, key uint16, modifiers uint64) {
+	w := windowByID(windowID)
 	if w.keyboardEventCallback == nil {
 		return
 	}
@@ -65,8 +54,8 @@ func keyboardEventCallback(window unsafe.Pointer, event uint8, key uint16, modif
 }
 
 //export pointerKeyEventCallback
-func pointerKeyEventCallback(window unsafe.Pointer, event uint8, button uint8, point C.NSPoint, modifiers uint64) {
-	w := (*Window)(window)
+func pointerKeyEventCallback(windowID int, event uint8, button uint8, point C.NSPoint, modifiers uint64) {
+	w := windowByID(windowID)
 	if w.pointerKeyEventCallback == nil {
 		return
 	}
@@ -77,8 +66,8 @@ func pointerKeyEventCallback(window unsafe.Pointer, event uint8, button uint8, p
 }
 
 //export pointerDragEventCallback
-func pointerDragEventCallback(window unsafe.Pointer, delta C.NSPoint) {
-	w := (*Window)(window)
+func pointerDragEventCallback(windowID int, delta C.NSPoint) {
+	w := windowByID(windowID)
 	if w.pointerDragEventCallback == nil {
 		return
 	}
@@ -88,8 +77,8 @@ func pointerDragEventCallback(window unsafe.Pointer, delta C.NSPoint) {
 }
 
 //export pointerMoveEventCallback
-func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
-	w := (*Window)(window)
+func pointerMoveEventCallback(windowID int, point C.NSPoint) {
+	w := windowByID(windowID)
 	if w.pointerMoveEventCallback == nil {
 		return
 	}
@@ -107,8 +96,8 @@ func pointerMoveEventCallback(window unsafe.Pointer, point C.NSPoint) {
 }
 
 //export pointerEnterLeaveEventCallback
-func pointerEnterLeaveEventCallback(window unsafe.Pointer, trackingAreaID C.int, enter C.bool) {
-	w := (*Window)(window)
+func pointerEnterLeaveEventCallback(windowID int, trackingAreaID C.int, enter C.bool) {
+	w := windowByID(windowID)
 	if w.pointerEnterLeaveEventCallback == nil {
 		return
 	}
@@ -117,8 +106,8 @@ func pointerEnterLeaveEventCallback(window unsafe.Pointer, trackingAreaID C.int,
 }
 
 //export scrollEventCallback
-func scrollEventCallback(window unsafe.Pointer, delta C.NSPoint, point C.NSPoint, modifiers uint64) {
-	w := (*Window)(window)
+func scrollEventCallback(windowID int, delta C.NSPoint, point C.NSPoint, modifiers uint64) {
+	w := windowByID(windowID)
 	if w.scrollEventCallback == nil {
 		return
 	}
@@ -130,8 +119,8 @@ func scrollEventCallback(window unsafe.Pointer, delta C.NSPoint, point C.NSPoint
 }
 
 //export windowResizeCallback
-func windowResizeCallback(window unsafe.Pointer, size C.NSSize) { // nolint: deadcode
-	w := (*Window)(window)
+func windowResizeCallback(windowID int, size C.NSSize) { // nolint: deadcode
+	w := windowByID(windowID)
 	if w.resizeCallback == nil {
 		return
 	}

@@ -9,8 +9,8 @@
 
 //static const CFStringRef kTrackingAreaID = CFSTR("id");
 
-@interface      PrimaryWindow: NSWindow
-@property void* windowP;
+@interface    PrimaryWindow: NSWindow
+@property int windowID;
 - (BOOL)canBecomeKeyWindow; // Allow create key window without title and resize bars.
 @end
 
@@ -20,7 +20,7 @@
 - (void)windowDidResize:(NSNotification*)notification;
 @end
 
-void* CreateWindow(void* goWindow);
+void* CreateWindow(int windowID);
 //void        SetWindowAcceptMouseMoved(void* self, bool accept);
 const char* GetWindowTitle(void* self);
 void        SetWindowTitle(void* self, CFStringRef title);
@@ -41,8 +41,8 @@ CGFloat      GetWindowScaleFactor(void* self);
 void InvalidateRegion(void* self, NSRect rect);
 void Invalidate(void* self);
 
-void windowMainEventCallback(void* window, unsigned char become);
-void windowResizeCallback(void* window, NSSize size);
+void windowMainEventCallback(int windowID, unsigned char become);
+void windowResizeCallback(int windowID, NSSize size);
 
 void addTrackingArea(void* self, bool move, int id, NSRect rect);
 void replaceTrackingArea(void* self, bool move, int id, NSRect rect);

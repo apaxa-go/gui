@@ -7,8 +7,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface      TopView: NSView
-@property void* windowP;
+@interface    TopView: NSView
+@property int windowID;
 - (BOOL)isFlipped;             // Make coordinate left-top based.
 - (BOOL)acceptsFirstResponder; // Allow view responds to keyboard events.
 
@@ -31,10 +31,7 @@
 - (void)otherMouseDown:(NSEvent*)event;
 - (void)otherMouseUp:(NSEvent*)event;
 - (void)mouseMoved:(NSEvent*)event;
-//@property bool windowDragging;
-//@property NSPoint initialWindowLocation; // only for window dragging
 @property NSPoint mouseDragBase;
-//@property NSPoint mouseDragLast;
 - (void)mouseDragged:(NSEvent*)event;
 
 - (void)scrollWheel:(NSEvent*)event;
@@ -43,14 +40,14 @@
 @end
 
 double  distance(NSPoint p0, NSPoint p1);
-NSView* CreateTopView(void* goWindow);
+NSView* CreateTopView(int windowID);
 
-void drawCallback(void* window, CGContextRef context, NSRect);
-void keyboardEventCallback(void* window, uint8 event, uint16_t key, uint64_t modifiers);
-void pointerKeyEventCallback(void* window, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
-void pointerDragEventCallback(void* window, NSPoint delta);
-void pointerMoveEventCallback(void* window, NSPoint point);
-void pointerEnterLeaveEventCallback(void* window, int, bool);
-void scrollEventCallback(void* window, NSPoint delta, NSPoint point, uint64 modifiers);
+void drawCallback(int windowID, CGContextRef context, NSRect);
+void keyboardEventCallback(int windowID, uint8 event, uint16_t key, uint64_t modifiers);
+void pointerKeyEventCallback(int windowID, uint8 event, uint8 button, NSPoint point, uint64 modifiers);
+void pointerDragEventCallback(int windowID, NSPoint delta);
+void pointerMoveEventCallback(int windowID, NSPoint point);
+void pointerEnterLeaveEventCallback(int windowID, int, bool);
+void scrollEventCallback(int windowID, NSPoint delta, NSPoint point, uint64 modifiers);
 
 #endif

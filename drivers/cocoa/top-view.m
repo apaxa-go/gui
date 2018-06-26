@@ -10,9 +10,9 @@
 	return [super initWithFrame:frame];
 }
 
-- (id)initWithFrame:(NSRect)frame windowP:(void*)window {
+- (id)initWithFrame:(NSRect)frame windowID:(int)windowID {
 	self = [super initWithFrame:frame];
-	if (self) { self.windowP = window; }
+	if (self) { self.windowID = windowID; }
 	return self;
 }
 
@@ -37,7 +37,7 @@
 	// TODO do we need to set text matrix each drawRect?
 	CGContextSetTextMatrix(context, (CGAffineTransform){1, 0, 0, -1, 0, 0});
 
-	drawCallback(self.windowP, context, frame);
+	drawCallback(self.windowID, context, frame);
 }
 
 - (void)dealloc {
@@ -57,11 +57,11 @@
 
 - (void)keyDown:(NSEvent*)event {
 	// "ARepeat<<1" converts down event to 0 (first press) or 2 (repeat press).
-	keyboardEventCallback(self.windowP, event.ARepeat << 1, event.keyCode, event.modifierFlags);
+	keyboardEventCallback(self.windowID, event.ARepeat << 1, event.keyCode, event.modifierFlags);
 }
 
 - (void)keyUp:(NSEvent*)event {
-	keyboardEventCallback(self.windowP, 1, event.keyCode, event.modifierFlags);
+	keyboardEventCallback(self.windowID, 1, event.keyCode, event.modifierFlags);
 }
 
 //
@@ -149,7 +149,7 @@
 	if (self.mouseTimer.valid) { [[self mouseTimer] invalidate]; }
 	if (self.mouseLastIsDown) { self.mouseRepeatCount--; }
 	if (self.mouseRepeatCount > 0) {
-		pointerKeyEventCallback(self.windowP, self.mouseRepeatCount, self.mouseLastButton, self.mouseFirstPoint, self.mouseFirstModifiers);
+		pointerKeyEventCallback(self.windowID, self.mouseRepeatCount, self.mouseLastButton, self.mouseFirstPoint, self.mouseFirstModifiers);
 		self.mouseRepeatCount = 0;
 	}
 }
@@ -176,7 +176,7 @@
 	//
 	//
 	//
-	pointerKeyEventCallback(self.windowP, down ? 0 : 255, button, point, modifiers);
+	pointerKeyEventCallback(self.windowID, down ? 0 : 255, button, point, modifiers);
 }
 
 //
@@ -187,11 +187,11 @@
 	NSPoint location = [self mouseLocation];
 	CGFloat x        = location.x - self.mouseDragBase.x;
 	CGFloat y        = location.y - self.mouseDragBase.y;
-	pointerDragEventCallback(self.windowP, NSMakePoint(x, y));
+	pointerDragEventCallback(self.windowID, NSMakePoint(x, y));
 }
 
 - (void)mouseMoved:(NSEvent*)event {
-	pointerMoveEventCallback(self.windowP, [self mouseLocation]);
+	pointerMoveEventCallback(self.windowID, [self mouseLocation]);
 }
 
 int getTrackingAreaID(NSTrackingArea* area) {
@@ -202,11 +202,11 @@ int getTrackingAreaID(NSTrackingArea* area) {
 }
 
 - (void)mouseEntered:(NSEvent*)event {
-	pointerEnterLeaveEventCallback(self.windowP, getTrackingAreaID([event trackingArea]), true);
+	pointerEnterLeaveEventCallback(self.windowID, getTrackingAreaID([event trackingArea]), true);
 }
 
 - (void)mouseExited:(NSEvent*)event {
-	pointerEnterLeaveEventCallback(self.windowP, getTrackingAreaID([event trackingArea]), false);
+	pointerEnterLeaveEventCallback(self.windowID, getTrackingAreaID([event trackingArea]), false);
 }
 
 //
@@ -215,13 +215,13 @@ int getTrackingAreaID(NSTrackingArea* area) {
 
 - (void)scrollWheel:(NSEvent*)event {
 	NSPoint delta = NSMakePoint(event.deltaX, event.deltaY);
-	scrollEventCallback(self.windowP, delta, [self mouseLocation], event.modifierFlags);
+	scrollEventCallback(self.windowID, delta, [self mouseLocation], event.modifierFlags);
 }
 
 @end
 
-NSView* CreateTopView(void* goWindow) {
-	NSView* view = [[TopView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0) windowP:goWindow];
+NSView* CreateTopView(int windowID) {
+	NSView* view = [[TopView alloc] initWithFrame:NSMakeRect(0, 0, 0, 0) windowID:windowID];
 	return view;
 }
 

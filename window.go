@@ -8,7 +8,6 @@ import "C"
 import (
 	"github.com/apaxa-go/gui/drivers"
 	"github.com/apaxa-go/helper/mathh"
-	"log"
 )
 
 // TODO implement best size logic for window.
@@ -204,20 +203,15 @@ func (w *Window) ComputeChildVerGeometry() (tops, bottoms []float64) {
 var count int
 
 func (w *Window) Draw(canvas Canvas, region RectangleF64) {
-	log.Println("X5.1")
 	if w.child == nil {
-		log.Println("X5.7")
 		return
 	}
 	if !w.geometryHypervisorIsReady() {
 		w.setIR()
-		log.Println("X5.8")
 		return
 	}
-	log.Println(count)
 	count++
 	w.child.Draw(canvas, region)
-	log.Println("X5.9")
 }
 
 //

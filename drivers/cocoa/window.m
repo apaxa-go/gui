@@ -7,12 +7,12 @@
 
 @implementation PrimaryWindow
 
-- (id)initWithStyleMask:(NSWindowStyleMask)styleMask windowP:(void*)window {
+- (id)initWithStyleMask:(NSWindowStyleMask)styleMask windowID:(int)windowID {
 	self = [super initWithContentRect:NSMakeRect(0, 0, 0, 0) //
 	                        styleMask:styleMask
 	                          backing:NSBackingStoreBuffered
 	                            defer:NO];
-	if (self) { self.windowP = window; }
+	if (self) { self.windowID = windowID; }
 	return self;
 }
 
@@ -26,32 +26,32 @@
 
 - (void)windowDidBecomeKey:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowMainEventCallback(window.windowP, true);
+	windowMainEventCallback(window.windowID, true);
 }
 - (void)windowDidResignKey:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowMainEventCallback(window.windowP, false);
+	windowMainEventCallback(window.windowID, false);
 }
 
 - (void)windowDidResize:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
 	NSSize         size   = GetWindowGeometry(window).size;
-	windowResizeCallback(window.windowP, size);
+	windowResizeCallback(window.windowID, size);
 }
 
 @end
 
-void* CreateWindow(void* goWindow) {
+void* CreateWindow(int windowID) {
 	// Attention: A lot of hacks here!
 	// 1. We need to keep original window buttons or create minimize button to miniaturize method works, so we hide it manually.
 
 	NSWindow* window                  = [[PrimaryWindow alloc]
         initWithStyleMask:NSWindowStyleMaskBorderless | NSWindowStyleMaskMiniaturizable // | NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskFullSizeContentView
-                  windowP:goWindow];
+                 windowID:windowID];
 	window.delegate                   = [PrimaryWindowDelegate alloc];
 	window.titleVisibility            = NSWindowTitleHidden;
 	window.titlebarAppearsTransparent = YES;
-	NSView* topView                   = CreateTopView(goWindow); // TODO check for nil
+	NSView* topView                   = CreateTopView(windowID); // TODO check for nil
 	[window setContentView:topView];
 
 	// Hide window buttons.

@@ -20,8 +20,45 @@ void _SetWindowTitle(void* self, _GoString_ title){
 */
 import "C"
 import (
+	"sync"
 	"unsafe"
 )
+
+var windows []*Window
+var windowsFree []int // slice of windows indexes with nil value (in any order)
+var windowsMutex sync.RWMutex
+
+func mapWindow(w *Window) (id int) {
+	windowsMutex.Lock()
+	defer windowsMutex.Unlock()
+
+	l := len(windowsFree)
+	if l > 0 {
+		id = windowsFree[l-1]
+		windowsFree = windowsFree[:l-1]
+		windows[id] = w
+		return
+	}
+	l = len(windows)
+	id = l
+	windows = append(windows, w)
+	return
+}
+
+func unmapWindow(id int) {
+	windowsMutex.Lock()
+	defer windowsMutex.Unlock()
+
+	windows[id] = nil
+	windowsFree = append(windowsFree, id)
+}
+
+func windowByID(id int) *Window {
+	windowsMutex.RLock()
+	defer windowsMutex.RUnlock()
+
+	return windows[id]
+}
 
 type moveArea struct {
 	ID   MoveAreaID
@@ -51,10 +88,9 @@ func CreateWindow(title string) (window *Window, err error) {
 	// If we do not do this Go GC can move Window to other location and applications will crash (at random moment) - this is theory.
 	// But if we use C.{c/m}alloc then applications will crash (at random moment) - this is real world (gdb shows what normal Go function may overwrite such memory).
 
-	window = (*Window)(C.calloc(C.size_t(unsafe.Sizeof(Window{}))))
-	//window = &Window{}
-
-	window.pointer = C.CreateWindow(unsafe.Pointer(window))
+	window = &Window{}
+	id := mapWindow(window)
+	window.pointer = C.CreateWindow(C.int(id))
 	if err != nil {
 		return
 	}
