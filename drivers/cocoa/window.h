@@ -27,9 +27,24 @@ void        SetWindowTitle(void* self, CFStringRef title);
 
 void SetWindowPossibleSize(void* self, NSSize min, NSSize max);
 
-NSRect GetWindowGeometry(void* self);
-void   SetWindowPos(void* self, NSPoint pos);
-void   SetWindowSize(void* self, CGSize size);
+NSRect  GetWindowGeometry(void* self);
+void    SetWindowGeometry(void* self, NSRect geometry);
+NSPoint GetWindowPos(void* self);
+void    SetWindowPos(void* self, NSPoint pos);
+CGFloat GetWindowLeft(void* self);
+void    SetWindowLeft(void* self, CGFloat left);
+CGFloat GetWindowRight(void* self);
+void    SetWindowRight(void* self, CGFloat right);
+CGFloat GetWindowTop(void* self);
+void    SetWindowTop(void* self, CGFloat top);
+CGFloat GetWindowBottom(void* self);
+void    SetWindowBottom(void* self, CGFloat bottom);
+CGSize  GetWindowSize(void* self);
+void    SetWindowSize(void* self, CGSize size, bool fixedRight, bool fixedBottom);
+CGFloat GetWindowWidth(void* self);
+void    SetWindowWidth(void* self, CGFloat width, bool fixedRight);
+CGFloat GetWindowHeight(void* self);
+void    SetWindowHeight(void* self, CGFloat height, bool fixedBottom);
 
 void MinimizeWindow(void* self);
 void MaximizeWindow(void* self);

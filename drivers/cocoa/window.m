@@ -8,7 +8,7 @@
 @implementation PrimaryWindow
 
 - (id)initWithStyleMask:(NSWindowStyleMask)styleMask windowID:(int)windowID {
-	self = [super initWithContentRect:NSMakeRect(0, 0, 0, 0) //
+	self = [super initWithContentRect:NSMakeRect(300, 300, 0, 0) //
 	                        styleMask:styleMask
 	                          backing:NSBackingStoreBuffered
 	                            defer:NO];
@@ -125,25 +125,109 @@ void SetWindowPossibleSize(void* self, NSSize min, NSSize max) {
 		size.height = max.height;
 	}
 
-	if (resize) { SetWindowSize(self, size); }
+	if (resize) { SetWindowSize(self, size, false, false); }
 }
 
+// All {Get/Set}Window{Geometry/Pos/Left/Top} functions are related to LeftTop window corner with Y-axis increasing down (inverted Y).
+
 NSRect GetWindowGeometry(void* self) {
-	NSWindow* window = self;
-	return [window frame];
+	NSWindow* window   = self;
+	NSRect    geometry = [window frame];
+	geometry.origin.y  = -geometry.origin.y - geometry.size.height; // invert Y and move window base from LB to LT
+	return geometry;
 }
+
+void SetWindowGeometry(void* self, NSRect geometry) {
+	NSWindow* window  = self;
+	geometry.origin.y = -geometry.origin.y - geometry.size.height;
+	[window setFrame:geometry display:YES];
+}
+
+NSPoint GetWindowPos(void* self) { return GetWindowGeometry(self).origin; }
 
 void SetWindowPos(void* self, NSPoint pos) {
 	NSWindow* window = self;
+	pos.y            = -pos.y;
 	[window setFrameTopLeftPoint:pos];
 }
 
-void SetWindowSize(void* self, CGSize size) {
-	NSRect geometry;
-	geometry.origin = GetWindowGeometry(self).origin;
-	geometry.size   = size;
-
+CGFloat GetWindowLeft(void* self) {
 	NSWindow* window = self;
+	return [window frame].origin.x;
+}
+
+void SetWindowLeft(void* self, CGFloat left) {
+	NSWindow* window = self;
+	NSPoint   pos    = [window frame].origin;
+	pos.x            = left;
+	[window setFrameOrigin:pos];
+}
+
+CGFloat GetWindowRight(void* self) {
+	NSWindow* window   = self;
+	NSRect    geometry = [window frame];
+	return geometry.origin.x + geometry.size.width;
+}
+
+void SetWindowRight(void* self, CGFloat right) {
+	NSWindow* window   = self;
+	NSRect    geometry = [window frame];
+	geometry.origin.x  = right - geometry.size.width;
+	[window setFrameOrigin:geometry.origin];
+}
+
+CGFloat GetWindowTop(void* self) { return GetWindowPos(self).y; }
+
+void SetWindowTop(void* self, CGFloat top) {
+	NSPoint pos = GetWindowPos(self);
+	pos.y       = top;
+	SetWindowPos(self, pos);
+}
+
+CGFloat GetWindowBottom(void* self) {
+	NSWindow* window   = self;
+	NSRect    geometry = [window frame];
+	return -geometry.origin.y;
+}
+
+void SetWindowBottom(void* self, CGFloat bottom) {
+	NSWindow* window = self;
+	NSPoint   pos    = [window frame].origin;
+	pos.y            = -bottom;
+	[window setFrameOrigin:pos];
+}
+
+CGSize GetWindowSize(void* self) {
+	NSWindow* window = self;
+	return [window frame].size;
+}
+
+void SetWindowSize(void* self, CGSize size, bool fixedRight, bool fixedBottom) {
+	NSWindow* window   = self;
+	NSRect    geometry = [window frame];
+	if (fixedRight) { geometry.origin.x += geometry.size.width - size.width; }
+	if (!fixedBottom) { geometry.origin.y += geometry.size.height - size.height; }
+	geometry.size = size;
+	[window setFrame:geometry display:YES];
+}
+
+CGFloat GetWindowWidth(void* self) { return GetWindowSize(self).width; }
+
+void SetWindowWidth(void* self, CGFloat width, bool fixedRight) {
+	NSWindow* window   = self;
+	NSRect    geometry = [window frame];
+	if (fixedRight) { geometry.origin.x += geometry.size.width - width; }
+	geometry.size.width = width;
+	[window setFrame:geometry display:YES];
+}
+
+CGFloat GetWindowHeight(void* self) { return GetWindowSize(self).height; }
+
+void SetWindowHeight(void* self, CGFloat height, bool fixedBottom) {
+	NSWindow* window   = self;
+	NSRect    geometry = [window frame];
+	if (!fixedBottom) { geometry.origin.y += geometry.size.height - height; }
+	geometry.size.height = height;
 	[window setFrame:geometry display:YES];
 }
 

@@ -18,7 +18,8 @@ var windowTitleMacOSTitleColor = ColorF64{0, 0, 0, 1}
 
 type windowTitleMacOS struct {
 	BaseControl
-	label *Label
+	label   *Label
+	basePos PointF64
 }
 
 func (c *windowTitleMacOS) Children() []Control { return []Control{c.label} }
@@ -53,12 +54,14 @@ func (c windowTitleMacOS) Draw(canvas Canvas, region RectangleF64) {
 }
 
 func (c *windowTitleMacOS) OnPointerButtonEvent(event PointerButtonEvent) (processed bool) {
+	if event.Kind.IsPress() {
+		c.basePos = c.Window().WindowPos()
+	}
 	return true
 }
 
 func (c *windowTitleMacOS) OnPointerDragEvent(event PointerDragEvent) {
-	pos := c.Window().WindowPos().Add(event.Delta)
-	c.Window().SetWindowPos(pos)
+	c.Window().SetWindowPos(c.basePos.Add(event.Delta))
 }
 
 func newWindowTitleMacOS() *windowTitleMacOS {

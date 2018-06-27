@@ -121,34 +121,6 @@ func (w *Window) SetPossibleSize(min, max PointF64) {
 	C.SetWindowPossibleSize(w.pointer, *(*C.CGSize)(unsafe.Pointer(&min)), *(*C.CGSize)(unsafe.Pointer(&max)))
 }
 
-func (w *Window) Geometry() RectangleF64 {
-	gNative := C.GetWindowGeometry(w.pointer)
-	g := *(*RectangleF64S)(unsafe.Pointer(&gNative))
-	g.Origin.Y = -g.Origin.Y - g.Size.Y
-	return g.ToF64()
-}
-
-func (w *Window) Pos() PointF64 {
-	return w.Geometry().LT()
-}
-
-func (w *Window) Size() PointF64 {
-	return w.Geometry().GetSize()
-}
-
-func (w *Window) SetGeometry(geometry RectangleF64) {
-	w.SetPos(geometry.LT())
-	w.SetSize(geometry.GetSize())
-}
-
-func (w *Window) SetPos(pos PointF64) {
-	pos.Y = -pos.Y
-	C.SetWindowPos(w.pointer, *(*C.CGPoint)(unsafe.Pointer(&pos)))
-}
-func (w *Window) SetSize(size PointF64) {
-	C.SetWindowSize(w.pointer, *(*C.CGSize)(unsafe.Pointer(&size)))
-}
-
 func (w *Window) Minimize() {
 	C.MinimizeWindow(w.pointer)
 }

@@ -5,7 +5,6 @@
 package controls
 
 import (
-	"fmt"
 	"github.com/apaxa-go/helper/mathh"
 )
 
@@ -253,7 +252,6 @@ func (c *WindowResizer) OnPointerButtonEvent(event PointerButtonEvent) (processe
 }
 
 func (c *WindowResizer) OnPointerDragEvent(event PointerDragEvent) {
-	//fmt.Println(event)
 	geometry := c.baseGeometry
 	switch c.resizeHor {
 	case resizeNegative:
@@ -267,7 +265,6 @@ func (c *WindowResizer) OnPointerDragEvent(event PointerDragEvent) {
 	case resizePositive:
 		geometry.Bottom += event.Delta.Y
 	}
-	fmt.Println(geometry)
 	c.Window().SetWindowGeometry(geometry)
 }
 

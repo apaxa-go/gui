@@ -63,8 +63,8 @@ func (w *Window) SetWindowGeometry(geometry RectangleF64) {
 func (w *Window) SetWindowPos(pos PointF64) {
 	w.driverWindow.SetPos(pos)
 }
-func (w *Window) SetWindowSize(size PointF64) {
-	w.driverWindow.SetSize(size)
+func (w *Window) SetWindowSize(size PointF64, fixedRight, fixedBottom bool) {
+	w.driverWindow.SetSize(size, fixedRight, fixedBottom)
 }
 
 func (w *Window) Minimize() { w.driverWindow.Minimize() }
@@ -104,7 +104,7 @@ func (w *Window) updateZIndex() { // TODO update ZIndex on each element adding i
 func (w *Window) adjustSize() {
 	reqSize := w.Geometry().GetSize()
 	if w.driverWindow.Size() != reqSize {
-		w.driverWindow.SetSize(reqSize)
+		w.driverWindow.SetSize(reqSize, false, false) // TODO false,false
 	}
 }
 

@@ -12,12 +12,23 @@ type Window interface {
 	SetPossibleSize(min, max PointF64)
 
 	Geometry() RectangleF64
-	Pos() PointF64
-	Size() PointF64
-
 	SetGeometry(RectangleF64)
+	Pos() PointF64
 	SetPos(PointF64)
-	SetSize(PointF64)
+	Left() float64
+	SetLeft(float64)
+	Right() float64
+	SetRight(float64)
+	Top() float64
+	SetTop(float64)
+	Bottom() float64
+	SetBottom(float64)
+	Size() PointF64
+	SetSize(size PointF64, fixedRight, fixedBottom bool)
+	Width() float64
+	SetWidth(width float64, fixedRight bool)
+	Height() float64
+	SetHeight(height float64, fixedBottom bool)
 
 	Title() string
 	SetTitle(string)

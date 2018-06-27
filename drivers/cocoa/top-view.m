@@ -72,48 +72,27 @@
 }
 
 - (void)mouseDown:(NSEvent*)event {
-	//self.initialWindowLocation = [event locationInWindow];
-	//self.windowDragging=true;
-	[self mouseButton:true //
-	           Button:0
-	            Point:[self mouseLocation]
-	        Modifiers:event.modifierFlags];
+	[self mouseButton:true Button:0 Event:event];
 }
 
 - (void)mouseUp:(NSEvent*)event {
-	//self.windowDragging = false;
-	[self mouseButton:false //
-	           Button:0
-	            Point:[self mouseLocation]
-	        Modifiers:event.modifierFlags];
+	[self mouseButton:false Button:0 Event:event];
 }
 
 - (void)rightMouseDown:(NSEvent*)event {
-	[self mouseButton:true //
-	           Button:1
-	            Point:[self mouseLocation]
-	        Modifiers:event.modifierFlags];
+	[self mouseButton:true Button:1 Event:event];
 }
 
 - (void)rightMouseUp:(NSEvent*)event {
-	[self mouseButton:false //
-	           Button:1
-	            Point:[self mouseLocation]
-	        Modifiers:event.modifierFlags];
+	[self mouseButton:false Button:1 Event:event];
 }
 
 - (void)otherMouseDown:(NSEvent*)event {
-	[self mouseButton:true //
-	           Button:event.buttonNumber
-	            Point:[self mouseLocation]
-	        Modifiers:event.modifierFlags];
+	[self mouseButton:true Button:event.buttonNumber Event:event];
 }
 
 - (void)otherMouseUp:(NSEvent*)event {
-	[self mouseButton:false //
-	           Button:event.buttonNumber
-	            Point:[self mouseLocation]
-	        Modifiers:event.modifierFlags];
+	[self mouseButton:false Button:event.buttonNumber Event:event];
 }
 
 - (void)mouseButtonTimerRestart {
@@ -154,29 +133,33 @@
 	}
 }
 
-- (void)mouseButton:(bool)down Button:(uint8)button Point:(NSPoint)point Modifiers:(uint64)modifiers {
+- (void)mouseButton:(bool)down Button:(uint8)button Event:(NSEvent*)event {
 	//
 	// Related to drag
 	//
-	if (down) {                     // TODO multiple down
-		self.mouseDragBase = point; // TODO may we use mouseFirstPoint here?
-		                            //self.mouseDragLast = NAN;
+	if (down) { // TODO multiple down
+		NSPoint point      = [NSEvent mouseLocation];
+		point.y            = -point.y;
+		self.mouseDragBase = point;
+		//NSLog(@"==========================%@", NSStringFromPoint(self.mouseDragBase));
+		//self.mouseDragLast = NAN;
 	}
 
 	//
 	// Related to clicks
 	//
+	NSPoint point = [self mouseLocation];
 	if ([self mouseButtonDelayedCanPush:down Button:button Point:point]) {
 		[self mouseButtonDelayedPush];
 	} else {
 		if (self.mouseRepeatCount > 0) { [self mouseButtonDelayedPop:nil]; }
-		if (down) { [self mouseButtonDelayedInit:button Point:point Modifiers:modifiers]; }
+		if (down) { [self mouseButtonDelayedInit:button Point:point Modifiers:event.modifierFlags]; }
 	}
 
 	//
 	//
 	//
-	pointerKeyEventCallback(self.windowID, down ? 0 : 255, button, point, modifiers);
+	pointerKeyEventCallback(self.windowID, down ? 0 : 255, button, point, event.modifierFlags);
 }
 
 //
@@ -184,9 +167,10 @@
 //
 
 - (void)mouseDragged:(NSEvent*)event {
-	NSPoint location = [self mouseLocation];
-	CGFloat x        = location.x - self.mouseDragBase.x;
-	CGFloat y        = location.y - self.mouseDragBase.y;
+	NSPoint location = [NSEvent mouseLocation];
+	//NSLog(@"%@", NSStringFromPoint(location));
+	CGFloat x = location.x - self.mouseDragBase.x;
+	CGFloat y = -location.y - self.mouseDragBase.y;
 	pointerDragEventCallback(self.windowID, NSMakePoint(x, y));
 }
 
