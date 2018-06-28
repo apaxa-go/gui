@@ -28,14 +28,60 @@ func (w *Window) geometryHypervisorRunIfReady() {
 func (w *Window) geometryHypervisorDo() {
 	w.geometryHypervisorState = -1
 	w.geometryHypervisorDoUPHG(w)
+	w.geometryHypervisorAdjustWidth()
 	w.geometryHypervisorDoUCHG(w)
 	w.geometryHypervisorDoUPVG(w)
+	w.geometryHypervisorAdjustHeight()
 	w.geometryHypervisorDoUCVG(w)
-	w.adjustSize()
+	w.geometryHypervisorPropogateSize()
 	w.geometryHypervisorDoIR(w)
 	w.geometryHypervisorDoIG(w)
 	w.invalidate()
 	w.geometryHypervisorState = 0
+}
+
+func (w *Window) geometryHypervisorAdjustWidth() {
+	if !w.geometryHypervisorWidthRequest.enabled {
+		return
+	}
+	width := w.geometryHypervisorWidthRequest.size
+	if width < w.minSize.X {
+		width = w.minSize.X
+	} else if width > w.maxSize.X {
+		width = w.maxSize.X
+	}
+
+	if w.setHorGeometry(0, width) {
+		w.setUCHG()
+		w.setIR()
+	}
+}
+
+func (w *Window) geometryHypervisorAdjustHeight() {
+	if !w.geometryHypervisorHeightRequest.enabled {
+		return
+	}
+	height := w.geometryHypervisorHeightRequest.size
+	if height < w.minSize.Y {
+		height = w.minSize.Y
+	} else if height > w.maxSize.Y {
+		height = w.maxSize.Y
+	}
+
+	if w.setVerGeometry(0, height) {
+		w.setUCVG()
+		w.setIR()
+	}
+}
+
+func (w *Window) geometryHypervisorPropogateSize() {
+	w.driverWindow.SetSize(
+		w.Geometry().GetSize(),
+		w.geometryHypervisorWidthRequest.enabled && w.geometryHypervisorWidthRequest.invertFixedSide,
+		w.geometryHypervisorHeightRequest.enabled && w.geometryHypervisorHeightRequest.invertFixedSide,
+	)
+	w.geometryHypervisorWidthRequest.enabled = false
+	w.geometryHypervisorHeightRequest.enabled = false
 }
 
 //

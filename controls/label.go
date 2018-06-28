@@ -4,6 +4,8 @@
 
 package controls
 
+import "github.com/apaxa-go/helper/mathh"
+
 type Label struct {
 	BaseControl
 	text  string
@@ -14,7 +16,7 @@ type Label struct {
 
 func (c *Label) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
 	width := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font).X
-	return width, width, width
+	return width, width, mathh.PositiveInfFloat64()
 }
 
 func (c *Label) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {

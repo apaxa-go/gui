@@ -17,6 +17,8 @@
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
 
+- (NSPoint)mouseLocation;
+
 @property (retain) NSTimer* mouseTimer;
 @property uint8 mouseRepeatCount;
 @property bool  mouseLastIsDown;

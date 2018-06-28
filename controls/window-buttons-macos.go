@@ -4,6 +4,8 @@
 
 package controls
 
+import "github.com/apaxa-go/helper/mathh"
+
 const (
 	windowButtonsMacOSNumButtons   = 3
 	windowButtonsMacOSLeftPadding  = 8
@@ -29,7 +31,7 @@ func (c *windowButtonsMacOS) Children() []Control {
 }
 
 func (c *windowButtonsMacOS) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
-	return windowButtonsMacOSWidth, windowButtonsMacOSWidth, windowButtonsMacOSWidth
+	return windowButtonsMacOSWidth, windowButtonsMacOSWidth, mathh.PositiveInfFloat64() //windowButtonsMacOSWidth
 }
 
 func (c *windowButtonsMacOS) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {

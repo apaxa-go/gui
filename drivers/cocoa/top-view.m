@@ -46,6 +46,10 @@
 }
 
 - (NSPoint)mouseLocation {
+	//NSPoint r = [NSEvent mouseLocation];
+	//NSRect rect = NSMakeRect(r.x,r.y,0,0);
+	//rect = [[self window] convertRectFromScreen: rect];
+	//r=rect.origin;
 	NSPoint r = [[self window] mouseLocationOutsideOfEventStream];
 	r         = [self convertPoint:r fromView:nil];
 	return r;
@@ -186,10 +190,16 @@ int getTrackingAreaID(NSTrackingArea* area) {
 }
 
 - (void)mouseEntered:(NSEvent*)event {
+	if ([event trackingArea].userInfo[@"active"] != nil) { return; }
+	//NSLog(@"Enter %d", getTrackingAreaID([event trackingArea]));
+	[(NSMutableDictionary*)[event trackingArea].userInfo setObject:[NSNull null] forKey:@"active"];
 	pointerEnterLeaveEventCallback(self.windowID, getTrackingAreaID([event trackingArea]), true);
 }
 
 - (void)mouseExited:(NSEvent*)event {
+	if ([event trackingArea].userInfo[@"active"] == nil) { return; }
+	//NSLog(@"Leave %d", getTrackingAreaID([event trackingArea]));
+	[(NSMutableDictionary*)[event trackingArea].userInfo removeObjectForKey:@"active"];
 	pointerEnterLeaveEventCallback(self.windowID, getTrackingAreaID([event trackingArea]), false);
 }
 

@@ -59,9 +59,9 @@ void Invalidate(void* self);
 void windowMainEventCallback(int windowID, unsigned char become);
 void windowResizeCallback(int windowID, NSSize size);
 
-void addTrackingArea(void* self, bool move, int id, NSRect rect);
-void replaceTrackingArea(void* self, bool move, int id, NSRect rect);
-void removeTrackingArea(void* self, bool move, int id);
+void AddTrackingArea(void* self, bool move, int id, NSRect rect);
+void ReplaceTrackingArea(void* self, bool move, int id, NSRect rect);
+void RemoveTrackingArea(void* self, bool move, int id);
 
 void setCursor(uint8 cursor);
 

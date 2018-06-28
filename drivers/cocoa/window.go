@@ -175,22 +175,22 @@ func (w *Window) RegisterWindowMainCallback(f func(become bool)) { w.windowMainE
 func (w *Window) AddEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) {
 	rectS := area.ToF64S()
 	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
-	C.addTrackingArea(w.pointer, false, C.int(id), rect)
+	C.AddTrackingArea(w.pointer, false, C.int(id), rect)
 }
 func (w *Window) ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) {
 	rectS := area.ToF64S()
 	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
-	C.replaceTrackingArea(w.pointer, false, C.int(id), rect)
+	C.ReplaceTrackingArea(w.pointer, false, C.int(id), rect)
 }
 func (w *Window) RemoveEnterLeaveArea(id EnterLeaveAreaID) {
-	C.removeTrackingArea(w.pointer, false, C.int(id))
+	C.RemoveTrackingArea(w.pointer, false, C.int(id))
 }
 
 func (w *Window) AddMoveArea(id MoveAreaID, area RectangleF64) {
 	w.moveAreas = append(w.moveAreas, moveArea{id, area})
 	rectS := area.ToF64S()
 	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
-	C.addTrackingArea(w.pointer, true, C.int(id), rect)
+	C.AddTrackingArea(w.pointer, true, C.int(id), rect)
 }
 func (w *Window) moveAreaByID(id MoveAreaID) (index int) {
 	for index = range w.moveAreas {
@@ -208,10 +208,10 @@ func (w *Window) ReplaceMoveArea(id MoveAreaID, area RectangleF64) {
 	}
 	rectS := area.ToF64S()
 	rect := *(*C.NSRect)(unsafe.Pointer(&rectS))
-	C.replaceTrackingArea(w.pointer, true, C.int(id), rect)
+	C.ReplaceTrackingArea(w.pointer, true, C.int(id), rect)
 }
 func (w *Window) RemoveMoveArea(id MoveAreaID) {
-	C.removeTrackingArea(w.pointer, true, C.int(id))
+	C.RemoveTrackingArea(w.pointer, true, C.int(id))
 	if index := w.moveAreaByID(id); index >= 0 {
 		w.moveAreas = append(w.moveAreas[:index], w.moveAreas[index+1:]...)
 	}

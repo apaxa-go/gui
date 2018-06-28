@@ -73,7 +73,8 @@ type WindowResizer struct {
 	resizeHor resizeState // This is state, not setting. -1 means resize left border, 1 means resize right border, no resize otherwise.
 	resizeVer resizeState // This is state, not setting. -1 means resize top border, 1 means resize bottom border, no resize otherwise.
 
-	baseGeometry RectangleF64
+	//baseGeometry RectangleF64
+	baseSize PointF64
 }
 
 func (c *WindowResizer) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
@@ -246,13 +247,31 @@ func (c *WindowResizer) OnPointerButtonEvent(event PointerButtonEvent) (processe
 		return
 	}
 	if event.Kind.IsPress() {
-		c.baseGeometry = c.Window().WindowGeometry()
+		//c.baseGeometry = c.Window().WindowGeometry()
+		c.baseSize = c.Window().WindowSize()
 	}
 	return
 }
 
 func (c *WindowResizer) OnPointerDragEvent(event PointerDragEvent) {
-	geometry := c.baseGeometry
+	size := c.baseSize
+
+	switch c.resizeHor {
+	case resizeNegative:
+		size.X -= event.Delta.X
+	case resizePositive:
+		size.X += event.Delta.X
+	}
+	switch c.resizeVer {
+	case resizeNegative:
+		size.Y -= event.Delta.Y
+	case resizePositive:
+		size.Y += event.Delta.Y
+	}
+
+	c.Window().SetWindowSize(size, c.resizeHor == resizeNegative, c.resizeVer == resizeNegative)
+
+	/*geometry := c.baseGeometry
 	switch c.resizeHor {
 	case resizeNegative:
 		geometry.Left += event.Delta.X
@@ -265,7 +284,7 @@ func (c *WindowResizer) OnPointerDragEvent(event PointerDragEvent) {
 	case resizePositive:
 		geometry.Bottom += event.Delta.Y
 	}
-	c.Window().SetWindowGeometry(geometry)
+	c.Window().SetWindowGeometry(geometry)*/
 }
 
 func NewWindowResizer() *WindowResizer {

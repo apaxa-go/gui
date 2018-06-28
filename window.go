@@ -12,14 +12,26 @@ import (
 
 // TODO implement best size logic for window.
 
+type geometryRequest struct {
+	enabled         bool
+	size            float64
+	invertFixedSide bool
+	//posShift float64
+}
+
 type Window struct {
 	driverWindow DriverWindow
 	BaseControl
-	child                     Control
-	geometryHypervisorState   int // <0 means active, 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
-	focusedControl            Control
-	pointerPressControl       Control
-	isMain                    bool
+	child                           Control
+	geometryHypervisorState         int // <0 means active, 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
+	geometryHypervisorWidthRequest  geometryRequest
+	geometryHypervisorHeightRequest geometryRequest
+
+	focusedControl      Control
+	pointerPressControl Control
+
+	isMain bool
+
 	enterLeaveAreas           map[EnterLeaveAreaID]enterLeaveArea // Lookup map to identify receiver by area id.
 	overlappedEnterLeaveAreas []overlappedEnterLeaveArea
 	nextEnterLeaveAreaID      EnterLeaveAreaID
@@ -44,28 +56,50 @@ func (w *Window) SetTitle(title string) {
 	w.driverWindow.SetTitle(title)
 }
 
-func (w *Window) WindowPos() PointF64 { // TODO may be use BaseControl's geometry field for this? Not sure, but looks ugly.
-	return w.driverWindow.Pos()
+func (w *Window) SetWindowWidth(width float64, fixedRight bool) {
+	w.geometryHypervisorWidthRequest.enabled = true
+	w.geometryHypervisorWidthRequest.size = width
+	w.geometryHypervisorWidthRequest.invertFixedSide = fixedRight
+	w.geometryHypervisorRunIfReady()
 }
 
-func (w *Window) WindowSize() PointF64 { // TODO why not use BaseControl's geometry field for this?
-	return w.driverWindow.Size()
+func (w *Window) SetWindowHeight(height float64, fixedBottom bool) {
+	w.geometryHypervisorHeightRequest.enabled = true
+	w.geometryHypervisorHeightRequest.size = height
+	w.geometryHypervisorHeightRequest.invertFixedSide = fixedBottom
+	w.geometryHypervisorRunIfReady()
+}
+
+func (w *Window) SetWindowSize(size PointF64, fixedRight, fixedBottom bool) {
+	w.GeometryHypervisorPause()
+	w.SetWindowWidth(size.X, fixedRight)
+	w.SetWindowHeight(size.Y, fixedBottom)
+	w.GeometryHypervisorResume()
 }
 
 func (w *Window) WindowGeometry() RectangleF64 {
-	return w.driverWindow.Geometry()
+	return w.driverWindow.Geometry() // TODO
 }
 
-func (w *Window) SetWindowGeometry(geometry RectangleF64) {
+/*func (w *Window) SetWindowGeometry(geometry RectangleF64) {
 	w.driverWindow.SetGeometry(geometry)
+}
+*/
+func (w *Window) WindowPos() PointF64 {
+	return w.driverWindow.Pos()
 }
 
 func (w *Window) SetWindowPos(pos PointF64) {
 	w.driverWindow.SetPos(pos)
 }
-func (w *Window) SetWindowSize(size PointF64, fixedRight, fixedBottom bool) {
-	w.driverWindow.SetSize(size, fixedRight, fixedBottom)
+
+func (w *Window) WindowSize() PointF64 {
+	return w.BaseControl.Geometry().GetSize()
 }
+
+/*func (w *Window) SetWindowSize(size PointF64, fixedRight, fixedBottom bool) {
+	w.driverWindow.SetSize(size, fixedRight, fixedBottom)
+}*/
 
 func (w *Window) Minimize() { w.driverWindow.Minimize() }
 func (w *Window) Maximize() { w.driverWindow.Maximize() }
@@ -99,13 +133,6 @@ func updateZIndex(c Control, zIndex uint) (maxZIndex uint) {
 
 func (w *Window) updateZIndex() { // TODO update ZIndex on each element adding is inefficient
 	updateZIndex(w, 0)
-}
-
-func (w *Window) adjustSize() {
-	reqSize := w.Geometry().GetSize()
-	if w.driverWindow.Size() != reqSize {
-		w.driverWindow.SetSize(reqSize, false, false) // TODO false,false
-	}
 }
 
 func (w *Window) invalidateRegion(region RectangleF64) {

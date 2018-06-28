@@ -278,12 +278,13 @@ NSTrackingAreaOptions makeTrackingAreaOptions(bool move) {
 	return r;
 }
 
-CFMutableDictionaryRef createTrackingAreaUserInfo(int id) {
+CFMutableDictionaryRef createTrackingAreaUserInfo(int id, bool active) {
 	CFMutableDictionaryRef r = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
 
 	CFNumberRef idRef = CFNumberCreate(NULL, kCFNumberSInt32Type, &id);
 	CFDictionarySetValue(r, @"id", idRef);
 	CFRelease(idRef);
+	if (active) { CFDictionarySetValue(r, @"active", [NSNull null]); }
 
 	return r;
 }
@@ -302,31 +303,65 @@ NSTrackingArea* getTrackingAreaByID(NSView* self, bool move, int id) {
 	return nil;
 }
 
-void addTrackingArea(void* self, bool move, int id, NSRect rect) {
-	NSWindow* window = self;
-	NSView*   view   = [window contentView];
+bool addTrackingArea(void* self, bool move, int id, NSRect rect) {
+	PrimaryWindow* window = self;
+	TopView*       view   = [window contentView];
 
-	CFMutableDictionaryRef userInfo = createTrackingAreaUserInfo(id);
+	bool                   active   = !move && NSPointInRect([view mouseLocation], rect);
+	CFMutableDictionaryRef userInfo = createTrackingAreaUserInfo(id, active);
 	NSTrackingArea*        area     = [[NSTrackingArea alloc] initWithRect:rect //
                                                         options:makeTrackingAreaOptions(move)
                                                           owner:view
                                                        userInfo:(__bridge NSDictionary*)userInfo];
 	CFRelease(userInfo);
-
 	[view addTrackingArea:area];
 	CFRelease(area);
+	return active;
 }
 
-void removeTrackingArea(void* self, bool move, int id) {
-	NSWindow*       window = self;
-	NSView*         view   = [window contentView];
+void AddTrackingArea(void* self, bool move, int id, NSRect rect) {
+	bool send = addTrackingArea(self, move, id, rect);
+	if (send) {
+		PrimaryWindow* window = self;
+		//NSLog(@"Enter synthetic %d", id);
+		pointerEnterLeaveEventCallback(window.windowID, id, true);
+	}
+}
+
+bool removeTrackingArea(void* self, bool move, int id) {
+	PrimaryWindow*  window = self;
+	TopView*        view   = [window contentView];
 	NSTrackingArea* area   = getTrackingAreaByID(view, move, id);
-	if (area != nil) { [view removeTrackingArea:area]; }
+	if (area == nil) { return false; }
+
+	bool active = !move && area.userInfo[@"active"] != nil;
+	[view removeTrackingArea:area];
+	return active;
 }
 
-void replaceTrackingArea(void* self, bool move, int id, NSRect rect) {
-	removeTrackingArea(self, move, id);
-	addTrackingArea(self, move, id, rect);
+void RemoveTrackingArea(void* self, bool move, int id) {
+	bool send = removeTrackingArea(self, move, id);
+	if (send) {
+		PrimaryWindow* window = self;
+		//NSLog(@"Leave synthetic %d", id);
+		pointerEnterLeaveEventCallback(window.windowID, id, false);
+	}
+}
+
+void ReplaceTrackingArea(void* self, bool move, int id, NSRect rect) {
+	bool sendLeave = removeTrackingArea(self, move, id);
+	bool sendEnter = addTrackingArea(self, move, id, rect);
+
+	// Here we try to minimize unnecessary events Leave & Enter because of tracking area replacement.
+	if (sendLeave && !sendEnter) {
+		PrimaryWindow* window = self;
+		//NSLog(@"Leave synthetic %d", id);
+		pointerEnterLeaveEventCallback(window.windowID, id, false);
+	} else if (!sendLeave && sendEnter) {
+		PrimaryWindow* window = self;
+		//NSLog(@"Enter synthetic %d", id);
+		pointerEnterLeaveEventCallback(window.windowID, id, true);
+	}
 }
 
 NSCursor* translateCursor(uint8 cursor) {

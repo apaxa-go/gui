@@ -8,6 +8,12 @@ import (
 	"github.com/apaxa-go/helper/mathh"
 )
 
+//replacer:ignore
+//go:generate go run $GOPATH/src/github.com/apaxa-go/generator/replacer/main.go -- $GOFILE
+//replacer:replace
+//replacer:old VTable	Row		Hor	Ver	Width	width	Height	height	left	Left	top		Top		right	Right	bottom	Bottom
+//replacer:new HTable	Column	Ver	Hor	Height	height	Width	width	top		Top		left	Left	bottom	Bottom	right	Right
+
 type VTable struct {
 	BaseControl
 	children []Control
@@ -58,58 +64,130 @@ func (c *VTable) ComputeChildHorGeometry() (lefts, rights []float64) {
 	return
 }
 
-func (c *VTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
-	l := len(c.children)
-	tops = make([]float64, l)
-	bottoms = make([]float64, l)
+// Compute child geometry if height >= maximum height.
+// This condition also means that all children's max height is not inf.
+func (c *VTable) computeChildVerGeometryMax() (tops, bottoms []float64) {
+	tops = make([]float64, len(c.children))
+	bottoms = make([]float64, len(c.children))
 
 	top := c.Geometry().Top
 	height := c.Geometry().Height()
-	switch {
-	case height >= c.MaxHeight(): // scale according to MaxHeight
-		scale := c.MaxHeight()
-		for i, child := range c.children {
-			scalePart := child.MaxHeight()
-			curHeight := height * scalePart / scale
-			bottom := top + curHeight
+	scale := c.MaxHeight()
+	for i, child := range c.children {
+		scalePart := child.MaxHeight()
+		curHeight := height * scalePart / scale
 
-			tops[i] = top
-			bottoms[i] = bottom
+		tops[i] = top
+		top += curHeight
+		bottoms[i] = top
 
-			top = bottom
-			height -= curHeight
-			scale -= scalePart
-		}
-	case height >= c.BestHeight(): // scale according to BestHeight
-		scale := c.BestHeight()
-		for i, child := range c.children {
-			scalePart := child.BestHeight()
-			curHeight := height * scalePart / scale
-			bottom := top + curHeight
-
-			tops[i] = top
-			bottoms[i] = bottom
-
-			top = bottom
-			height -= curHeight
-			scale -= scalePart
-		}
-	default: // scale according to MinWidth
-		scale := c.MinHeight()
-		for i, child := range c.children {
-			scalePart := child.MinHeight()
-			curHeight := height * scalePart / scale
-			bottom := top + curHeight
-
-			tops[i] = top
-			bottoms[i] = bottom
-
-			top = bottom
-			height -= curHeight
-			scale -= scalePart
-		}
+		height -= curHeight
+		scale -= scalePart
 	}
 	return
+}
+
+// Compute child geometry if height >= best height and at least 1 child has max height = inf.
+// In this case each child with non-inf max height will be sized to its best height,
+// and estimated height will be split between children with max height = inf.
+func (c *VTable) computeChildVerGeometryBestWithMaxInf(childrenWithMaxInf []int, childrenWithMaxNotInfSumBest float64) (tops, bottoms []float64) {
+	tops = make([]float64, len(c.children))
+	bottoms = make([]float64, len(c.children))
+
+	top := c.Geometry().Top
+	split := c.Geometry().Height() - childrenWithMaxNotInfSumBest
+	scale := c.BestHeight() - childrenWithMaxNotInfSumBest
+	for i, child := range c.children {
+		var part float64
+		if len(childrenWithMaxInf) > 0 && i == childrenWithMaxInf[0] {
+			scalePart := child.BestHeight()
+			if scale > 0 {
+				part = split * scalePart / scale
+			}
+			split -= part
+			scale -= scalePart
+		} else {
+			part = child.BestHeight()
+		}
+		tops[i] = top
+		top += part
+		bottoms[i] = top
+	}
+
+	return
+}
+
+// Compute child geometry if height < maximum height and height >= best height, and all children max height != inf.
+func (c *VTable) computeChildVerGeometryBest() (tops, bottoms []float64) {
+	tops = make([]float64, len(c.children))
+	bottoms = make([]float64, len(c.children))
+
+	top := c.Geometry().Top
+	split := c.Geometry().Height() - c.BestHeight()
+	scale := c.MaxHeight() - c.BestHeight()
+	for i, child := range c.children {
+		scalePart := child.MaxHeight() - child.BestHeight()
+		var part float64
+		if scale > 0 {
+			part = split * scalePart / scale
+		}
+
+		split -= part
+		scale -= scalePart
+
+		tops[i] = top
+		top += child.BestHeight() + part
+		bottoms[i] = top
+	}
+	return
+}
+
+// Compute child geometry if height < best height.
+func (c *VTable) computeChildVerGeometryMin() (tops, bottoms []float64) {
+	tops = make([]float64, len(c.children))
+	bottoms = make([]float64, len(c.children))
+
+	top := c.Geometry().Top
+	split := c.Geometry().Height() - c.MinHeight()
+	scale := c.BestHeight() - c.MinHeight()
+	for i, child := range c.children {
+		scalePart := child.BestHeight() - child.MinHeight()
+		var part float64
+		if scale > 0 {
+			part = split * scalePart / scale
+		}
+
+		split -= part
+		scale -= scalePart
+
+		tops[i] = top
+		top += child.MinHeight() + part
+		bottoms[i] = top
+	}
+	return
+}
+
+func (c *VTable) ComputeChildVerGeometry() (tops, bottoms []float64) {
+	height := c.Geometry().Height()
+	if height > c.MaxHeight() {
+		return c.computeChildVerGeometryMax()
+	}
+	if height > c.BestHeight() {
+		childrenWithMaxInf := make([]int, 0, len(c.children))
+		var childrenWithMaxNotInfSumBest float64
+		for i, child := range c.children {
+			if child.MaxHeight() == mathh.PositiveInfFloat64() {
+				childrenWithMaxInf = append(childrenWithMaxInf, i)
+			} else {
+				childrenWithMaxNotInfSumBest += child.BestHeight()
+			}
+		}
+		if len(childrenWithMaxInf) > 0 {
+			return c.computeChildVerGeometryBestWithMaxInf(childrenWithMaxInf, childrenWithMaxNotInfSumBest)
+		}
+		return c.computeChildVerGeometryBest()
+	}
+	return c.computeChildVerGeometryMin()
 }
 
 func (c *VTable) Draw(canvas Canvas, region RectangleF64) {
