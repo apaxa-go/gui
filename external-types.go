@@ -29,6 +29,7 @@ type AlignVer = basetypes.AlignVer
 //
 
 type DriverWindow = drivers.Window
+type WindowDisplayState = drivers.WindowDisplayState
 type Canvas = drivers.Canvas
 type OfflineCanvas = drivers.OfflineCanvas
 
@@ -43,6 +44,7 @@ type PointerButtonEvent = drivers.PointerButtonEvent
 type PointerDragEvent = drivers.PointerDragEvent
 type PointerMoveEvent = drivers.PointerMoveEvent
 type ScrollEvent = drivers.ScrollEvent
+type KeyModifiers = drivers.KeyModifiers
 type EnterLeaveAreaID = drivers.EnterLeaveAreaID
 type MoveAreaID = drivers.MoveAreaID
 type PointerEnterLeaveEvent = drivers.PointerEnterLeaveEvent

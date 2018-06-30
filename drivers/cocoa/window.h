@@ -47,7 +47,9 @@ CGFloat GetWindowHeight(void* self);
 void    SetWindowHeight(void* self, CGFloat height, bool fixedBottom);
 
 void MinimizeWindow(void* self);
-void MaximizeWindow(void* self);
+void DeminimizeWindow(void* self);
+void ZoomWindow(void* self);
+void ToggleFullScreen(void* self);
 void CloseWindow(void* self);
 
 CGContextRef GetWindowContext(void* self);
@@ -58,6 +60,7 @@ void Invalidate(void* self);
 
 void windowMainEventCallback(int windowID, unsigned char become);
 void windowResizeCallback(int windowID, NSSize size);
+void windowDisplayStateCallback(int windowID, unsigned char minimize, unsigned char deminimize, unsigned char enterFullScreen, unsigned char exitFullScreen);
 
 void AddTrackingArea(void* self, bool move, int id, NSRect rect);
 void ReplaceTrackingArea(void* self, bool move, int id, NSRect rect);

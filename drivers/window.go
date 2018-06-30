@@ -4,6 +4,8 @@
 
 package drivers
 
+import "github.com/apaxa-go/helper/strconvh"
+
 // Must be implemented by driver
 type Window interface {
 	//Run()
@@ -33,8 +35,17 @@ type Window interface {
 	Title() string
 	SetTitle(string)
 
+	//PresentedDisplayStates() WindowDisplayState // All supported by driver states.
+	DisplayState() WindowDisplayState // Current display state.
+	//PossibleDisplayStates() WindowDisplayState  // States to which it is possible to change window from current state.
+	//SetDisplayState(WindowDisplayState) (ok bool)
+
 	Minimize()
+	Deminimize()
 	Maximize()
+	Demaximize()
+	EnterFullScreen()
+	ExitFullScreen()
 
 	OfflineCanvas() OfflineCanvas
 	InvalidateRegion(region RectangleF64)
@@ -50,7 +61,9 @@ type Window interface {
 	RegisterPointerMoveCallback(f func(PointerMoveEvent))
 	RegisterPointerEnterLeaveCallback(f func(event PointerEnterLeaveEvent))
 	RegisterScrollCallback(f func(ScrollEvent))
+	RegisterModifiersCallback(f func(KeyModifiers))
 	RegisterWindowMainCallback(f func(become bool))
+	RegisterWindowDisplayStateCallback(f func(sizeState, possibleSizeState WindowDisplayState))
 
 	AddEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64)
 	ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64)
@@ -61,4 +74,39 @@ type Window interface {
 	RemoveMoveArea(id MoveAreaID)
 
 	SetCursor(Cursor)
+}
+
+type WindowDisplayState uint8
+
+const (
+	NormalWindow              WindowDisplayState = iota
+	MinimizedWindow           WindowDisplayState = iota
+	MaximizedWindow           WindowDisplayState = iota
+	FullScreenWindow          WindowDisplayState = iota
+	WindowSizeStateUsedValues                    = iota
+)
+
+func (WindowDisplayState) MakeNormal() WindowDisplayState     { return NormalWindow }
+func (WindowDisplayState) MakeMinimized() WindowDisplayState  { return MinimizedWindow }
+func (WindowDisplayState) MakeMaximized() WindowDisplayState  { return MaximizedWindow }
+func (WindowDisplayState) MakeFullScreen() WindowDisplayState { return FullScreenWindow }
+
+func (s WindowDisplayState) IsNormal() bool     { return s == NormalWindow }
+func (s WindowDisplayState) IsMinimized() bool  { return s == MinimizedWindow }
+func (s WindowDisplayState) IsMaximized() bool  { return s == MaximizedWindow }
+func (s WindowDisplayState) IsFullScreen() bool { return s == FullScreenWindow }
+
+func (s WindowDisplayState) String() string {
+	switch s {
+	case NormalWindow:
+		return "normal window"
+	case MinimizedWindow:
+		return "minimized window"
+	case MaximizedWindow:
+		return "maximized window"
+	case FullScreenWindow:
+		return "window in full screen mode"
+	default:
+		return "window in unknown state #" + strconvh.FormatUint8(uint8(s))
+	}
 }

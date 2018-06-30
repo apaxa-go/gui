@@ -2,11 +2,9 @@
 // This file is part of the AGui.
 // License information can be found in the LICENSE file.
 
-package controls
+package buttons
 
-import (
-	"github.com/apaxa-go/gui"
-)
+import "github.com/apaxa-go/gui"
 
 type ColorF64 = gui.ColorF64
 
@@ -17,8 +15,8 @@ type Align = gui.Align
 type AlignHor = gui.AlignHor
 type AlignVer = gui.AlignVer
 
-type Canvas = gui.Canvas
 type WindowDisplayState = gui.WindowDisplayState
+type Canvas = gui.Canvas
 type Control = gui.Control
 type BaseControl = gui.BaseControl
 type Font = gui.Font

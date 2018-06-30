@@ -68,12 +68,13 @@ type WindowResizer struct {
 	leftBottomAreaID  EnterLeaveAreaID
 	rightBottomAreaID EnterLeaveAreaID
 
-	ready bool // This is state.
-	//lastAreaID EnterLeaveAreaID // This is state.
-	resizeHor resizeState // This is state, not setting. -1 means resize left border, 1 means resize right border, no resize otherwise.
-	resizeVer resizeState // This is state, not setting. -1 means resize top border, 1 means resize bottom border, no resize otherwise.
+	// Block of states.
+	ready         bool        // True if cursor over any of area.
+	lastResizeHor resizeState // Horizontal resize settings of area under cursor or 0 if cursor outside.
+	lastResizeVer resizeState // Vertical resize settings of area under cursor or 0 if cursor outside.
+	resizeHor     resizeState // Same as lastResizeHor, but describe current resize and can't be change until resize will be done.
+	resizeVer     resizeState // Same as lastResizeVer, but describe current resize and can't be change until resize will be done.
 
-	//baseGeometry RectangleF64
 	baseSize PointF64
 }
 
@@ -202,53 +203,57 @@ func (c *WindowResizer) OnGeometryChangeEvent() {
 func (c *WindowResizer) OnPointerEnterLeaveEvent(e PointerEnterLeaveEvent) {
 	c.ready = e.Enter
 	if !e.Enter {
-		c.Window().SetCursor(Cursor(0).MakeDefault()) // TODO Parent Controls/areas must do this
+		c.Window().SetCursor(Cursor(0).MakeDefault(), false) // TODO Parent Controls/areas must do this
 		return
 	}
 	switch e.ID {
 	case c.leftAreaID:
-		c.resizeHor = resizeNegative
-		c.resizeVer = resizeNone
-		c.Window().SetCursor(Cursor(0).MakeResizeLeftRight())
+		c.lastResizeHor = resizeNegative
+		c.lastResizeVer = resizeNone
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftRight(), false)
 	case c.rightAreaID:
-		c.resizeHor = resizePositive
-		c.resizeVer = resizeNone
-		c.Window().SetCursor(Cursor(0).MakeResizeLeftRight())
+		c.lastResizeHor = resizePositive
+		c.lastResizeVer = resizeNone
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftRight(), false)
 	case c.topAreaID:
-		c.resizeHor = resizeNone
-		c.resizeVer = resizeNegative
-		c.Window().SetCursor(Cursor(0).MakeResizeTopBottom())
+		c.lastResizeHor = resizeNone
+		c.lastResizeVer = resizeNegative
+		c.Window().SetCursor(Cursor(0).MakeResizeTopBottom(), false)
 	case c.bottomAreaID:
-		c.resizeHor = resizeNone
-		c.resizeVer = resizePositive
-		c.Window().SetCursor(Cursor(0).MakeResizeTopBottom())
+		c.lastResizeHor = resizeNone
+		c.lastResizeVer = resizePositive
+		c.Window().SetCursor(Cursor(0).MakeResizeTopBottom(), false)
 	case c.leftTopAreaID:
-		c.resizeHor = resizeNegative
-		c.resizeVer = resizeNegative
-		c.Window().SetCursor(Cursor(0).MakeResizeLeftTopRightBottom())
+		c.lastResizeHor = resizeNegative
+		c.lastResizeVer = resizeNegative
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftTopRightBottom(), false)
 	case c.rightBottomAreaID:
-		c.resizeHor = resizePositive
-		c.resizeVer = resizePositive
-		c.Window().SetCursor(Cursor(0).MakeResizeLeftTopRightBottom())
+		c.lastResizeHor = resizePositive
+		c.lastResizeVer = resizePositive
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftTopRightBottom(), false)
 	case c.leftBottomAreaID:
-		c.resizeHor = resizeNegative
-		c.resizeVer = resizePositive
-		c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop())
+		c.lastResizeHor = resizeNegative
+		c.lastResizeVer = resizePositive
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop(), false)
 	case c.rightTopAreaID:
-		c.resizeHor = resizePositive
-		c.resizeVer = resizeNegative
-		c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop())
+		c.lastResizeHor = resizePositive
+		c.lastResizeVer = resizeNegative
+		c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop(), false)
 	}
 }
 
 func (c *WindowResizer) OnPointerButtonEvent(event PointerButtonEvent) (processed bool) {
-	processed = c.ready
-	if !processed {
-		return
-	}
 	if event.Kind.IsPress() {
-		//c.baseGeometry = c.Window().WindowGeometry()
-		c.baseSize = c.Window().WindowSize()
+		processed = c.ready && event.Button.IsLeft()
+		if processed {
+			c.baseSize = c.Window().WindowSize()
+			c.resizeVer = c.lastResizeVer
+			c.resizeHor = c.lastResizeHor
+			c.Window().SetCursor(Cursor(0).MakeResizeLeftBottomRightTop(), true)
+		}
+	} else if event.Kind.IsRelease() {
+		// As we accepts only left mouse button then here we may be sure that here button is left too.
+		c.Window().StopCursorOverride()
 	}
 	return
 }
@@ -269,22 +274,7 @@ func (c *WindowResizer) OnPointerDragEvent(event PointerDragEvent) {
 		size.Y += event.Delta.Y
 	}
 
-	c.Window().SetWindowSize(size, c.resizeHor == resizeNegative, c.resizeVer == resizeNegative)
-
-	/*geometry := c.baseGeometry
-	switch c.resizeHor {
-	case resizeNegative:
-		geometry.Left += event.Delta.X
-	case resizePositive:
-		geometry.Right += event.Delta.X
-	}
-	switch c.resizeVer {
-	case resizeNegative:
-		geometry.Top += event.Delta.Y
-	case resizePositive:
-		geometry.Bottom += event.Delta.Y
-	}
-	c.Window().SetWindowGeometry(geometry)*/
+	c.Window().SetWindowSize(size, c.lastResizeHor == resizeNegative, c.lastResizeVer == resizeNegative)
 }
 
 func NewWindowResizer() *WindowResizer {

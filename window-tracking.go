@@ -4,8 +4,6 @@
 
 package gui
 
-import "fmt"
-
 //
 // Enter leave
 //
@@ -75,13 +73,13 @@ func (w *Window) onPointerEnterLeave(e PointerEnterLeaveEvent) {
 		area.receiver.OnPointerEnterLeaveEvent(e)
 		return
 	}
-	fmt.Print(e.String(), " ")
+	//fmt.Print(e.String(), " ")
 	if e.Enter {
 		w.onPointerEnterOverlapped(e.ID, area.receiver)
 	} else {
 		w.onPointerLeaveOverlapped(e.ID, area.receiver)
 	}
-	fmt.Println(len(w.overlappedEnterLeaveAreas))
+	//fmt.Println(len(w.overlappedEnterLeaveAreas))
 }
 
 // If there is no yet overlapping element then send message and push self to overlappedEnterLeaveAreas.

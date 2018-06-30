@@ -45,6 +45,10 @@
 	[super dealloc];
 }
 
+- (void)cursorUpdate:(NSEvent*)event {
+	// Prevent default implementation from changing cursor to default.
+}
+
 - (NSPoint)mouseLocation {
 	//NSPoint r = [NSEvent mouseLocation];
 	//NSRect rect = NSMakeRect(r.x,r.y,0,0);
@@ -66,6 +70,10 @@
 
 - (void)keyUp:(NSEvent*)event {
 	keyboardEventCallback(self.windowID, 1, event.keyCode, event.modifierFlags);
+}
+
+- (void)flagsChanged:(NSEvent*)event {
+	modifiersEventCallback(self.windowID, event.modifierFlags);
 }
 
 //

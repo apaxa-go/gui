@@ -68,6 +68,10 @@ type moveArea struct {
 type Window struct {
 	pointer unsafe.Pointer
 
+	displayState WindowDisplayState
+	//restoreToMaximized bool // True if last of (normal, maximized) is maximized. Indicates to which mode restore from minimized & full screen.
+	//lastNormalSize     PointF64
+
 	drawCallback          func(CanvasI, RectangleF64) // TODO Rectangle is too simple
 	resizeCallback        func(size PointF64)
 	offlineCanvasCallback func()
@@ -78,7 +82,9 @@ type Window struct {
 	pointerMoveEventCallback       func(PointerMoveEvent)
 	pointerEnterLeaveEventCallback func(event PointerEnterLeaveEvent)
 	scrollEventCallback            func(ScrollEvent)
+	modifiersEventCallback         func(KeyModifiers)
 	windowMainEventCallback        func(become bool)
+	windowDisplayStateCallback     func(oldState, newState WindowDisplayState)
 
 	moveAreas []moveArea // AppKit does not internally assign pointer move events to corresponding tracking areas, so we do it here.
 }
@@ -121,12 +127,83 @@ func (w *Window) SetPossibleSize(min, max PointF64) {
 	C.SetWindowPossibleSize(w.pointer, *(*C.CGSize)(unsafe.Pointer(&min)), *(*C.CGSize)(unsafe.Pointer(&max)))
 }
 
+/*func (*Window) PresentedDisplayStates() WindowDisplayState {
+	return WindowDisplayState(0).MakeNormal() | WindowDisplayState(0).MakeMinimized() | WindowDisplayState(0).MakeMaximized() | WindowDisplayState(0).MakeFullScreen()
+}
+*/
+func (w *Window) DisplayState() WindowDisplayState { return w.displayState }
+
+/*func (*Window) possibleDisplayStates(current WindowDisplayState) WindowDisplayState {
+	// On Mac OS it possible to go from any state to any with exception: deny direct switch between minimized and full screen mode.
+	switch current {
+	case WindowDisplayState(0).MakeNormal():
+		return WindowDisplayState(0).MakeMinimized() | WindowDisplayState(0).MakeMaximized() | WindowDisplayState(0).MakeFullScreen()
+	case WindowDisplayState(0).MakeMinimized():
+		return WindowDisplayState(0).MakeNormal() | WindowDisplayState(0).MakeMaximized()
+	case WindowDisplayState(0).MakeMaximized():
+		return WindowDisplayState(0).MakeNormal() | WindowDisplayState(0).MakeMinimized() | WindowDisplayState(0).MakeFullScreen()
+	case WindowDisplayState(0).MakeFullScreen():
+		return WindowDisplayState(0).MakeNormal() | WindowDisplayState(0).MakeMaximized()
+	default:
+		return (*Window)(nil).PresentedDisplayStates()
+	}
+}
+
+func (w *Window) PossibleDisplayStates() WindowDisplayState {
+	return w.possibleDisplayStates(w.displayState)
+}
+*/
+
 func (w *Window) Minimize() {
 	C.MinimizeWindow(w.pointer)
 }
 
+func (w *Window) Deminimize() {
+	C.DeminimizeWindow(w.pointer)
+}
+
 func (w *Window) Maximize() {
-	C.MaximizeWindow(w.pointer)
+	/*if !w.displayState.IsNormal() {
+		return
+	}*/
+	C.ZoomWindow(w.pointer)
+	//w.setDisplayState(WindowDisplayState(0).MakeMaximized())
+}
+
+func (w *Window) Demaximize() {
+	/*if !w.displayState.IsMaximized() {
+		return
+	}*/
+	C.ZoomWindow(w.pointer)
+	//w.setDisplayState(WindowDisplayState(0).MakeNormal())
+}
+
+func (w *Window) EnterFullScreen() {
+	if !w.displayState.IsFullScreen() {
+		C.ToggleFullScreen(w.pointer)
+	}
+}
+
+func (w *Window) ExitFullScreen() {
+	if w.displayState.IsFullScreen() {
+		C.ToggleFullScreen(w.pointer)
+	}
+}
+
+func (w *Window) setDisplayState(state WindowDisplayState) {
+	if w.displayState == state {
+		return
+	}
+	/*if state.IsNormal() {
+		w.restoreToMaximized = false
+	} else if state.IsMaximized() {
+		w.restoreToMaximized = true
+	}*/
+	oldState := w.displayState
+	w.displayState = state
+	if w.windowDisplayStateCallback != nil {
+		w.windowDisplayStateCallback(oldState, state)
+	}
 }
 
 func (w *Window) InvalidateRegion(region RectangleF64) {
@@ -170,7 +247,11 @@ func (w *Window) RegisterPointerEnterLeaveCallback(f func(PointerEnterLeaveEvent
 }
 
 func (w *Window) RegisterScrollCallback(f func(ScrollEvent))     { w.scrollEventCallback = f }
+func (w *Window) RegisterModifiersCallback(f func(KeyModifiers)) { w.modifiersEventCallback = f }
 func (w *Window) RegisterWindowMainCallback(f func(become bool)) { w.windowMainEventCallback = f }
+func (w *Window) RegisterWindowDisplayStateCallback(f func(sizeState, possibleSizeState WindowDisplayState)) {
+	w.windowDisplayStateCallback = f
+}
 
 func (w *Window) AddEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) {
 	rectS := area.ToF64S()

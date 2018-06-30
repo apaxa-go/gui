@@ -24,6 +24,12 @@
 
 @implementation PrimaryWindowDelegate
 
+- (NSRect)windowWillUseStandardFrame:(NSWindow*)window defaultFrame:(NSRect)newFrame {
+	// Zoom to maximize size.
+	//return [[NSScreen mainScreen] visibleFrame];
+	return newFrame;
+}
+
 - (void)windowDidBecomeKey:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
 	windowMainEventCallback(window.windowID, true);
@@ -37,6 +43,30 @@
 	PrimaryWindow* window = notification.object;
 	NSSize         size   = GetWindowGeometry(window).size;
 	windowResizeCallback(window.windowID, size);
+}
+
+- (void)cursorUpdate:(NSEvent*)event {
+	// Prevent default implementation from changing cursor to default.
+}
+
+- (void)windowDidMiniaturize:(NSNotification*)notification {
+	PrimaryWindow* window = notification.object;
+	windowDisplayStateCallback(window.windowID, 1, 0, 0, 0);
+}
+
+- (void)windowDidDeminiaturize:(NSNotification*)notification {
+	PrimaryWindow* window = notification.object;
+	windowDisplayStateCallback(window.windowID, 0, 1, 0, 0);
+}
+
+- (void)windowWillEnterFullScreen:(NSNotification*)notification {
+	PrimaryWindow* window = notification.object;
+	windowDisplayStateCallback(window.windowID, 0, 0, 1, 0);
+}
+
+- (void)windowWillExitFullScreen:(NSNotification*)notification {
+	PrimaryWindow* window = notification.object;
+	windowDisplayStateCallback(window.windowID, 0, 0, 0, 1);
 }
 
 @end
@@ -53,13 +83,18 @@ void* CreateWindow(int windowID) {
 	window.titlebarAppearsTransparent = YES;
 	NSView* topView                   = CreateTopView(windowID); // TODO check for nil
 	[window setContentView:topView];
-
+	[window setCollectionBehavior:NSWindowCollectionBehaviorFullScreenPrimary]; // Enable full screen mode.
 	// Hide window buttons.
 
 	NSButton* minimizeButton = [NSWindow standardWindowButton:NSWindowMiniaturizeButton
 	                                             forStyleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable];
 	[minimizeButton setHidden:YES];
 	[window.contentView addSubview:minimizeButton];
+
+	NSButton* maximizeButton = [NSWindow standardWindowButton:NSWindowZoomButton
+	                                             forStyleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable];
+	[maximizeButton setHidden:YES];
+	[window.contentView addSubview:maximizeButton];
 
 	/*[[window standardWindowButton:NSWindowCloseButton] setHidden:YES];
     [[window standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
@@ -236,9 +271,21 @@ void MinimizeWindow(void* self) {
 	[window miniaturize:(id)nil];
 }
 
-void MaximizeWindow(void* self) {
+void DeminimizeWindow(void* self) {
 	NSWindow* window = self;
-	[window setFrame:[[NSScreen mainScreen] visibleFrame] display:YES];
+	[window deminiaturize:(id)nil];
+}
+
+void ZoomWindow(void* self) {
+	NSWindow* window = self;
+	//[window setFrame:[[NSScreen mainScreen] visibleFrame] display:YES];
+	[window zoom:nil];
+}
+
+void ToggleFullScreen(void* self) {
+	NSWindow* window = self;
+	//NSLog(@"toggle full screen");
+	[window toggleFullScreen:nil];
 }
 
 void CloseWindow(void* self) {

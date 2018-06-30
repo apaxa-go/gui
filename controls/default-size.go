@@ -11,7 +11,7 @@ const (
 	HorPadding   = 3
 	BorderRadius = 3
 	Height       = 2*BorderWidth + 2*VerPadding + FontSize
-	SmallHeight  = 12 // window buttons
+	SmallHeight  = 12
 )
 
 /*

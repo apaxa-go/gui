@@ -21,6 +21,7 @@ type RoundedRectangleF64 = basetypes.RoundedRectangleF64
 type TransformF64 = basetypes.TransformF64
 
 type WindowI = drivers.Window
+type WindowDisplayState = drivers.WindowDisplayState
 type CanvasI = drivers.Canvas
 type FontI = drivers.Font
 type OfflineCanvasI = drivers.OfflineCanvas

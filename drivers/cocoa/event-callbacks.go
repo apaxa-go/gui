@@ -126,3 +126,27 @@ func windowResizeCallback(windowID int, size C.NSSize) { // nolint: deadcode
 	}
 	w.resizeCallback(*(*PointF64)(unsafe.Pointer(&size)))
 }
+
+// Exactly one flag must be true.
+//export windowDisplayStateCallback
+func windowDisplayStateCallback(windowID int, minimize, deminimize, enterFullScreen, exitFullScreen bool) {
+	var state WindowDisplayState = WindowDisplayState(0).MakeNormal()
+	switch {
+	case minimize:
+		state = WindowDisplayState(0).MakeMinimized()
+	case enterFullScreen:
+		state = WindowDisplayState(0).MakeFullScreen()
+	}
+	w := windowByID(windowID)
+	w.setDisplayState(state)
+}
+
+//export modifiersEventCallback
+func modifiersEventCallback(windowID int, modifiers uint64) {
+	w := windowByID(windowID)
+	if w.modifiersEventCallback == nil {
+		return
+	}
+	tModifiers := translateKeyModifiers(modifiers)
+	w.modifiersEventCallback(tModifiers)
+}

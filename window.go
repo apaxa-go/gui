@@ -6,6 +6,7 @@ package gui
 
 import "C"
 import (
+	"fmt"
 	"github.com/apaxa-go/gui/drivers"
 	"github.com/apaxa-go/helper/mathh"
 )
@@ -37,6 +38,14 @@ type Window struct {
 	nextEnterLeaveAreaID      EnterLeaveAreaID
 	moveAreas                 map[MoveAreaID]Control // Lookup map to identify receiver by area id.
 	nextMoveAreaID            MoveAreaID             // Candidate for next id.
+
+	cursor         Cursor // Current non-override cursor.
+	cursorOverride bool   // Is cursor currently overrided.
+
+	minimizeAllowed   bool
+	maximizeAllowed   bool
+	fullScreenAllowed bool
+	closeAllowed      bool
 }
 
 //
@@ -101,9 +110,6 @@ func (w *Window) WindowSize() PointF64 {
 	w.driverWindow.SetSize(size, fixedRight, fixedBottom)
 }*/
 
-func (w *Window) Minimize() { w.driverWindow.Minimize() }
-func (w *Window) Maximize() { w.driverWindow.Maximize() }
-
 func (w *Window) Child() Control { return w.child }
 func (w *Window) SetChild(child Control) {
 	if w.child != nil {
@@ -162,8 +168,20 @@ func (w *Window) onOfflineCanvasChanged() {
 
 func (w *Window) OfflineCanvas() OfflineCanvas { return w.driverWindow.OfflineCanvas() }
 
-func (w *Window) SetCursor(cursor Cursor) {
-	w.driverWindow.SetCursor(cursor)
+func (w *Window) SetCursor(cursor Cursor, override bool) {
+	if override {
+		w.driverWindow.SetCursor(cursor)
+		w.cursorOverride = true
+		return
+	}
+	w.cursor = cursor
+	if !w.cursorOverride {
+		w.driverWindow.SetCursor(cursor)
+	}
+}
+func (w *Window) StopCursorOverride() {
+	w.cursorOverride = false
+	w.driverWindow.SetCursor(w.cursor)
 }
 
 //
@@ -286,6 +304,7 @@ func processPointerButtonEvent(c Control, e PointerButtonEvent) (processed bool)
 }
 
 func (w *Window) onPointerKey(e PointerButtonEvent) {
+	//fmt.Println(e)
 	if e.Kind.IsRelease() {
 		w.pointerPressControl.OnPointerButtonEvent(e)
 		return
@@ -317,6 +336,10 @@ func (w *Window) onScroll(e ScrollEvent) {
 	processScrollEvent(w, e)
 }
 
+func (w *Window) onModifiers(e KeyModifiers) {
+
+}
+
 func (w *Window) onPointerDrag(e PointerDragEvent) {
 	w.pointerPressControl.OnPointerDragEvent(e)
 }
@@ -333,6 +356,10 @@ func (w *Window) onWindowMainEvent(become bool) {
 	processWindowMainEvent(w, become)
 }
 
+func (w *Window) onWindowDisplayStateEvent(oldState, newState WindowDisplayState) {
+	fmt.Println(oldState.String() + " => " + newState.String())
+}
+
 //
 // Events related.
 //
@@ -345,6 +372,11 @@ func (w *Window) IfControlFocused(c Control) bool { return w.focusedControl == c
 //
 
 func (w *Window) baseInit() {
+	w.cursor = Cursor(0).MakeDefault()
+	w.closeAllowed = true
+	w.minimizeAllowed = true
+	w.maximizeAllowed = true
+	w.fullScreenAllowed = true
 	w.enterLeaveAreas = make(map[EnterLeaveAreaID]enterLeaveArea)
 	w.moveAreas = make(map[MoveAreaID]Control)
 	w.focusedControl = w
@@ -357,7 +389,9 @@ func (w *Window) baseInit() {
 	w.driverWindow.RegisterPointerMoveCallback(w.onPointerMove)
 	w.driverWindow.RegisterPointerEnterLeaveCallback(w.onPointerEnterLeave)
 	w.driverWindow.RegisterScrollCallback(w.onScroll)
+	w.driverWindow.RegisterModifiersCallback(w.onModifiers)
 	w.driverWindow.RegisterWindowMainCallback(w.onWindowMainEvent)
+	w.driverWindow.RegisterWindowDisplayStateCallback(w.onWindowDisplayStateEvent)
 	w.BaseControl.window = w
 	w.SetUPGIR(false)
 }
