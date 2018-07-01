@@ -45,6 +45,9 @@ type PointerMoveEvent = drivers.PointerMoveEvent
 type PointerEnterLeaveEvent = drivers.PointerEnterLeaveEvent
 
 type ScrollEvent = drivers.ScrollEvent
+type ModifiersEvent = drivers.ModifiersEvent
+type WindowMainStateEvent = drivers.WindowMainStateEvent
+type WindowDisplayStateEvent = drivers.WindowDisplayStateEvent
 
 type EnterLeaveAreaID = drivers.EnterLeaveAreaID
 type MoveAreaID = drivers.MoveAreaID

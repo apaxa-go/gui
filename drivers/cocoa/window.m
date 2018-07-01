@@ -32,11 +32,11 @@
 
 - (void)windowDidBecomeKey:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowMainEventCallback(window.windowID, true);
+	windowMainStateEventCallback(window.windowID, true);
 }
 - (void)windowDidResignKey:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowMainEventCallback(window.windowID, false);
+	windowMainStateEventCallback(window.windowID, false);
 }
 
 - (void)windowDidResize:(NSNotification*)notification {
@@ -51,22 +51,22 @@
 
 - (void)windowDidMiniaturize:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowDisplayStateCallback(window.windowID, 1, 0, 0, 0);
+	windowMinimizeCallback(window.windowID, 1);
 }
 
 - (void)windowDidDeminiaturize:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowDisplayStateCallback(window.windowID, 0, 1, 0, 0);
+	windowMinimizeCallback(window.windowID, 0);
 }
 
 - (void)windowWillEnterFullScreen:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowDisplayStateCallback(window.windowID, 0, 0, 1, 0);
+	windowFullScreenCallback(window.windowID, 1);
 }
 
 - (void)windowWillExitFullScreen:(NSNotification*)notification {
 	PrimaryWindow* window = notification.object;
-	windowDisplayStateCallback(window.windowID, 0, 0, 0, 1);
+	windowFullScreenCallback(window.windowID, 0);
 }
 
 @end

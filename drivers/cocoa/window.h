@@ -58,9 +58,10 @@ CGFloat      GetWindowScaleFactor(void* self);
 void InvalidateRegion(void* self, NSRect rect);
 void Invalidate(void* self);
 
-void windowMainEventCallback(int windowID, unsigned char become);
+void windowMainStateEventCallback(int windowID, unsigned char become);
 void windowResizeCallback(int windowID, NSSize size);
-void windowDisplayStateCallback(int windowID, unsigned char minimize, unsigned char deminimize, unsigned char enterFullScreen, unsigned char exitFullScreen);
+void windowMinimizeCallback(int windowID, unsigned char minimize);
+void windowFullScreenCallback(int windowID, unsigned char enter);
 
 void AddTrackingArea(void* self, bool move, int id, NSRect rect);
 void ReplaceTrackingArea(void* self, bool move, int id, NSRect rect);

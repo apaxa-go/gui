@@ -51,5 +51,6 @@ void pointerDragEventCallback(int windowID, NSPoint delta);
 void pointerMoveEventCallback(int windowID, NSPoint point);
 void pointerEnterLeaveEventCallback(int windowID, int, bool);
 void scrollEventCallback(int windowID, NSPoint delta, NSPoint point, uint64 modifiers);
+void modifiersEventCallback(int windowID, uint64 modifiers);
 
 #endif

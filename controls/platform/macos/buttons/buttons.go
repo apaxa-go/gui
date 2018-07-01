@@ -66,13 +66,13 @@ func (c Buttons) Draw(canvas Canvas, region RectangleF64) {
 }
 
 func (c *Buttons) AfterAttachToWindowEvent() {
-	// Reserve TrackingAreaID.
-	c.areaID = c.Window().AddEnterLeaveArea(c, RectangleF64{})
+	c.areaID = c.Window().AddEnterLeaveArea(c, RectangleF64{}) // Reserve TrackingAreaID.
+	c.Window().SubscribeToWindowMainStateEvent(c)
 }
 
 func (c *Buttons) BeforeDetachFromWindowEvent() {
-	// Free TrackingArea.
-	c.Window().RemoveEnterLeaveArea(c.areaID, false)
+	c.Window().UnsubscribeFromWindowMainStateEvent(c)
+	c.Window().RemoveEnterLeaveArea(c.areaID, false) // Free TrackingArea.
 }
 
 func (c *Buttons) OnGeometryChangeEvent() {
@@ -89,7 +89,7 @@ func (c *Buttons) OnPointerEnterLeaveEvent(event PointerEnterLeaveEvent) {
 	c.SetIR()
 }
 
-func (c *Buttons) OnWindowMainEvent(become bool) {
+func (c *Buttons) OnWindowMainStateEvent(event WindowMainStateEvent) {
 	c.SetIR()
 }
 

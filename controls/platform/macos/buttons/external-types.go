@@ -29,3 +29,4 @@ type PointerMoveEvent = gui.PointerMoveEvent
 type FocusEvent = gui.FocusEvent
 type EnterLeaveAreaID = gui.EnterLeaveAreaID
 type PointerEnterLeaveEvent = gui.PointerEnterLeaveEvent
+type WindowMainStateEvent = gui.WindowMainStateEvent

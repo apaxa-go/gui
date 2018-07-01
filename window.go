@@ -6,7 +6,6 @@ package gui
 
 import "C"
 import (
-	"fmt"
 	"github.com/apaxa-go/gui/drivers"
 	"github.com/apaxa-go/helper/mathh"
 )
@@ -14,10 +13,22 @@ import (
 // TODO implement best size logic for window.
 
 type geometryRequest struct {
-	enabled         bool
 	size            float64
+	enabled         bool
 	invertFixedSide bool
 	//posShift float64
+}
+
+type ModifiersEventSubscriber interface {
+	OnModifiersEvent(ModifiersEvent)
+}
+
+type WindowDisplayStateEventSubscriber interface {
+	OnWindowDisplayStateEvent(WindowDisplayStateEvent)
+}
+
+type WindowMainStateEventSubscriber interface {
+	OnWindowMainStateEvent(WindowMainStateEvent)
 }
 
 type Window struct {
@@ -31,13 +42,15 @@ type Window struct {
 	focusedControl      Control
 	pointerPressControl Control
 
-	isMain bool
-
 	enterLeaveAreas           map[EnterLeaveAreaID]enterLeaveArea // Lookup map to identify receiver by area id.
 	overlappedEnterLeaveAreas []overlappedEnterLeaveArea
 	nextEnterLeaveAreaID      EnterLeaveAreaID
 	moveAreas                 map[MoveAreaID]Control // Lookup map to identify receiver by area id.
 	nextMoveAreaID            MoveAreaID             // Candidate for next id.
+
+	modifiersEventSubscribers          []ModifiersEventSubscriber
+	windowDisplayStateEventSubscribers []WindowDisplayStateEventSubscriber
+	windowMainStateEventSubscribers    []WindowMainStateEventSubscriber
 
 	cursor         Cursor // Current non-override cursor.
 	cursorOverride bool   // Is cursor currently overrided.
@@ -57,7 +70,7 @@ type Window struct {
 }*/
 
 func (w *Window) IsMain() bool {
-	return w.isMain
+	return w.driverWindow.IsMain()
 }
 
 func (w *Window) Title() string { return w.driverWindow.Title() }
@@ -336,28 +349,26 @@ func (w *Window) onScroll(e ScrollEvent) {
 	processScrollEvent(w, e)
 }
 
-func (w *Window) onModifiers(e KeyModifiers) {
-
+func (w *Window) onModifiers(e ModifiersEvent) {
+	for _, subscriber := range w.modifiersEventSubscribers {
+		subscriber.OnModifiersEvent(e)
+	}
 }
 
 func (w *Window) onPointerDrag(e PointerDragEvent) {
 	w.pointerPressControl.OnPointerDragEvent(e)
 }
 
-func processWindowMainEvent(c Control, become bool) {
-	c.OnWindowMainEvent(become)
-	for _, child := range c.Children() {
-		processWindowMainEvent(child, become)
+func (w *Window) onWindowMainStateEvent(e WindowMainStateEvent) {
+	for _, subscriber := range w.windowMainStateEventSubscribers {
+		subscriber.OnWindowMainStateEvent(e)
 	}
 }
 
-func (w *Window) onWindowMainEvent(become bool) {
-	w.isMain = become
-	processWindowMainEvent(w, become)
-}
-
-func (w *Window) onWindowDisplayStateEvent(oldState, newState WindowDisplayState) {
-	fmt.Println(oldState.String() + " => " + newState.String())
+func (w *Window) onWindowDisplayStateEvent(e WindowDisplayStateEvent) {
+	for _, subscriber := range w.windowDisplayStateEventSubscribers {
+		subscriber.OnWindowDisplayStateEvent(e)
+	}
 }
 
 //
@@ -390,7 +401,7 @@ func (w *Window) baseInit() {
 	w.driverWindow.RegisterPointerEnterLeaveCallback(w.onPointerEnterLeave)
 	w.driverWindow.RegisterScrollCallback(w.onScroll)
 	w.driverWindow.RegisterModifiersCallback(w.onModifiers)
-	w.driverWindow.RegisterWindowMainCallback(w.onWindowMainEvent)
+	w.driverWindow.RegisterWindowMainStateCallback(w.onWindowMainStateEvent)
 	w.driverWindow.RegisterWindowDisplayStateCallback(w.onWindowDisplayStateEvent)
 	w.BaseControl.window = w
 	w.SetUPGIR(false)

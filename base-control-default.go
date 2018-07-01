@@ -19,7 +19,6 @@ func (BaseControl) OnPointerMoveEvent(_ PointerMoveEvent) (processed bool)     {
 func (BaseControl) OnScrollEvent(_ ScrollEvent) (processed bool)               { return false }
 func (BaseControl) OnPointerEnterLeaveEvent(_ PointerEnterLeaveEvent)          {}
 func (BaseControl) OnFocus(_ FocusEvent)                                       {}
-func (BaseControl) OnWindowMainEvent(_ bool)                                   {}
 
 // FocusCandidate is default implementation. It always returns nil - neither Control itself nor his children (if any) accepts focus.
 func (BaseControl) FocusCandidate(reverse bool, current Control) Control { return nil }

@@ -35,10 +35,8 @@ type Window interface {
 	Title() string
 	SetTitle(string)
 
-	//PresentedDisplayStates() WindowDisplayState // All supported by driver states.
-	DisplayState() WindowDisplayState // Current display state.
-	//PossibleDisplayStates() WindowDisplayState  // States to which it is possible to change window from current state.
-	//SetDisplayState(WindowDisplayState) (ok bool)
+	DisplayState() WindowDisplayState
+	IsMain() bool
 
 	Minimize()
 	Deminimize()
@@ -59,11 +57,11 @@ type Window interface {
 	RegisterPointerKeyCallback(f func(PointerButtonEvent))
 	RegisterPointerDragCallback(f func(PointerDragEvent))
 	RegisterPointerMoveCallback(f func(PointerMoveEvent))
-	RegisterPointerEnterLeaveCallback(f func(event PointerEnterLeaveEvent))
+	RegisterPointerEnterLeaveCallback(f func(PointerEnterLeaveEvent))
 	RegisterScrollCallback(f func(ScrollEvent))
-	RegisterModifiersCallback(f func(KeyModifiers))
-	RegisterWindowMainCallback(f func(become bool))
-	RegisterWindowDisplayStateCallback(f func(sizeState, possibleSizeState WindowDisplayState))
+	RegisterModifiersCallback(f func(ModifiersEvent))
+	RegisterWindowMainStateCallback(f func(WindowMainStateEvent))
+	RegisterWindowDisplayStateCallback(f func(WindowDisplayStateEvent))
 
 	AddEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64)
 	ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64)
@@ -79,11 +77,11 @@ type Window interface {
 type WindowDisplayState uint8
 
 const (
-	NormalWindow              WindowDisplayState = iota
-	MinimizedWindow           WindowDisplayState = iota
-	MaximizedWindow           WindowDisplayState = iota
-	FullScreenWindow          WindowDisplayState = iota
-	WindowSizeStateUsedValues                    = iota
+	NormalWindow                 WindowDisplayState = iota
+	MinimizedWindow              WindowDisplayState = iota
+	MaximizedWindow              WindowDisplayState = iota
+	FullScreenWindow             WindowDisplayState = iota
+	WindowDisplayStateUsedValues                    = iota
 )
 
 func (WindowDisplayState) MakeNormal() WindowDisplayState     { return NormalWindow }

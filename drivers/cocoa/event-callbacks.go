@@ -14,13 +14,14 @@ import (
 // For window.h/m
 //
 
-//export windowMainEventCallback
-func windowMainEventCallback(windowID int, become bool) {
+//export windowMainStateEventCallback
+func windowMainStateEventCallback(windowID int, become bool) { //nolint deadcode
 	w := windowByID(windowID)
-	if w.windowMainEventCallback == nil {
+	w.isMain = become
+	if w.windowMainStateCallback == nil {
 		return
 	}
-	w.windowMainEventCallback(become)
+	w.windowMainStateCallback(WindowMainStateEvent{become})
 }
 
 //
@@ -127,14 +128,20 @@ func windowResizeCallback(windowID int, size C.NSSize) { // nolint: deadcode
 	w.resizeCallback(*(*PointF64)(unsafe.Pointer(&size)))
 }
 
-// Exactly one flag must be true.
-//export windowDisplayStateCallback
-func windowDisplayStateCallback(windowID int, minimize, deminimize, enterFullScreen, exitFullScreen bool) {
+//export windowMinimizeCallback
+func windowMinimizeCallback(windowID int, minimize bool) { // nolint: deadcode
 	var state WindowDisplayState = WindowDisplayState(0).MakeNormal()
-	switch {
-	case minimize:
+	if minimize {
 		state = WindowDisplayState(0).MakeMinimized()
-	case enterFullScreen:
+	}
+	w := windowByID(windowID)
+	w.setDisplayState(state)
+}
+
+//export windowFullScreenCallback
+func windowFullScreenCallback(windowID int, enter bool) { // nolint: deadcode
+	var state WindowDisplayState = WindowDisplayState(0).MakeNormal()
+	if enter {
 		state = WindowDisplayState(0).MakeFullScreen()
 	}
 	w := windowByID(windowID)
@@ -148,5 +155,5 @@ func modifiersEventCallback(windowID int, modifiers uint64) {
 		return
 	}
 	tModifiers := translateKeyModifiers(modifiers)
-	w.modifiersEventCallback(tModifiers)
+	w.modifiersEventCallback(ModifiersEvent{tModifiers})
 }
