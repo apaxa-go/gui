@@ -139,19 +139,26 @@ func (w *Window) Deminimize() {
 }
 
 func (w *Window) Maximize() {
-	/*if !w.displayState.IsNormal() {
-		return
-	}*/
-	C.ZoomWindow(w.pointer)
+	/*
+		if !w.displayState.IsNormal() {
+			return
+		}
+	*/
+	C.MaximizeWindow(w.pointer)
 	//w.setDisplayState(WindowDisplayState(0).MakeMaximized())
 }
 
 func (w *Window) Demaximize() {
-	/*if !w.displayState.IsMaximized() {
-		return
-	}*/
+	/*
+		if !w.displayState.IsMaximized() {
+			return
+		}
+		w.setDisplayState(WindowDisplayState(0).MakeNormal())
+	*/
+}
+
+func (w *Window) ToggleZoom() {
 	C.ZoomWindow(w.pointer)
-	//w.setDisplayState(WindowDisplayState(0).MakeNormal())
 }
 
 func (w *Window) EnterFullScreen() {

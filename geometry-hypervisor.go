@@ -75,7 +75,7 @@ func (w *Window) geometryHypervisorAdjustHeight() {
 }
 
 func (w *Window) geometryHypervisorPropogateSize() {
-	w.driverWindow.SetSize(
+	w.driver.SetSize(
 		w.Geometry().GetSize(),
 		w.geometryHypervisorWidthRequest.enabled && w.geometryHypervisorWidthRequest.invertFixedSide,
 		w.geometryHypervisorHeightRequest.enabled && w.geometryHypervisorHeightRequest.invertFixedSide,

@@ -30,7 +30,7 @@ func (w *Window) generateEnterLeaveAreaID() EnterLeaveAreaID {
 func (w *Window) addEnterLeaveArea(receiver Control, area RectangleF64, overlapping bool) EnterLeaveAreaID {
 	id := w.generateEnterLeaveAreaID()
 	w.enterLeaveAreas[id] = enterLeaveArea{overlapping, receiver}
-	w.driverWindow.AddEnterLeaveArea(id, area)
+	w.driver.AddEnterLeaveArea(id, area)
 	return id
 }
 
@@ -45,7 +45,7 @@ func (w *Window) AddEnterLeaveOverlappingArea(receiver Control, area RectangleF6
 func (w *Window) ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) (ok bool) { // TODO may be implement replace in gui, not in driver?
 	_, ok = w.enterLeaveAreas[id]
 	if ok {
-		w.driverWindow.ReplaceEnterLeaveArea(id, area)
+		w.driver.ReplaceEnterLeaveArea(id, area)
 	}
 	return
 }
@@ -53,7 +53,7 @@ func (w *Window) ReplaceEnterLeaveArea(id EnterLeaveAreaID, area RectangleF64) (
 func (w *Window) RemoveEnterLeaveArea(id EnterLeaveAreaID, keepID bool) (ok bool) {
 	_, ok = w.enterLeaveAreas[id]
 	if ok {
-		w.driverWindow.RemoveEnterLeaveArea(id)
+		w.driver.RemoveEnterLeaveArea(id)
 		if !keepID {
 			delete(w.enterLeaveAreas, id)
 		}
@@ -149,20 +149,20 @@ func (w *Window) generateMoveAreaID() MoveAreaID {
 func (w *Window) AddMoveArea(receiver Control, area RectangleF64) MoveAreaID {
 	id := w.generateMoveAreaID()
 	w.moveAreas[id] = receiver
-	w.driverWindow.AddMoveArea(id, area)
+	w.driver.AddMoveArea(id, area)
 	return id
 }
 
 func (w *Window) ReplaceMoveArea(id MoveAreaID, area RectangleF64) (ok bool) {
 	_, ok = w.moveAreas[id]
-	w.driverWindow.ReplaceMoveArea(id, area)
+	w.driver.ReplaceMoveArea(id, area)
 	return
 }
 
 func (w *Window) RemoveMoveArea(id MoveAreaID, keepID bool) (ok bool) {
 	_, ok = w.moveAreas[id]
 	if ok {
-		w.driverWindow.RemoveMoveArea(id)
+		w.driver.RemoveMoveArea(id)
 		if !keepID {
 			delete(w.moveAreas, id)
 		}

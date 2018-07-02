@@ -73,10 +73,13 @@
 
 void* CreateWindow(int windowID) {
 	// Attention: A lot of hacks here!
-	// 1. We need to keep original window buttons or create minimize button to miniaturize method works, so we hide it manually.
+	// 1. We need to keep original window buttons or create minimize button to minimize method works, so we hide it manually (but we do not need analogue for maximize - strange).
+	// 2. We need to set NSWindowStyleMaskMiniaturizable to minimize method works.
+	// 3. We need to set NSWindowStyleMaskResizable to fullscreen & zoom methods work (may be it is possible to manually resize window on maximization as workaround). With this style window has system resizable ability (so we should not use out own implementation).
 
 	NSWindow* window                  = [[PrimaryWindow alloc]
-        initWithStyleMask:NSWindowStyleMaskBorderless | NSWindowStyleMaskMiniaturizable // | NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskFullSizeContentView
+        initWithStyleMask:NSWindowStyleMaskBorderless | NSWindowStyleMaskMiniaturizable |
+                          NSWindowStyleMaskResizable // | NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskFullSizeContentView
                  windowID:windowID];
 	window.delegate                   = [PrimaryWindowDelegate alloc];
 	window.titleVisibility            = NSWindowTitleHidden;
@@ -91,10 +94,10 @@ void* CreateWindow(int windowID) {
 	[minimizeButton setHidden:YES];
 	[window.contentView addSubview:minimizeButton];
 
-	NSButton* maximizeButton = [NSWindow standardWindowButton:NSWindowZoomButton
+	/*NSButton* maximizeButton = [NSWindow standardWindowButton:NSWindowZoomButton
 	                                             forStyleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskMiniaturizable];
 	[maximizeButton setHidden:YES];
-	[window.contentView addSubview:maximizeButton];
+	[window.contentView addSubview:maximizeButton];*/
 
 	/*[[window standardWindowButton:NSWindowCloseButton] setHidden:YES];
     [[window standardWindowButton:NSWindowMiniaturizeButton] setHidden:YES];
@@ -276,9 +279,13 @@ void DeminimizeWindow(void* self) {
 	[window deminiaturize:(id)nil];
 }
 
+void MaximizeWindow(void* self) {
+	NSWindow* window = self;
+	[window setFrame:[[NSScreen mainScreen] visibleFrame] display:YES];
+}
+
 void ZoomWindow(void* self) {
 	NSWindow* window = self;
-	//[window setFrame:[[NSScreen mainScreen] visibleFrame] display:YES];
 	[window zoom:nil];
 }
 

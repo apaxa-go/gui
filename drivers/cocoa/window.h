@@ -48,6 +48,7 @@ void    SetWindowHeight(void* self, CGFloat height, bool fixedBottom);
 
 void MinimizeWindow(void* self);
 void DeminimizeWindow(void* self);
+void MaximizeWindow(void* self);
 void ZoomWindow(void* self);
 void ToggleFullScreen(void* self);
 void CloseWindow(void* self);

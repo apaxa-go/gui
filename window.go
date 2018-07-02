@@ -32,7 +32,7 @@ type WindowMainStateEventSubscriber interface {
 }
 
 type Window struct {
-	driverWindow DriverWindow
+	driver DriverWindow
 	BaseControl
 	child                           Control
 	geometryHypervisorState         int // <0 means active, 0 means hypervisor is online (performs request immediately), otherwise it is paused geometryHypervisorState times.
@@ -66,16 +66,18 @@ type Window struct {
 //
 
 /*func (w *Window) Run() {
-	w.driverWindow.Run()
+	w.driver.Run()
 }*/
 
+func (w *Window) Driver() DriverWindow { return w.driver }
+
 func (w *Window) IsMain() bool {
-	return w.driverWindow.IsMain()
+	return w.driver.IsMain()
 }
 
-func (w *Window) Title() string { return w.driverWindow.Title() }
+func (w *Window) Title() string { return w.driver.Title() }
 func (w *Window) SetTitle(title string) {
-	w.driverWindow.SetTitle(title)
+	w.driver.SetTitle(title)
 }
 
 func (w *Window) SetWindowWidth(width float64, fixedRight bool) {
@@ -100,19 +102,19 @@ func (w *Window) SetWindowSize(size PointF64, fixedRight, fixedBottom bool) {
 }
 
 func (w *Window) WindowGeometry() RectangleF64 {
-	return w.driverWindow.Geometry() // TODO
+	return w.driver.Geometry() // TODO
 }
 
 /*func (w *Window) SetWindowGeometry(geometry RectangleF64) {
-	w.driverWindow.SetGeometry(geometry)
+	w.driver.SetGeometry(geometry)
 }
 */
 func (w *Window) WindowPos() PointF64 {
-	return w.driverWindow.Pos()
+	return w.driver.Pos()
 }
 
 func (w *Window) SetWindowPos(pos PointF64) {
-	w.driverWindow.SetPos(pos)
+	w.driver.SetPos(pos)
 }
 
 func (w *Window) WindowSize() PointF64 {
@@ -120,7 +122,7 @@ func (w *Window) WindowSize() PointF64 {
 }
 
 /*func (w *Window) SetWindowSize(size PointF64, fixedRight, fixedBottom bool) {
-	w.driverWindow.SetSize(size, fixedRight, fixedBottom)
+	w.driver.SetSize(size, fixedRight, fixedBottom)
 }*/
 
 func (w *Window) Child() Control { return w.child }
@@ -155,11 +157,11 @@ func (w *Window) updateZIndex() { // TODO update ZIndex on each element adding i
 }
 
 func (w *Window) invalidateRegion(region RectangleF64) {
-	w.driverWindow.InvalidateRegion(region)
+	w.driver.InvalidateRegion(region)
 }
 
 func (w *Window) invalidate() {
-	w.driverWindow.Invalidate()
+	w.driver.Invalidate()
 }
 
 func (w *Window) onResize(size PointF64) {
@@ -179,22 +181,22 @@ func (w *Window) onOfflineCanvasChanged() {
 	w.SetUPG(true)
 }
 
-func (w *Window) OfflineCanvas() OfflineCanvas { return w.driverWindow.OfflineCanvas() }
+func (w *Window) OfflineCanvas() OfflineCanvas { return w.driver.OfflineCanvas() }
 
 func (w *Window) SetCursor(cursor Cursor, override bool) {
 	if override {
-		w.driverWindow.SetCursor(cursor)
+		w.driver.SetCursor(cursor)
 		w.cursorOverride = true
 		return
 	}
 	w.cursor = cursor
 	if !w.cursorOverride {
-		w.driverWindow.SetCursor(cursor)
+		w.driver.SetCursor(cursor)
 	}
 }
 func (w *Window) StopCursorOverride() {
 	w.cursorOverride = false
-	w.driverWindow.SetCursor(w.cursor)
+	w.driver.SetCursor(w.cursor)
 }
 
 //
@@ -204,7 +206,7 @@ func (w *Window) StopCursorOverride() {
 func (w *Window) setPossibleHorGeometry(minWidth, bestWidth, maxWidth float64) (changed bool) {
 	changed = w.BaseControl.setPossibleHorGeometry(minWidth, bestWidth, maxWidth)
 	if changed {
-		w.driverWindow.SetPossibleSize(w.minSize, w.maxSize)
+		w.driver.SetPossibleSize(w.minSize, w.maxSize)
 	}
 	return
 }
@@ -212,7 +214,7 @@ func (w *Window) setPossibleHorGeometry(minWidth, bestWidth, maxWidth float64) (
 func (w *Window) setPossibleVerGeometry(minHeight, bestHeight, maxHeight float64) (changed bool) {
 	changed = w.BaseControl.setPossibleVerGeometry(minHeight, bestHeight, maxHeight)
 	if changed {
-		w.driverWindow.SetPossibleSize(w.minSize, w.maxSize)
+		w.driver.SetPossibleSize(w.minSize, w.maxSize)
 	}
 	return
 }
@@ -391,32 +393,32 @@ func (w *Window) baseInit() {
 	w.enterLeaveAreas = make(map[EnterLeaveAreaID]enterLeaveArea)
 	w.moveAreas = make(map[MoveAreaID]Control)
 	w.focusedControl = w
-	w.driverWindow.RegisterDrawCallback(w.Draw)
-	w.driverWindow.RegisterResizeCallback(w.onResize)
-	w.driverWindow.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
-	w.driverWindow.RegisterKeyboardCallback(w.onKeyboardEvent)
-	w.driverWindow.RegisterPointerKeyCallback(w.onPointerKey)
-	w.driverWindow.RegisterPointerDragCallback(w.onPointerDrag)
-	w.driverWindow.RegisterPointerMoveCallback(w.onPointerMove)
-	w.driverWindow.RegisterPointerEnterLeaveCallback(w.onPointerEnterLeave)
-	w.driverWindow.RegisterScrollCallback(w.onScroll)
-	w.driverWindow.RegisterModifiersCallback(w.onModifiers)
-	w.driverWindow.RegisterWindowMainStateCallback(w.onWindowMainStateEvent)
-	w.driverWindow.RegisterWindowDisplayStateCallback(w.onWindowDisplayStateEvent)
+	w.driver.RegisterDrawCallback(w.Draw)
+	w.driver.RegisterResizeCallback(w.onResize)
+	w.driver.RegisterOfflineCanvasCallback(w.onOfflineCanvasChanged)
+	w.driver.RegisterKeyboardCallback(w.onKeyboardEvent)
+	w.driver.RegisterPointerKeyCallback(w.onPointerKey)
+	w.driver.RegisterPointerDragCallback(w.onPointerDrag)
+	w.driver.RegisterPointerMoveCallback(w.onPointerMove)
+	w.driver.RegisterPointerEnterLeaveCallback(w.onPointerEnterLeave)
+	w.driver.RegisterScrollCallback(w.onScroll)
+	w.driver.RegisterModifiersCallback(w.onModifiers)
+	w.driver.RegisterWindowMainStateCallback(w.onWindowMainStateEvent)
+	w.driver.RegisterWindowDisplayStateCallback(w.onWindowDisplayStateEvent)
 	w.BaseControl.window = w
 	w.SetUPGIR(false)
 }
 
 func NewWindow(title string) *Window {
 	var w Window
-	w.driverWindow = driverWindowConstructor(title)
+	w.driver = driverWindowConstructor(title)
 	w.baseInit()
 	return &w
 }
 
 func NewWindowAdvanced(dw DriverWindow) *Window {
 	var w Window
-	w.driverWindow = dw
+	w.driver = dw
 	w.GeometryHypervisorPause()
 	w.baseInit()
 	w.GeometryHypervisorResume()
@@ -426,6 +428,6 @@ func NewWindowAdvanced(dw DriverWindow) *Window {
 func (w *Window) Close() {
 	w.GeometryHypervisorPause()
 	w.SetChild(nil)
-	w.driverWindow.Close()
+	w.driver.Close()
 	Stop() // TODO What if there are more than 1 window?
 }

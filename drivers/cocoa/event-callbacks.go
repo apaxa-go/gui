@@ -130,7 +130,7 @@ func windowResizeCallback(windowID int, size C.NSSize) { // nolint: deadcode
 
 //export windowMinimizeCallback
 func windowMinimizeCallback(windowID int, minimize bool) { // nolint: deadcode
-	var state WindowDisplayState = WindowDisplayState(0).MakeNormal()
+	state := WindowDisplayState(0).MakeNormal()
 	if minimize {
 		state = WindowDisplayState(0).MakeMinimized()
 	}
@@ -140,7 +140,7 @@ func windowMinimizeCallback(windowID int, minimize bool) { // nolint: deadcode
 
 //export windowFullScreenCallback
 func windowFullScreenCallback(windowID int, enter bool) { // nolint: deadcode
-	var state WindowDisplayState = WindowDisplayState(0).MakeNormal()
+	state := WindowDisplayState(0).MakeNormal()
 	if enter {
 		state = WindowDisplayState(0).MakeFullScreen()
 	}

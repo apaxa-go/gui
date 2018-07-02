@@ -13,9 +13,9 @@ package cocoa
 
 CFStringRef CFStringCreateFromGoString(_GoString_ str);
 
-void _DrawTextLine(CGContextRef context, _GoString_ str, CTFontRef font, CGPoint pos) {
+void _DrawTextLine(CGContextRef context, _GoString_ str, CTFontRef font, CGFloat* color, CGPoint pos) {
 	CFStringRef _str = CFStringCreateFromGoString(str);
-	DrawTextLine(context, _str, font, pos);
+	DrawTextLine(context, _str, font, color, pos);
 	CFRelease(_str);
 }
 
@@ -245,11 +245,11 @@ func (c *Context) FillCircle(circle CircleF64, color ColorF64) {
 }
 
 func (c *Context) DrawTextLine(text string, font FontI, pos PointF64, color ColorF64) {
-	// TODO color
 	C._DrawTextLine(
 		C.CGContextRef(c.pointer),
 		text,
 		C.CTFontRef(font.(Font).pointer),
+		(*C.CGFloat)(unsafe.Pointer(&color)),
 		*(*C.CGPoint)(unsafe.Pointer(&pos)),
 	)
 }

@@ -4,14 +4,14 @@
 
 package gui
 
-func (w *Window) DisplayState() WindowDisplayState { return w.driverWindow.DisplayState() }
+func (w *Window) DisplayState() WindowDisplayState { return w.driver.DisplayState() }
 
-func (w *Window) Minimize()        { w.driverWindow.Minimize() }
-func (w *Window) Deminimize()      { w.driverWindow.Deminimize() }
-func (w *Window) Maximize()        { w.driverWindow.Maximize() }
-func (w *Window) Demaximize()      { w.driverWindow.Demaximize() }
-func (w *Window) EnterFullScreen() { w.driverWindow.EnterFullScreen() }
-func (w *Window) ExitFullScreen()  { w.driverWindow.ExitFullScreen() }
+func (w *Window) Minimize()        { w.driver.Minimize() }
+func (w *Window) Deminimize()      { w.driver.Deminimize() }
+func (w *Window) Maximize()        { w.driver.Maximize() }
+func (w *Window) Demaximize()      { w.driver.Demaximize() }
+func (w *Window) EnterFullScreen() { w.driver.EnterFullScreen() }
+func (w *Window) ExitFullScreen()  { w.driver.ExitFullScreen() }
 
 func (w *Window) IsNormalAllowed() bool     { return true }
 func (w *Window) IsMinimizeAllowed() bool   { return w.minimizeAllowed }
