@@ -15,4 +15,5 @@ var (
 	brightBorderColor     = gui.ColorF64{}.MakeFromRGB8(40, 150, 246)
 	labelColor            = gui.ColorF64{0.7, 0.7, 0.7, 1}
 	markColor             = gui.ColorF64{1, 1, 1, 1}
+	controlTextColor      = gui.ColorF64{0.1, 0.1, 0.1, 1}
 )

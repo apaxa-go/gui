@@ -41,15 +41,17 @@ func (c *Table) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight f
 			} else { // spanned cell
 				im := iRow + span.AfterInt()
 				if g, ok := spannedGeometries[im]; ok {
-					g.min = mathh.Max2Float64(g.min, minHeight+min)
-					g.max = mathh.Min2Float64(g.max, maxHeight+max)
+					g.min = mathh.Max2Float64(g.min, cMinHeight+min)
+					g.max = mathh.Min2Float64(g.max, cMaxHeight+max)
+					spannedGeometries[im] = g // TODO sure?
 				} else {
-					spannedGeometries[im] = buttonSpannedGeometry{minHeight + min, maxHeight + max}
+					spannedGeometries[im] = buttonSpannedGeometry{cMinHeight + min, cMaxHeight + max}
 				}
 			}
 		}
 
 		if spannedGeometry, spannedExists := spannedGeometries[iRow]; spannedExists { // Spanned geometry exists.
+			// TODO remove element from map
 			// Convert saved spanned geometry from absolute to row-only values.
 			spannedGeometry.min -= prevMin
 			spannedGeometry.max -= prevMax
@@ -79,12 +81,12 @@ func (c *Table) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight f
 		c.rowsGeometry[iRow].best = best
 		c.rowsGeometry[iRow].max = max
 
-		prevMin = minHeight
-		prevMax = maxHeight
-
 		minHeight += min
 		bestHeight += best
 		maxHeight += max
+
+		prevMin = minHeight
+		prevMax = maxHeight
 	}
 	return
 }

@@ -106,7 +106,7 @@ func CreateWindow(title string) (window *Window, err error) {
 
 func CToGoString(cString unsafe.Pointer) string { // TODO move to other package
 	r := C.GoString((*C.char)(cString)) // TODO is it possible to share C types between packages and pass *C.char to this function directly?
-	C.free(cString)
+	//C.free(cString) // TODO crash here if uncomment
 	return r
 }
 

@@ -6,7 +6,7 @@ package controls
 
 import "github.com/apaxa-go/helper/mathh"
 
-type Label struct {
+type TextImage struct {
 	BaseControl
 	text  string
 	font  Font
@@ -14,24 +14,26 @@ type Label struct {
 	align Align
 }
 
-func (c *Label) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
-	width := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font).X
+func (c *TextImage) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth float64) {
+	// TODO compute geometry on text/font changes only
+	width := c.Window().OfflineCanvas().TextImageGeometry(c.text, c.font).X
 	return width, width, mathh.PositiveInfFloat64()
 }
 
-func (c *Label) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
-	height := c.Window().OfflineCanvas().TextLineGeometry(c.text, c.font).Y
+func (c *TextImage) ComputePossibleVerGeometry() (minHeight, bestHeight, maxHeight float64) {
+	height := c.Window().OfflineCanvas().TextImageGeometry(c.text, c.font).Y
 	return height, height, height
 }
 
-func (c Label) Draw(canvas Canvas, _ RectangleF64) {
+func (c TextImage) Draw(canvas Canvas, _ RectangleF64) {
 	// TODO use region
 	place := c.align.ApplyF64(c.Geometry(), c.MinSize())
-	canvas.DrawTextLine(c.text, c.font, place.LT(), c.color)
+	//canvas.DrawRectangle(place,ColorF64{0,0,0,1},1)
+	canvas.DrawTextImage(c.text, c.font, c.color, place.LT())
 }
 
-func (c *Label) GetText() string { return c.text }
-func (c *Label) SetText(text string) {
+func (c *TextImage) GetText() string { return c.text }
+func (c *TextImage) SetText(text string) {
 	if c.text == text {
 		return
 	}
@@ -39,8 +41,8 @@ func (c *Label) SetText(text string) {
 	c.SetUPGIR(false)
 }
 
-func (c *Label) GetFont() Font { return c.font }
-func (c *Label) SetFont(font Font) {
+func (c *TextImage) GetFont() Font { return c.font }
+func (c *TextImage) SetFont(font Font) {
 	if c.font == font {
 		return
 	}
@@ -48,8 +50,8 @@ func (c *Label) SetFont(font Font) {
 	c.SetUPGIR(false)
 }
 
-func (c *Label) GetColor() ColorF64 { return c.color }
-func (c *Label) SetColor(color ColorF64) {
+func (c *TextImage) GetColor() ColorF64 { return c.color }
+func (c *TextImage) SetColor(color ColorF64) {
 	if c.color == color {
 		return
 	}
@@ -57,8 +59,8 @@ func (c *Label) SetColor(color ColorF64) {
 	c.SetIR()
 }
 
-func (c *Label) GetAlign() Align { return c.align }
-func (c *Label) SetAlign(align Align) {
+func (c *TextImage) GetAlign() Align { return c.align }
+func (c *TextImage) SetAlign(align Align) {
 	align = align.KeepSize()
 	if c.align == align {
 		return
@@ -67,8 +69,8 @@ func (c *Label) SetAlign(align Align) {
 	c.SetIR()
 }
 
-func NewLabel(text string, font Font, color ColorF64) *Label {
-	return &Label{
+func NewLabel(text string, font Font, color ColorF64) *TextImage {
+	return &TextImage{
 		text:  text,
 		font:  font,
 		color: color,

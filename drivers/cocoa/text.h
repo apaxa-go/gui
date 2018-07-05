@@ -28,10 +28,32 @@ CFAttributedStringRef createAttrStringRef(CFStringRef str, CTFontRef font, CGFlo
 	return attrString;
 }
 
-void DrawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGFloat* color, CGPoint pos) {
+CGSize GetTextImageGeometry(CGContextRef context, CFStringRef str, CTFontRef font) {
+	CFAttributedStringRef attrStr = createAttrStringRef(str, font, nil);
+	CTLineRef             line    = CTLineCreateWithAttributedString(attrStr);
+	CFRelease(attrStr);
+	CGSize r = CTLineGetImageBounds(line, context).size;
+	/*NSLog(@"Size: %f, Sum: %f, Ascent: %f, Descent: %f, Leading: %f, Box: %@, Bounds: %@",
+		CTFontGetSize(font),
+		CTFontGetAscent(font)+CTFontGetDescent(font)+CTFontGetLeading(font),
+		CTFontGetAscent(font),
+		CTFontGetDescent(font),
+		CTFontGetLeading(font),
+		CGRectCreateDictionaryRepresentation(CTFontGetBoundingBox(font)),
+		CGRectCreateDictionaryRepresentation(r)
+	);*/
+	CFRelease(line);
+	return r;
+}
+
+void DrawTextImage(CGContextRef context, CFStringRef str, CTFontRef font, CGFloat* color, CGPoint pos) {
 	CFAttributedStringRef attrStr = createAttrStringRef(str, font, color);
 	CTLineRef             line    = CTLineCreateWithAttributedString(attrStr);
 	CFRelease(attrStr);
+	CGRect  bounds  = CTLineGetImageBounds(line, context);
+	CGPoint prevPos = CGContextGetTextPosition(context);
+	pos.x += +prevPos.x - bounds.origin.x;
+	pos.y += -prevPos.y + bounds.origin.y + bounds.size.height;
 	CGContextSetTextPosition(context, pos.x, pos.y);
 	CGContextSaveGState(context);
 	CTLineDraw(line, context);
@@ -39,11 +61,42 @@ void DrawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGFloat
 	CGContextRestoreGState(context);
 }
 
-CGRect GetTextLineGeometry(CGContextRef context, CFStringRef str, CTFontRef font) {
+struct TextLineGeometry {
+	CGFloat width;
+	CGFloat ascent;
+	CGFloat descent;
+	CGFloat leading;
+};
+
+struct TextLineGeometry
+    GetTextLineGeometry(CGContextRef context, CFStringRef str, CTFontRef font) {
 	CFAttributedStringRef attrStr = createAttrStringRef(str, font, nil);
 	CTLineRef             line    = CTLineCreateWithAttributedString(attrStr);
 	CFRelease(attrStr);
-	CGRect r = CTLineGetImageBounds(line, context);
+	struct TextLineGeometry r;
+	r.width = CTLineGetTypographicBounds(line, &r.ascent, &r.descent, &r.leading);
+	/*NSLog(@"Size: %f, Sum: %f, Ascent: %f, Descent: %f, Leading: %f",
+		CTFontGetSize(font),
+		r.ascent+r.descent+r.leading,
+		r.ascent,
+		r.descent,
+		r.leading
+	);*/
 	CFRelease(line);
 	return r;
+}
+
+void DrawTextLine(CGContextRef context, CFStringRef str, CTFontRef font, CGFloat* color, CGPoint pos, uint8_t origin) {
+	CFAttributedStringRef attrStr = createAttrStringRef(str, font, color);
+	CTLineRef             line    = CTLineCreateWithAttributedString(attrStr);
+	CFRelease(attrStr);
+	switch (origin) {
+	case 0: pos.y += CTFontGetAscent(font); break;
+	case 2: pos.y -= CTFontGetDescent(font); break;
+	}
+	CGContextSetTextPosition(context, pos.x, pos.y);
+	CGContextSaveGState(context);
+	CTLineDraw(line, context);
+	CFRelease(line);
+	CGContextRestoreGState(context);
 }

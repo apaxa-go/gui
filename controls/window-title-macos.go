@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	windowTitleMacOSHeight     = 16
-	windowTitleMacOSVerPadding = 1
+	windowTitleMacOSHeight     = 22
+	windowTitleMacOSVerPadding = 3
 )
 
 var windowTitleMacOSBackground = ColorF64{}.MakeFromRGB8(230, 230, 230)
@@ -18,7 +18,7 @@ var windowTitleMacOSTitleColor = ColorF64{0, 0, 0, 1}
 
 type windowTitleMacOS struct {
 	BaseControl
-	label   *Label
+	label   *TextImage
 	basePos PointF64
 }
 
@@ -47,10 +47,14 @@ func (c *windowTitleMacOS) ComputeChildVerGeometry() (tops, bottoms []float64) {
 
 func (c windowTitleMacOS) Draw(canvas Canvas, region RectangleF64) {
 	place := c.Geometry()
-	place.Bottom = place.Top + 20
+	place.Bottom = place.Top + c.MinHeight()
 	canvas.FillRectangle(place, windowTitleMacOSBackground)
 	// TODO do we need to draw background here???
 	c.label.Draw(canvas, region)
+}
+
+func (c *windowTitleMacOS) AfterAttachToWindowEvent() {
+	c.label.SetText(c.Window().Title())
 }
 
 func (c *windowTitleMacOS) OnPointerButtonEvent(event PointerButtonEvent) (processed bool) {

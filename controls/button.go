@@ -12,8 +12,9 @@ const ButtonBestWidth = 60
 
 type Button struct {
 	BaseControl
-	label *Label
-	align Align
+	label  *TextImage
+	align  Align
+	action func()
 }
 
 func (c *Button) Children() []Control { return []Control{c.label} }
@@ -56,7 +57,9 @@ func (c *Button) Draw(canvas Canvas, region RectangleF64) {
 }
 
 func (c *Button) OnPointerButtonEvent(e PointerButtonEvent) (processed bool) {
-	c.SetText(e.ShortString()) // TODO
+	if c.action != nil {
+		c.action()
+	}
 	return true
 }
 
@@ -85,9 +88,13 @@ func (c *Button) SetAlign(align Align) {
 	c.SetIR()
 }
 
+func (c *Button) SetAction(action func()) {
+	c.action = action
+}
+
 func NewButton(text string) *Button {
 	r := &Button{
-		label: NewLabel(text, defaultFont, labelColor),
+		label: NewLabel(text, defaultFont, controlTextColor),
 		align: Align(0).MakeStretchCenter(),
 	}
 	r.BaseControl.SetParent(r.label, r)

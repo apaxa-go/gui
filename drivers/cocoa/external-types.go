@@ -24,6 +24,7 @@ type WindowI = drivers.Window
 type WindowDisplayState = drivers.WindowDisplayState
 type CanvasI = drivers.Canvas
 type FontI = drivers.Font
+type TextLineOrigin = drivers.TextLineOrigin
 type OfflineCanvasI = drivers.OfflineCanvas
 type FontSpec = drivers.FontSpec
 type Cursor = drivers.Cursor

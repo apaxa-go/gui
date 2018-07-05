@@ -19,6 +19,25 @@ const (
 func (s CheckBoxState) IsChecked() bool   { return s == CheckBoxChecked }
 func (s CheckBoxState) IsUnchecked() bool { return s == CheckBoxUnchecked }
 func (s CheckBoxState) IsUnknown() bool   { return s >= CheckBoxUnknown }
+func (s CheckBoxState) Toggle(mayUnknown bool) CheckBoxState {
+	if mayUnknown {
+		return (s + 1) % 2
+	}
+	return (s + 1) % 3
+}
+
+func (s CheckBoxState) String() string {
+	switch s {
+	case CheckBoxUnchecked:
+		return "unchecked"
+	case CheckBoxChecked:
+		return "checked"
+	case CheckBoxUnknown:
+		return "in unknown state"
+	default:
+		return "invalid value for CheckBoxState"
+	}
+}
 
 var checkboxMark = scvi.SCVI{
 	scvi.PointF64{14, 14},
@@ -64,6 +83,13 @@ func (c *CheckBox) FocusCandidate(reverse bool, current Control) Control {
 	return nil
 }
 
+func (c *CheckBox) OnPointerButtonEvent(e PointerButtonEvent) (processed bool) {
+	if e.Button.IsLeft() && e.Kind.IsClick() {
+		c.Toggle()
+	}
+	return true
+}
+
 func (c CheckBox) correctState(state CheckBoxState) CheckBoxState {
 	if !c.mayUnknown && state.IsUnknown() {
 		return CheckBoxUnchecked
@@ -91,6 +117,7 @@ func (c CheckBox) IsUnchecked() bool { return c.state.IsUnchecked() }
 func (c *CheckBox) SetUnknown()   { c.SetState(CheckBoxUnknown) }
 func (c *CheckBox) SetChecked()   { c.SetState(CheckBoxChecked) }
 func (c *CheckBox) SetUnchecked() { c.SetState(CheckBoxUnchecked) }
+func (c *CheckBox) Toggle()       { c.SetState(c.state.Toggle(c.mayUnknown)) }
 
 func NewCheckBox(mayUnknown bool, state CheckBoxState) *CheckBox {
 	r := &CheckBox{

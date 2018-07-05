@@ -13,17 +13,30 @@ package cocoa
 
 CFStringRef CFStringCreateFromGoString(_GoString_ str);
 
-void _DrawTextLine(CGContextRef context, _GoString_ str, CTFontRef font, CGFloat* color, CGPoint pos) {
+CGSize _GetTextImageGeometry(CGContextRef context, _GoString_ str, CTFontRef font) {
 	CFStringRef _str = CFStringCreateFromGoString(str);
-	DrawTextLine(context, _str, font, color, pos);
+	CGSize r = GetTextImageGeometry(context, _str, font);
+	CFRelease(_str);
+	return r;
+}
+
+void _DrawTextImage(CGContextRef context, _GoString_ str, CTFontRef font, CGFloat* color, CGPoint pos) {
+	CFStringRef _str = CFStringCreateFromGoString(str);
+	DrawTextImage(context, _str, font, color, pos);
 	CFRelease(_str);
 }
 
-CGRect _GetTextLineGeometry(CGContextRef context, _GoString_ str, CTFontRef font) {
+struct TextLineGeometry _GetTextLineGeometry(CGContextRef context, _GoString_ str, CTFontRef font) {
 	CFStringRef _str = CFStringCreateFromGoString(str);
-	CGRect r = GetTextLineGeometry(context, _str, font);
+	struct TextLineGeometry r = GetTextLineGeometry(context, _str, font);
 	CFRelease(_str);
 	return r;
+}
+
+void _DrawTextLine(CGContextRef context, _GoString_ str, CTFontRef font, CGFloat* color, CGPoint pos, uint8_t origin) {
+	CFStringRef _str = CFStringCreateFromGoString(str);
+	DrawTextLine(context, _str, font, color, pos, origin);
+	CFRelease(_str);
 }
 */
 import "C"
@@ -244,8 +257,17 @@ func (c *Context) FillCircle(circle CircleF64, color ColorF64) {
 	c.FillEllipse(circle.ToEllipse(), color)
 }
 
-func (c *Context) DrawTextLine(text string, font FontI, pos PointF64, color ColorF64) {
-	C._DrawTextLine(
+func (c *Context) TextImageGeometry(text string, font FontI) PointF64 {
+	size := C._GetTextImageGeometry(
+		C.CGContextRef(c.pointer),
+		text,
+		C.CTFontRef(font.(Font).pointer),
+	)
+	return *(*PointF64)(unsafe.Pointer(&size))
+}
+
+func (c *Context) DrawTextImage(text string, font FontI, color ColorF64, pos PointF64) {
+	C._DrawTextImage(
 		C.CGContextRef(c.pointer),
 		text,
 		C.CTFontRef(font.(Font).pointer),
@@ -254,11 +276,23 @@ func (c *Context) DrawTextLine(text string, font FontI, pos PointF64, color Colo
 	)
 }
 
-func (c *Context) TextLineGeometry(text string, font FontI) PointF64 {
-	rect := C._GetTextLineGeometry(
+func (c *Context) TextLineGeometry(text string, font FontI) (width, ascent, descent, leading float64) {
+	size := C._GetTextLineGeometry(
 		C.CGContextRef(c.pointer),
 		text,
 		C.CTFontRef(font.(Font).pointer),
 	)
-	return (*(*RectangleF64S)(unsafe.Pointer(&rect))).Size
+	r := *(*struct{ width, ascent, descent, leading float64 })(unsafe.Pointer(&size))
+	return r.width, r.ascent, r.descent, r.leading
+}
+
+func (c *Context) DrawTextLine(text string, font FontI, color ColorF64, pos PointF64, origin TextLineOrigin) {
+	C._DrawTextLine(
+		C.CGContextRef(c.pointer),
+		text,
+		C.CTFontRef(font.(Font).pointer),
+		(*C.CGFloat)(unsafe.Pointer(&color)),
+		*(*C.CGPoint)(unsafe.Pointer(&pos)),
+		C.uint8_t(origin),
+	)
 }

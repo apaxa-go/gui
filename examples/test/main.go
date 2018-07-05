@@ -26,8 +26,8 @@ func main() {
 
 	f := gui.NewFontDefaultFont(40, true, false, false)
 	defer f.Release()
-	l1 := controls.NewLabel("Label 1", f, gui.ColorF64{0, 1, 0, 1})
-	l2 := controls.NewLabel("Label 2", f, gui.ColorF64{0, 0, 1, 1})
+	l1 := controls.NewLabel("TextImage 1", f, gui.ColorF64{0, 1, 0, 1})
+	l2 := controls.NewLabel("TextImage 2", f, gui.ColorF64{0, 0, 1, 1})
 	sc := controls.NewScroll(vt1, 20, 20)
 	ht := controls.NewHTable(sc, vt2, l1, l2)
 

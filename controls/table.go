@@ -145,15 +145,17 @@ func (c *Table) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth floa
 			} else { // spanned cell
 				im := iColumn + span.AfterInt()
 				if g, ok := spannedGeometries[im]; ok {
-					g.min = mathh.Max2Float64(g.min, minWidth+min)
-					g.max = mathh.Min2Float64(g.max, maxWidth+max)
+					g.min = mathh.Max2Float64(g.min, cMinWidth+min)
+					g.max = mathh.Min2Float64(g.max, cMaxWidth+max)
+					spannedGeometries[im] = g // TODO sure?
 				} else {
-					spannedGeometries[im] = buttonSpannedGeometry{minWidth + min, maxWidth + max}
+					spannedGeometries[im] = buttonSpannedGeometry{cMinWidth + min, cMaxWidth + max}
 				}
 			}
 		}
 
 		if spannedGeometry, spannedExists := spannedGeometries[iColumn]; spannedExists { // Spanned geometry exists.
+			// TODO remove element from map
 			// Convert saved spanned geometry from absolute to column-only values.
 			spannedGeometry.min -= prevMin
 			spannedGeometry.max -= prevMax
@@ -183,12 +185,12 @@ func (c *Table) ComputePossibleHorGeometry() (minWidth, bestWidth, maxWidth floa
 		c.columnsGeometry[iColumn].best = best
 		c.columnsGeometry[iColumn].max = max
 
-		prevMin = minWidth
-		prevMax = maxWidth
-
 		minWidth += min
 		bestWidth += best
 		maxWidth += max
+
+		prevMin = minWidth
+		prevMax = maxWidth
 	}
 	return
 }
@@ -621,7 +623,7 @@ func (c *Table) RemoveLastRow() []Control {
 
 func (c *Table) allSlavesAreSingleNil(iRow, iColumn, sizeRow, sizeColumn int) bool {
 	// First row
-	for ciColumn := iColumn + 1; ciColumn <= iColumn+sizeColumn; ciColumn++ {
+	for ciColumn := iColumn + 1; ciColumn < iColumn+sizeColumn; ciColumn++ {
 		if !c.span[iRow][ciColumn].IsSingle() || c.children[iRow][ciColumn] != nil {
 			return false
 		}

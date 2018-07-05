@@ -64,6 +64,10 @@ func (f Font) Size() float64 {
 	return float64(C.CTFontGetSize(C.CTFontRef(f.pointer)))
 }
 
+func (f Font) Ascent() float64  { return float64(C.CTFontGetAscent(C.CTFontRef(f.pointer))) }
+func (f Font) Descent() float64 { return float64(C.CTFontGetDescent(C.CTFontRef(f.pointer))) }
+func (f Font) Leading() float64 { return float64(C.CTFontGetLeading(C.CTFontRef(f.pointer))) }
+
 func NewFont(spec FontSpec) (f Font, err error) {
 	spec = spec.Normalize()
 	switch spec.Index {

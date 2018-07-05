@@ -7,4 +7,23 @@ package drivers
 type Font interface {
 	IAmFont()
 	Release()
+	Ascent() float64
+	Descent() float64
+	Leading() float64
 }
+
+type TextLineOrigin uint8
+
+const (
+	TextLineTop TextLineOrigin = iota
+	TextLineBase
+	TextLineBottom
+)
+
+func (TextLineOrigin) MakeTop() TextLineOrigin    { return TextLineTop }
+func (TextLineOrigin) MakeBase() TextLineOrigin   { return TextLineBase }
+func (TextLineOrigin) MakeBottom() TextLineOrigin { return TextLineBottom }
+
+func (o TextLineOrigin) IsTop() bool    { return o == TextLineTop }
+func (o TextLineOrigin) IsBase() bool   { return o == TextLineBase }
+func (o TextLineOrigin) IsBottom() bool { return o == TextLineBottom }
